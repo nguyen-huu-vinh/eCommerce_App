@@ -15,11 +15,7 @@ class GetStartedScreen extends StatelessWidget {
           Container(
             decoration: const BoxDecoration(
               image: DecorationImage(
-                // Ảnh gốc 2448x3060, giải mã nhỏ lại cho đủ một màn hình
-                image: ResizeImage(
-                  AssetImage('assets/images/nen.png'),
-                  width: 1080,
-                ),
+                image: AssetImage('assets/images/nen.png'),
                 fit: BoxFit.cover,
               ),
             ),

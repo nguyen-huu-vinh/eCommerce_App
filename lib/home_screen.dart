@@ -20,6 +20,7 @@ import 'deal_of_the_day_screen.dart';
 import 'new_arrivals_screen.dart';
 import 'discounted_products_screen.dart';
 import 'profile_screen.dart';
+import 'utils/currency.dart';
 
 class HomeScreen extends StatefulWidget {
   final ScrollController? scrollController; // Controller nhận từ MainLayout
@@ -45,16 +46,6 @@ class _HomeScreenState extends State<HomeScreen> {
     final discountedPrice = product.discountPrice;
     return product.isSale ||
         (discountedPrice != null && discountedPrice < product.price);
-  }
-
-  String _formatVnd(double value) {
-    final digits = value.round().toString();
-    final buffer = StringBuffer();
-    for (var index = 0; index < digits.length; index++) {
-      if (index > 0 && (digits.length - index) % 3 == 0) buffer.write('.');
-      buffer.write(digits[index]);
-    }
-    return '$buffer ₫';
   }
 
   String? _discountLabel(Product product) {
@@ -531,13 +522,13 @@ class _HomeScreenState extends State<HomeScreen> {
                             child: ProductCard(
                               title: item.name,
                               description: item.description,
-                              price: _formatVnd(
+                              price: formatVnd(
                                 hasReducedPrice
                                     ? item.discountPrice!
                                     : item.price,
                               ),
                               originalPrice: hasReducedPrice
-                                  ? _formatVnd(item.price)
+                                  ? formatVnd(item.price)
                                   : null,
                               discount: _discountLabel(item),
                               image: item.imageUrl,
@@ -612,13 +603,13 @@ class _HomeScreenState extends State<HomeScreen> {
                             child: ProductCard(
                               title: item.name,
                               description: item.description,
-                              price: _formatVnd(
+                              price: formatVnd(
                                 hasReducedPrice
                                     ? item.discountPrice!
                                     : item.price,
                               ),
                               originalPrice: hasReducedPrice
-                                  ? _formatVnd(item.price)
+                                  ? formatVnd(item.price)
                                   : null,
                               discount: _discountLabel(item),
                               image: item.imageUrl,

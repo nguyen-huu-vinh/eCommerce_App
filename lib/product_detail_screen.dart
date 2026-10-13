@@ -8,6 +8,7 @@ import 'widgets/cart_scope.dart';
 import 'checkout_screen.dart';
 import 'utils/network_image.dart';
 import 'services/wishlist_controller.dart';
+import 'utils/currency.dart';
 
 /// Trang chi tiết sản phẩm dùng chung cho mọi sản phẩm.
 ///
@@ -100,17 +101,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       if (!mounted) return;
       setState(() => _similar = all);
     } catch (_) {}
-  }
-
-  // 199000 -> "199.000 ₫"
-  String _formatVnd(double value) {
-    final digits = value.round().toString();
-    final buffer = StringBuffer();
-    for (var i = 0; i < digits.length; i++) {
-      if (i > 0 && (digits.length - i) % 3 == 0) buffer.write('.');
-      buffer.write(digits[i]);
-    }
-    return '$buffer ₫';
   }
 
   void _showMessage(String message) {
@@ -622,7 +612,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       children: [
         if (hasDiscount) ...[
           Text(
-            _formatVnd(original),
+            formatVnd(original),
             style: GoogleFonts.montserrat(
               fontSize: 14,
               decoration: TextDecoration.lineThrough,
@@ -632,7 +622,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           const SizedBox(width: 8),
         ],
         Text(
-          _formatVnd(product.price),
+          formatVnd(product.price),
           style: GoogleFonts.montserrat(
             fontSize: 16,
             fontWeight: FontWeight.w700,
@@ -707,7 +697,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    _formatVnd(p.price),
+                    formatVnd(p.price),
                     style: GoogleFonts.montserrat(
                       fontSize: 13,
                       fontWeight: FontWeight.w700,

@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'models/product.dart';
 import 'services/product_service.dart';
 import 'widgets/product_card.dart';
+import 'utils/currency.dart';
 
 class TrendingProductsScreen extends StatefulWidget {
   final ScrollController? scrollController;
@@ -67,16 +68,6 @@ class _TrendingProductsScreenState extends State<TrendingProductsScreen> {
     return _products
         .where((product) => product.name.toLowerCase().contains(query))
         .toList();
-  }
-
-  String _formatPrice(double price) {
-    final digits = price.round().toString();
-    final buffer = StringBuffer();
-    for (var index = 0; index < digits.length; index++) {
-      if (index > 0 && (digits.length - index) % 3 == 0) buffer.write('.');
-      buffer.write(digits[index]);
-    }
-    return '$buffer ₫';
   }
 
   @override
@@ -250,10 +241,10 @@ class _TrendingProductsScreenState extends State<TrendingProductsScreen> {
           return ProductCard(
             title: product.name,
             description: product.description,
-            price: _formatPrice(
+            price: formatVnd(
               hasReducedPrice ? product.discountPrice! : product.price,
             ),
-            originalPrice: hasReducedPrice ? _formatPrice(product.price) : null,
+            originalPrice: hasReducedPrice ? formatVnd(product.price) : null,
             image: product.imageUrl,
             id: product.id,
             product: product,

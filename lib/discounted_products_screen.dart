@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'models/product.dart';
 import 'services/product_service.dart';
 import 'widgets/product_card.dart';
+import 'utils/currency.dart';
 
 class DiscountedProductsScreen extends StatefulWidget {
   final String title;
@@ -96,16 +97,6 @@ class _DiscountedProductsScreenState extends State<DiscountedProductsScreen> {
     return _products
         .where((product) => product.name.toLowerCase().contains(query))
         .toList();
-  }
-
-  String _formatPrice(double price) {
-    final digits = price.round().toString();
-    final buffer = StringBuffer();
-    for (var index = 0; index < digits.length; index++) {
-      if (index > 0 && (digits.length - index) % 3 == 0) buffer.write('.');
-      buffer.write(digits[index]);
-    }
-    return '$buffer ₫';
   }
 
   String? _discountLabel(Product product) {
@@ -275,10 +266,10 @@ class _DiscountedProductsScreenState extends State<DiscountedProductsScreen> {
           return ProductCard(
             title: product.name,
             description: product.description,
-            price: _formatPrice(
+            price: formatVnd(
               hasReducedPrice ? product.discountPrice! : product.price,
             ),
-            originalPrice: hasReducedPrice ? _formatPrice(product.price) : null,
+            originalPrice: hasReducedPrice ? formatVnd(product.price) : null,
             discount: _discountLabel(product),
             image: product.imageUrl,
             id: product.id,

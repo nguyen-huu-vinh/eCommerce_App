@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'models/product.dart';
 import 'services/product_service.dart';
 import 'widgets/product_card.dart';
+import 'utils/currency.dart';
 
 class CategoryProductsScreen extends StatefulWidget {
   final String category;
@@ -69,16 +70,6 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
       return productCategory == category &&
           product.name.toLowerCase().contains(query);
     }).toList();
-  }
-
-  String _formatPrice(double price) {
-    final digits = price.round().toString();
-    final buffer = StringBuffer();
-    for (var i = 0; i < digits.length; i++) {
-      if (i > 0 && (digits.length - i) % 3 == 0) buffer.write('.');
-      buffer.write(digits[i]);
-    }
-    return '$buffer ₫';
   }
 
   @override
@@ -217,10 +208,10 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
           return ProductCard(
             title: product.name,
             description: product.description,
-            price: _formatPrice(product.price),
+            price: formatVnd(product.price),
             originalPrice: product.originalPrice == null
                 ? null
-                : _formatPrice(product.originalPrice!),
+                : formatVnd(product.originalPrice!),
             rating: product.rating,
             ratingCount: product.ratingCount,
             image: product.imageUrl,
