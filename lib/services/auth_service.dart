@@ -1,0 +1,214 @@
+import 'dart:convert';
+
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:http/http.dart' as http;
+
+const String baseUrl = 'https://stylish-backend-lyrx.onrender.com';
+
+class AuthException implements Exception {
+  final String message;
+  AuthException(this.message);
+
+  @override
+  String toString() => message;
+}
+
+class AuthService {
+  static const _storage = FlutterSecureStorage();
+  static const _tokenKey = 'access_token';
+  static const _timeout = Duration(seconds: 70);
+
+  static Future<void> register({
+    required String email,
+    required String password,
+    String? fullName,
+  }) async {
+    final res = await http
+        .post(
+          Uri.parse('$baseUrl/register'),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({
+            'email': email.trim(),
+            'password': password,
+            if (fullName != null && fullName.isNotEmpty) 'full_name': fullName,
+          }),
+        )
+        .timeout(_timeout);
+
+    if (res.statusCode == 201) return;
+    throw AuthException(_errorMessage(res));
+  }
+
+  static Future<void> login({
+    required String email,
+    required String password,
+  }) async {
+    final res = await http
+        .post(
+          Uri.parse('$baseUrl/login'),
+          body: {'username': email.trim(), 'password': password},
+        )
+        .timeout(_timeout);
+
+    if (res.statusCode != 200) {
+      throw AuthException(_errorMessage(res));
+    }
+
+    final data = jsonDecode(res.body) as Map<String, dynamic>;
+    final token = data['access_token'] as String;
+    await _storage.write(key: _tokenKey, value: token);
+  }
+
+  static Future<String?> getToken() => _storage.read(key: _tokenKey);
+
+  /// Còn token chưa hết hạn hay không. Chỉ đọc hạn dùng ghi trong token nên
+  /// không cần gọi mạng: mở app là biết ngay có vào thẳng trang chủ được không.
+  static Future<bool> hasValidToken() async {
+    final token = await getToken();
+    if (token == null || token.isEmpty) return false;
+    try {
+      final parts = token.split('.');
+      final payload = jsonDecode(
+        utf8.decode(base64Url.decode(base64Url.normalize(parts[1]))),
+      ) as Map<String, dynamic>;
+      final exp = payload['exp'] as num?;
+      if (exp == null) return true;
+      final expiresAt = DateTime.fromMillisecondsSinceEpoch(exp.toInt() * 1000);
+      // Chừa 1 phút để không vào app rồi hết hạn ngay lập tức
+      if (DateTime.now().isBefore(
+        expiresAt.subtract(const Duration(minutes: 1)),
+      )) {
+        return true;
+      }
+    } catch (_) {
+      // Token hỏng: coi như chưa đăng nhập
+    }
+    await logout();
+    return false;
+  }
+
+  static Future<void> logout() => _storage.delete(key: _tokenKey);
+
+  static Future<Map<String, dynamic>?> me() async {
+    final token = await getToken();
+    if (token == null) return null;
+
+    final res = await http
+        .get(
+          Uri.parse('$baseUrl/me'),
+          headers: {'Authorization': 'Bearer $token'},
+        )
+        .timeout(_timeout);
+
+    if (res.statusCode == 401) {
+      await logout();
+      return null;
+    }
+    if (res.statusCode != 200) return null;
+    return jsonDecode(utf8.decode(res.bodyBytes)) as Map<String, dynamic>;
+  }
+
+  static Future<Map<String, dynamic>> updateProfile({
+    required String fullName,
+    required String email,
+  }) async {
+    final token = await getToken();
+    if (token == null) throw AuthException('Bạn chưa đăng nhập');
+
+    final response = await http
+        .put(
+          Uri.parse('$baseUrl/me'),
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token',
+          },
+          body: jsonEncode({
+            'full_name': fullName.trim(),
+            'email': email.trim(),
+          }),
+        )
+        .timeout(_timeout);
+
+    if (response.statusCode != 200) {
+      throw AuthException(_errorMessage(response));
+    }
+
+    final data =
+        jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
+    final refreshedToken = data['access_token'] as String?;
+    if (refreshedToken != null && refreshedToken.isNotEmpty) {
+      await _storage.write(key: _tokenKey, value: refreshedToken);
+    }
+    return data;
+  }
+
+  static Future<void> forgotPassword(String email) async {
+    final res = await http
+        .post(
+          Uri.parse('$baseUrl/forgot-password'),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({'email': email.trim()}),
+        )
+        .timeout(_timeout);
+
+    if (res.statusCode != 200) throw AuthException(_errorMessage(res));
+  }
+
+  static Future<void> resetPasswordWithOtp({
+    required String email,
+    required String otp,
+    required String newPassword,
+  }) async {
+    final res = await http
+        .post(
+          Uri.parse('$baseUrl/reset-password'),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({
+            'email': email.trim(),
+            'otp': otp.trim(),
+            'new_password': newPassword,
+          }),
+        )
+        .timeout(_timeout);
+
+    if (res.statusCode != 200) throw AuthException(_errorMessage(res));
+  }
+
+  static Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    final token = await getToken();
+    if (token == null) {
+      throw AuthException('Bạn chưa đăng nhập');
+    }
+
+    final res = await http
+        .post(
+          Uri.parse('$baseUrl/change-password'),
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token',
+          },
+          body: jsonEncode({
+            'current_password': currentPassword,
+            'new_password': newPassword,
+          }),
+        )
+        .timeout(_timeout);
+
+    if (res.statusCode != 200) throw AuthException(_errorMessage(res));
+  }
+
+  static String _errorMessage(http.Response res) {
+    try {
+      final data = jsonDecode(utf8.decode(res.bodyBytes));
+      final detail = data['detail'];
+      if (detail is String) return detail;
+      if (res.statusCode == 422) {
+        return 'Dữ liệu không hợp lệ';
+      }
+    } catch (_) {}
+    return 'Có lỗi xảy ra (mã ${res.statusCode})';
+  }
+}
