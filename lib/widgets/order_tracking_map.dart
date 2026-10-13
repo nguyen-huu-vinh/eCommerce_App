@@ -97,11 +97,13 @@ class _OrderTrackingMapState extends State<OrderTrackingMap> {
     }
   }
 
+  // Mọi điểm cần nằm trong khung hình, gồm cả các khúc quanh của đường đi
   List<LatLng> get _points => [
     for (final point in [
       _tracking?.shop,
       _tracking?.destination,
       _tracking?.shipper,
+      ...?_tracking?.route?.points,
     ])
       if (point != null) LatLng(point.lat, point.lng),
   ];
@@ -236,7 +238,9 @@ class _OrderTrackingMapState extends State<OrderTrackingMap> {
     final shipper = tracking.shipper;
     LatLng at(MapPoint p) => LatLng(p.lat, p.lng);
 
-    // Nét đứt từ shipper (hoặc cửa hàng khi chưa có shipper) tới nơi nhận
+    // Có đường theo phố thì vẽ nét liền như Grab; chưa có thì nét đứt thẳng
+    // từ shipper (hoặc cửa hàng khi chưa có shipper) tới nơi nhận
+    final route = tracking.route;
     final from = shipper ?? shop;
     return FlutterMap(
       mapController: _mapController,
@@ -263,7 +267,21 @@ class _OrderTrackingMapState extends State<OrderTrackingMap> {
           retinaMode: RetinaMode.isHighDensity(context),
           userAgentPackageName: 'com.example.ecommerce_a',
         ),
-        if (from != null && destination != null)
+        if (route != null)
+          PolylineLayer(
+            polylines: [
+              Polyline(
+                points: [for (final p in route.points) at(p)],
+                color: _pink,
+                strokeWidth: 5,
+                borderColor: Colors.white,
+                borderStrokeWidth: 2,
+                strokeCap: StrokeCap.round,
+                strokeJoin: StrokeJoin.round,
+              ),
+            ],
+          )
+        else if (from != null && destination != null)
           PolylineLayer(
             polylines: [
               Polyline(
@@ -331,14 +349,24 @@ class _InfoBanner extends StatelessWidget {
 
   const _InfoBanner({required this.tracking, this.plain = false});
 
-  static String _distanceText(MapPoint a, MapPoint b) {
-    final meters = const Distance().as(
+  static String _metersText(num meters) {
+    if (meters < 1000) return '${(meters / 10).round() * 10} m';
+    return '${(meters / 1000).toStringAsFixed(1).replaceAll('.', ',')} km';
+  }
+
+  static String _distanceText(MapPoint a, MapPoint b) => _metersText(
+    const Distance().as(
       LengthUnit.Meter,
       LatLng(a.lat, a.lng),
       LatLng(b.lat, b.lng),
-    );
-    if (meters < 1000) return '${(meters / 10).round() * 10} m';
-    return '${(meters / 1000).toStringAsFixed(1).replaceAll('.', ',')} km';
+    ),
+  );
+
+  static String _etaText(int seconds) {
+    final minutes = (seconds / 60).ceil();
+    if (minutes <= 1) return 'sắp tới';
+    if (minutes < 60) return 'khoảng $minutes phút nữa';
+    return 'khoảng ${minutes ~/ 60} giờ ${minutes % 60} phút nữa';
   }
 
   static String _agoText(DateTime time) {
@@ -355,9 +383,15 @@ class _InfoBanner extends StatelessWidget {
     final destination = tracking.destination;
     final updatedAt = tracking.shipperUpdatedAt;
 
+    final route = tracking.route;
     final String title;
     String? subtitle;
-    if (shipper != null && destination != null) {
+    if (shipper != null && route != null) {
+      title =
+          'Shipper còn ${_metersText(route.distanceMeters)} · '
+          '${_etaText(route.durationSeconds)}';
+      subtitle = updatedAt == null ? null : _agoText(updatedAt);
+    } else if (shipper != null && destination != null) {
       title = 'Shipper cách bạn khoảng ${_distanceText(shipper, destination)}';
       subtitle = updatedAt == null ? null : _agoText(updatedAt);
     } else if (shipper != null) {

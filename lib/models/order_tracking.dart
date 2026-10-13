@@ -16,6 +16,36 @@ class MapPoint {
   }
 }
 
+/// Đường đi theo phố từ shipper tới địa chỉ nhận
+class DeliveryRoute {
+  final List<MapPoint> points;
+  final int distanceMeters;
+  final int durationSeconds;
+
+  const DeliveryRoute({
+    required this.points,
+    required this.distanceMeters,
+    required this.durationSeconds,
+  });
+
+  static DeliveryRoute? fromJson(dynamic json) {
+    if (json is! Map<String, dynamic>) return null;
+    final points = [
+      for (final p in json['points'] as List)
+        MapPoint(
+          lat: ((p as List)[0] as num).toDouble(),
+          lng: (p[1] as num).toDouble(),
+        ),
+    ];
+    if (points.length < 2) return null;
+    return DeliveryRoute(
+      points: points,
+      distanceMeters: (json['distance_m'] as num).round(),
+      durationSeconds: (json['duration_s'] as num).round(),
+    );
+  }
+}
+
 /// Dữ liệu bản đồ của một đơn (GET /orders/{id}/tracking)
 class OrderTracking {
   final String status;
@@ -24,12 +54,16 @@ class OrderTracking {
   final MapPoint? shipper;
   final DateTime? shipperUpdatedAt;
 
+  /// null khi chưa tính được đường (app vẽ đường thẳng thay thế)
+  final DeliveryRoute? route;
+
   const OrderTracking({
     required this.status,
     this.shop,
     this.destination,
     this.shipper,
     this.shipperUpdatedAt,
+    this.route,
   });
 
   factory OrderTracking.fromJson(Map<String, dynamic> json) {
@@ -40,6 +74,7 @@ class OrderTracking {
       shop: MapPoint.fromJson(json['shop'], labelKey: 'name'),
       destination: MapPoint.fromJson(json['destination'], labelKey: 'address'),
       shipper: MapPoint.fromJson(shipper),
+      route: DeliveryRoute.fromJson(json['route']),
       // Backend lưu giờ UTC nhưng không kèm múi giờ
       shipperUpdatedAt: updatedAt == null
           ? null
