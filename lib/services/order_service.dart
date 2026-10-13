@@ -4,6 +4,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 
 import '../models/order.dart';
+import '../models/order_tracking.dart';
 import 'auth_service.dart';
 import 'cart_controller.dart';
 
@@ -130,6 +131,20 @@ class OrderService {
         .timeout(_timeout);
     await _throwIfFailed(res);
     return Order.fromJson(
+      jsonDecode(utf8.decode(res.bodyBytes)) as Map<String, dynamic>,
+    );
+  }
+
+  /// Vị trí cửa hàng, địa chỉ nhận và shipper để vẽ bản đồ theo dõi
+  static Future<OrderTracking> fetchTracking(int id) async {
+    final res = await http
+        .get(
+          Uri.parse('$baseUrl/orders/$id/tracking'),
+          headers: await _authHeaders(),
+        )
+        .timeout(_timeout);
+    await _throwIfFailed(res);
+    return OrderTracking.fromJson(
       jsonDecode(utf8.decode(res.bodyBytes)) as Map<String, dynamic>,
     );
   }

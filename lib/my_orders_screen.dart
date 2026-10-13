@@ -5,6 +5,7 @@ import 'models/order.dart';
 import 'services/order_service.dart';
 import 'utils/currency.dart';
 import 'widgets/bank_transfer_card.dart';
+import 'widgets/order_tracking_map.dart';
 import 'utils/network_image.dart';
 
 const _pink = Color(0xFFFE3E6C);
@@ -277,6 +278,14 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
             if (order.status != 'cancelled') ...[
               const SizedBox(height: 10),
               _Section(child: _ProgressStepper(order: order)),
+            ],
+            if (order.status == 'shipping') ...[
+              const SizedBox(height: 10),
+              OrderTrackingMap(
+                orderId: order.id,
+                // Shipper bấm "đã giao" thì tải lại để cập nhật trạng thái
+                onStatusChanged: (_) => _refresh(),
+              ),
             ],
             if (order.awaitingTransfer) ...[
               const SizedBox(height: 10),
