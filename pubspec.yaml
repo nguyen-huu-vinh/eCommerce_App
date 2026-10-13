@@ -43,6 +43,7 @@ dependencies:
   cached_network_image: ^4.0.4
   flutter_map: ^8.3.2
   latlong2: ^0.10.1
+  image_picker: 1.2.3
 
 dev_dependencies:
   flutter_test:

@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 
@@ -15,6 +16,16 @@ class AuthException implements Exception {
 
 class AuthService {
   static const _storage = FlutterSecureStorage();
+
+  /// Link ảnh đại diện của người đang đăng nhập (null: dùng ảnh mặc định).
+  /// Mọi chỗ hiện avatar cùng nghe biến này nên đổi ảnh là cập nhật khắp app.
+  static final ValueNotifier<String?> avatarUrl = ValueNotifier(null);
+
+  static void _setAvatar(Map<String, dynamic> profile) {
+    final path = profile['avatar_url'] as String?;
+    avatarUrl.value = path == null ? null : '$baseUrl$path';
+  }
+
   static const _tokenKey = 'access_token';
   static const _timeout = Duration(seconds: 70);
 
@@ -87,7 +98,10 @@ class AuthService {
     return false;
   }
 
-  static Future<void> logout() => _storage.delete(key: _tokenKey);
+  static Future<void> logout() {
+    avatarUrl.value = null;
+    return _storage.delete(key: _tokenKey);
+  }
 
   static Future<Map<String, dynamic>?> me() async {
     final token = await getToken();
@@ -105,7 +119,42 @@ class AuthService {
       return null;
     }
     if (res.statusCode != 200) return null;
-    return jsonDecode(utf8.decode(res.bodyBytes)) as Map<String, dynamic>;
+    final profile =
+        jsonDecode(utf8.decode(res.bodyBytes)) as Map<String, dynamic>;
+    _setAvatar(profile);
+    return profile;
+  }
+
+  /// Tải ảnh đại diện mới lên (ảnh đã được thu nhỏ khi chọn)
+  static Future<void> uploadAvatar(Uint8List bytes, String filename) async {
+    final token = await getToken();
+    if (token == null) throw AuthException('Bạn chưa đăng nhập');
+
+    final request =
+        http.MultipartRequest('POST', Uri.parse('$baseUrl/me/avatar'))
+          ..headers['Authorization'] = 'Bearer $token'
+          ..files.add(
+            http.MultipartFile.fromBytes('file', bytes, filename: filename),
+          );
+    final res = await http.Response.fromStream(
+      await request.send().timeout(_timeout),
+    );
+    if (res.statusCode != 200) throw AuthException(_errorMessage(res));
+    _setAvatar(jsonDecode(utf8.decode(res.bodyBytes)) as Map<String, dynamic>);
+  }
+
+  static Future<void> deleteAvatar() async {
+    final token = await getToken();
+    if (token == null) throw AuthException('Bạn chưa đăng nhập');
+
+    final res = await http
+        .delete(
+          Uri.parse('$baseUrl/me/avatar'),
+          headers: {'Authorization': 'Bearer $token'},
+        )
+        .timeout(_timeout);
+    if (res.statusCode != 200) throw AuthException(_errorMessage(res));
+    avatarUrl.value = null;
   }
 
   static Future<Map<String, dynamic>> updateProfile({
@@ -135,6 +184,7 @@ class AuthService {
 
     final data =
         jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
+    _setAvatar(data);
     final refreshedToken = data['access_token'] as String?;
     if (refreshedToken != null && refreshedToken.isNotEmpty) {
       await _storage.write(key: _tokenKey, value: refreshedToken);

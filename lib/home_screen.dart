@@ -21,6 +21,7 @@ import 'new_arrivals_screen.dart';
 import 'discounted_products_screen.dart';
 import 'profile_screen.dart';
 import 'utils/currency.dart';
+import 'services/auth_service.dart';
 
 class HomeScreen extends StatefulWidget {
   final ScrollController? scrollController; // Controller nhận từ MainLayout
@@ -40,6 +41,8 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     futureDealProducts = ProductService.fetchDealsOfTheDay();
     futureTrendingProducts = ProductService.fetchTrending();
+    // Lấy hồ sơ để avatar góc trên hiện ảnh người dùng; lỗi thì giữ ảnh mặc định
+    AuthService.me().catchError((Object _) => null);
   }
 
   bool _isDiscounted(Product product) {

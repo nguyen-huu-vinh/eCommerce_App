@@ -2,6 +2,7 @@ import 'package:flutter/material.dart'; // Đã sửa import package0 thành pac
 import 'package:flutter_svg/flutter_svg.dart';
 
 import 'bouncing_button.dart';
+import 'user_avatar.dart';
 
 class HeaderTopBar extends StatelessWidget {
   final String menuSvgAsset;
@@ -100,22 +101,8 @@ class HeaderTopBar extends StatelessWidget {
                   ),
                 ],
               ),
-              child: ClipOval(
-                child: SizedBox(
-                  width: 34,
-                  height: 34,
-                  child: avatarAsset.isNotEmpty
-                      ? Image.asset(avatarAsset, fit: BoxFit.cover)
-                      : Container(
-                          color: Colors.grey.shade300,
-                          child: const Icon(
-                            Icons.person,
-                            color: Colors.white,
-                            size: 20,
-                          ),
-                        ),
-                ),
-              ),
+              // Ảnh người dùng tự đặt; chưa có thì dùng avatarAsset mặc định
+              child: UserAvatar(size: 34, fallbackAsset: avatarAsset),
             ),
           ),
         ],

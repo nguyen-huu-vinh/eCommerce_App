@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
 
 import 'change_password_screen.dart';
 import 'edit_account_screen.dart';
@@ -9,6 +10,7 @@ import 'services/auth_service.dart';
 import 'services/cart_controller.dart';
 import 'services/order_service.dart';
 import 'services/wishlist_controller.dart';
+import 'widgets/user_avatar.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -23,6 +25,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Map<String, dynamic>? _profile;
   bool _isLoading = true;
+  bool _uploadingAvatar = false;
   String? _errorMessage;
 
   @override
@@ -60,6 +63,87 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (!mounted || updatedProfile == null) return;
     setState(() => _profile = updatedProfile);
     _showMessage('Thông tin tài khoản đã được cập nhật');
+  }
+
+  Future<void> _showAvatarOptions() async {
+    final hasAvatar = AuthService.avatarUrl.value != null;
+    final choice = await showModalBottomSheet<String>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheetContext) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.photo_camera_outlined),
+              title: const Text('Chụp ảnh'),
+              onTap: () => Navigator.pop(sheetContext, 'camera'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library_outlined),
+              title: const Text('Chọn từ thư viện'),
+              onTap: () => Navigator.pop(sheetContext, 'gallery'),
+            ),
+            if (hasAvatar)
+              ListTile(
+                leading: const Icon(Icons.delete_outline, color: _pink),
+                title: const Text(
+                  'Xóa ảnh đại diện',
+                  style: TextStyle(color: _pink),
+                ),
+                onTap: () => Navigator.pop(sheetContext, 'delete'),
+              ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+    if (choice == null || !mounted) return;
+    if (choice == 'delete') {
+      await _runAvatarTask(AuthService.deleteAvatar, 'Đã xóa ảnh đại diện');
+      return;
+    }
+
+    final XFile? picked;
+    try {
+      picked = await ImagePicker().pickImage(
+        source: choice == 'camera' ? ImageSource.camera : ImageSource.gallery,
+        // Thu nhỏ ngay trên máy: ảnh gửi đi chỉ còn vài chục KB
+        maxWidth: 512,
+        maxHeight: 512,
+        imageQuality: 85,
+      );
+    } catch (_) {
+      _showMessage(
+        choice == 'camera'
+            ? 'Không mở được máy ảnh, hãy kiểm tra quyền truy cập máy ảnh'
+            : 'Không mở được thư viện ảnh, hãy kiểm tra quyền truy cập ảnh',
+      );
+      return;
+    }
+    if (picked == null) return; // người dùng bấm hủy
+    final bytes = await picked.readAsBytes();
+    await _runAvatarTask(
+      () => AuthService.uploadAvatar(bytes, picked!.name),
+      'Đã cập nhật ảnh đại diện',
+    );
+  }
+
+  Future<void> _runAvatarTask(
+    Future<void> Function() task,
+    String successMessage,
+  ) async {
+    setState(() => _uploadingAvatar = true);
+    try {
+      await task();
+      if (mounted) _showMessage(successMessage);
+    } on AuthException catch (e) {
+      if (mounted) _showMessage(e.message);
+    } catch (_) {
+      if (mounted) _showMessage('Không kết nối được máy chủ, vui lòng thử lại');
+    } finally {
+      if (mounted) setState(() => _uploadingAvatar = false);
+    }
   }
 
   Future<void> _logout() async {
@@ -260,38 +344,56 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
       child: Column(
         children: [
-          Stack(
-            clipBehavior: Clip.none,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(4),
-                decoration: const BoxDecoration(
-                  color: Color(0xFFFFE6EC),
-                  shape: BoxShape.circle,
-                ),
-                child: const CircleAvatar(
-                  radius: 48,
-                  backgroundColor: Color(0xFFFFE3E9),
-                  backgroundImage: AssetImage(
-                    'assets/images/2289_SkVNQSBGQU1PIDEwMjgtMTE2 1.png',
-                  ),
-                ),
-              ),
-              Positioned(
-                right: 0,
-                bottom: 1,
-                child: Container(
-                  width: 30,
-                  height: 30,
-                  decoration: BoxDecoration(
-                    color: _pink,
+          // Bấm vào ảnh hoặc nút máy ảnh để đổi ảnh đại diện
+          GestureDetector(
+            onTap: _uploadingAvatar ? null : _showAvatarOptions,
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFFFE6EC),
                     shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 3),
                   ),
-                  child: const Icon(Icons.check, size: 15, color: Colors.white),
+                  child: const UserAvatar(
+                    size: 96,
+                    fallbackAsset:
+                        'assets/images/2289_SkVNQSBGQU1PIDEwMjgtMTE2 1.png',
+                  ),
                 ),
-              ),
-            ],
+                if (_uploadingAvatar)
+                  const Positioned.fill(
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: Colors.black38,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Center(
+                        child: CircularProgressIndicator(color: Colors.white),
+                      ),
+                    ),
+                  ),
+                Positioned(
+                  right: 0,
+                  bottom: 1,
+                  child: Container(
+                    width: 32,
+                    height: 32,
+                    decoration: BoxDecoration(
+                      color: _pink,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 3),
+                    ),
+                    child: const Icon(
+                      Icons.photo_camera_rounded,
+                      size: 15,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 14),
           Text(
