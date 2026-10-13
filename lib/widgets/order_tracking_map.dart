@@ -10,10 +10,12 @@ import '../services/order_service.dart';
 
 const _pink = Color(0xFFFE3E6C);
 
-// Nền bản đồ CARTO (dữ liệu OpenStreetMap): miễn phí, không cần API key và
-// không bị chặn như tile.openstreetmap.org trên một số mạng ở Việt Nam
+// Nền bản đồ Esri World Street Map: giống Google Maps, tên đường tiếng Việt,
+// không cần API key. Không dùng tile.openstreetmap.org vì bị chặn trên một số
+// mạng ở Việt Nam; CARTO thì nay đã bắt buộc API key (chỉ trả ảnh báo lỗi).
+// Lưu ý: Esri yêu cầu tài khoản ArcGIS khi dùng cho mục đích thương mại.
 const _tileUrl =
-    'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+    'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}';
 
 /// Bản đồ theo dõi đơn: cửa hàng, địa chỉ nhận và vị trí shipper.
 ///
@@ -255,7 +257,9 @@ class _OrderTrackingMapState extends State<OrderTrackingMap> {
       children: [
         TileLayer(
           urlTemplate: _tileUrl,
-          subdomains: const ['a', 'b', 'c', 'd'],
+          // Esri có ảnh tới mức 19; phóng to hơn thì phóng ảnh mức 19 lên
+          maxNativeZoom: 19,
+          // Màn hình dày điểm ảnh: tải ảnh mức cao hơn cho chữ sắc nét
           retinaMode: RetinaMode.isHighDensity(context),
           userAgentPackageName: 'com.example.ecommerce_a',
         ),
@@ -311,8 +315,8 @@ class _OrderTrackingMapState extends State<OrderTrackingMap> {
         ),
         const RichAttributionWidget(
           attributions: [
+            TextSourceAttribution('Esri, HERE, Garmin, USGS'),
             TextSourceAttribution('OpenStreetMap contributors'),
-            TextSourceAttribution('CARTO'),
           ],
         ),
       ],

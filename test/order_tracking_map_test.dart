@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:ecommerce_a/widgets/order_tracking_map.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -100,6 +101,10 @@ void main() {
 
       await tester.pump(const Duration(seconds: 30));
       expect(trackingCalls, 2, reason: 'polling stops once not shipping');
+      // Nền bản đồ là Esri (CARTO nay trả ảnh "API KEY REQUIRED")
+      final tiles = tester.widget<TileLayer>(find.byType(TileLayer));
+      expect(tiles.urlTemplate, contains('server.arcgisonline.com'));
+      expect(tiles.urlTemplate, endsWith('/tile/{z}/{y}/{x}'));
       await tester.pumpWidget(const SizedBox());
     }, () => client);
   });
