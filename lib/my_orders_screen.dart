@@ -6,6 +6,7 @@ import 'services/order_service.dart';
 import 'utils/currency.dart';
 import 'widgets/bank_transfer_card.dart';
 import 'widgets/order_tracking_map.dart';
+import 'widgets/review_sheet.dart';
 import 'utils/network_image.dart';
 
 const _pink = Color(0xFFFE3E6C);
@@ -214,6 +215,15 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
       ..showSnackBar(SnackBar(content: Text(message)));
   }
 
+  Future<void> _reviewItem(OrderLine item) async {
+    final changed = await showReviewSheet(
+      context,
+      productId: item.productId,
+      productName: item.productName,
+    );
+    if (changed == true && mounted) _showMessage('Cảm ơn bạn đã đánh giá!');
+  }
+
   Future<void> _cancelOrder() async {
     final reason = await showDialog<String>(
       context: context,
@@ -318,7 +328,12 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
               child: Column(
                 children: [
                   for (final item in order.items) ...[
-                    _OrderLineRow(item: item),
+                    _OrderLineRow(
+                      item: item,
+                      onReview: order.status == 'completed'
+                          ? () => _reviewItem(item)
+                          : null,
+                    ),
                     if (item != order.items.last) const Divider(height: 20),
                   ],
                 ],
@@ -338,6 +353,15 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                   _SummaryRow(label: 'Thanh toán', value: order.paymentLabel),
                   const SizedBox(height: 8),
                   const _SummaryRow(label: 'Phí vận chuyển', value: 'Miễn phí'),
+                  if (order.discount > 0) ...[
+                    const SizedBox(height: 8),
+                    _SummaryRow(
+                      label: order.couponCode == null
+                          ? 'Giảm giá'
+                          : 'Mã ${order.couponCode}',
+                      value: '-${formatVnd(order.discount)}',
+                    ),
+                  ],
                   const Divider(height: 22),
                   _SummaryRow(
                     label: 'Tổng cộng',
@@ -751,7 +775,10 @@ class _OrderCard extends StatelessWidget {
 class _OrderLineRow extends StatelessWidget {
   final OrderLine item;
 
-  const _OrderLineRow({required this.item});
+  /// Chỉ có với đơn đã nhận: mở hộp đánh giá sản phẩm này
+  final VoidCallback? onReview;
+
+  const _OrderLineRow({required this.item, this.onReview});
 
   @override
   Widget build(BuildContext context) {
@@ -773,6 +800,24 @@ class _OrderLineRow extends StatelessWidget {
                   '${formatVnd(item.unitPrice)} × ${item.quantity}',
                 ].join(' · '),
               ),
+              if (onReview != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 6),
+                  child: OutlinedButton.icon(
+                    onPressed: onReview,
+                    icon: const Icon(Icons.star_outline_rounded, size: 16),
+                    label: const Text('Đánh giá'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: _pink,
+                      side: const BorderSide(color: _pink),
+                      visualDensity: VisualDensity.compact,
+                      textStyle: GoogleFonts.montserrat(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
             ],
           ),
         ),

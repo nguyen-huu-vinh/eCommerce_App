@@ -104,6 +104,8 @@ class Order {
   final String paymentMethod;
   final String status;
   final double total;
+  final double discount;
+  final String? couponCode;
   final DateTime createdAt;
   final List<OrderLine> items;
   final BankTransfer? bankTransfer;
@@ -120,6 +122,8 @@ class Order {
     required this.paymentMethod,
     required this.status,
     required this.total,
+    this.discount = 0,
+    this.couponCode,
     required this.createdAt,
     required this.items,
     this.bankTransfer,
@@ -136,6 +140,8 @@ class Order {
       paymentMethod: json['payment_method'] as String? ?? 'cod',
       status: json['status'] as String? ?? 'pending',
       total: (json['total'] as num).toDouble(),
+      discount: (json['discount'] as num?)?.toDouble() ?? 0,
+      couponCode: json['coupon_code'] as String?,
       createdAt: _parseServerTime(json['created_at'] as String),
       items: (json['items'] as List? ?? const [])
           .map((item) => OrderLine.fromJson(item as Map<String, dynamic>))

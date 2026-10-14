@@ -5,6 +5,7 @@ import 'widgets/bouncing_button.dart';
 import 'models/product.dart'; // sửa đường dẫn cho khớp vị trí file product.dart
 import 'services/product_service.dart'; // sửa đường dẫn cho khớp vị trí file product_service.dart
 import 'widgets/cart_scope.dart';
+import 'widgets/review_section.dart';
 import 'checkout_screen.dart';
 import 'utils/network_image.dart';
 import 'services/wishlist_controller.dart';
@@ -589,6 +590,15 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 ),
               ],
             ),
+          ),
+
+          // ĐÁNH GIÁ
+          const SizedBox(height: 24),
+          ReviewSection(
+            key: ValueKey('reviews-${product.id}'),
+            productId: product.id,
+            productName: product.name,
+            onChanged: _load,
           ),
 
           // SIMILAR TO

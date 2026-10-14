@@ -55,6 +55,7 @@ class OrderService {
     required ShippingInfo shipping,
     required String paymentMethod,
     String? note,
+    String? couponCode,
   }) async {
     final token = await AuthService.getToken();
     if (token == null) {
@@ -72,6 +73,7 @@ class OrderService {
             ...shipping.toJson(),
             if (note != null && note.trim().isNotEmpty) 'note': note.trim(),
             'payment_method': paymentMethod,
+            'coupon_code': ?couponCode,
             'items': [
               for (final item in items)
                 {

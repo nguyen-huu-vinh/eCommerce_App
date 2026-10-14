@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 
+import 'address_book_screen.dart';
 import 'change_password_screen.dart';
 import 'edit_account_screen.dart';
 import 'login_screen.dart';
@@ -233,6 +234,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 icon: Icons.receipt_long_outlined,
                 title: 'Đơn hàng của tôi',
                 screen: const MyOrdersScreen(),
+              ),
+              const SizedBox(height: 10),
+              _buildMenuTile(
+                icon: Icons.location_on_outlined,
+                title: 'Sổ địa chỉ',
+                screen: const AddressBookScreen(),
               ),
               const SizedBox(height: 10),
               _buildMenuTile(

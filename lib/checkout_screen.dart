@@ -2,10 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'address_book_screen.dart';
 import 'login_screen.dart';
 import 'order_success_screen.dart';
+import 'models/address.dart';
+import 'services/address_service.dart';
+import 'services/api_client.dart';
 import 'services/auth_service.dart';
 import 'services/cart_controller.dart';
+import 'services/coupon_service.dart';
 import 'services/order_service.dart';
 import 'utils/currency.dart';
 
@@ -25,10 +30,21 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   final _phoneController = TextEditingController();
   final _addressController = TextEditingController();
   final _noteController = TextEditingController();
+  final _couponController = TextEditingController();
   String _paymentMethod = 'cod';
   bool _submitting = false;
   // Chưa đăng nhập hoặc phiên hết hạn: báo ngay, không để điền xong mới lỗi
   bool _needsLogin = false;
+
+  // Mã giảm giá đã được server xác nhận cho tạm tính hiện tại
+  CouponResult? _coupon;
+  String? _couponError;
+  bool _applyingCoupon = false;
+
+  // Sổ địa chỉ: gợi ý lưu địa chỉ mới nhập vào sổ sau khi đặt hàng
+  bool _addressBookEmpty = false;
+  bool _saveToBook = false;
+  bool _usedSavedAddress = false;
 
   @override
   void initState() {
@@ -39,6 +55,26 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   /// Điền sẵn thông tin lần đặt trước, hoặc họ tên trong hồ sơ
   Future<void> _prefillShipping() async {
+    try {
+      final saved = await AddressService.list();
+      if (!mounted) return;
+      if (saved.isEmpty) {
+        setState(() {
+          _addressBookEmpty = true;
+          _saveToBook = true;
+        });
+      } else {
+        final preferred = saved.firstWhere(
+          (a) => a.isDefault,
+          orElse: () => saved.first,
+        );
+        _applyAddress(preferred);
+        return;
+      }
+    } catch (_) {
+      // Chưa đăng nhập hoặc mất mạng: dùng thông tin lần đặt trước
+    }
+
     final last = await OrderService.loadLastShipping();
     if (!mounted) return;
     if (last != null) {
@@ -70,6 +106,53 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     );
   }
 
+  void _applyAddress(SavedAddress address) {
+    setState(() {
+      _nameController.text = address.fullName;
+      _phoneController.text = address.phone;
+      _addressController.text = address.address;
+      _usedSavedAddress = true;
+      _saveToBook = false;
+    });
+  }
+
+  Future<void> _pickAddress() async {
+    final picked = await Navigator.push<SavedAddress>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const AddressBookScreen(pickMode: true),
+      ),
+    );
+    if (picked != null && mounted) _applyAddress(picked);
+  }
+
+  Future<void> _applyCoupon() async {
+    final code = _couponController.text.trim();
+    if (code.isEmpty || _applyingCoupon) return;
+    FocusScope.of(context).unfocus();
+    setState(() {
+      _applyingCoupon = true;
+      _couponError = null;
+    });
+    try {
+      final result = await CouponService.validate(
+        code,
+        widget.controller.subtotal,
+      );
+      if (mounted) setState(() => _coupon = result);
+    } catch (e) {
+      if (mounted) setState(() => _couponError = errorText(e));
+    } finally {
+      if (mounted) setState(() => _applyingCoupon = false);
+    }
+  }
+
+  void _removeCoupon() => setState(() {
+    _coupon = null;
+    _couponError = null;
+    _couponController.clear();
+  });
+
   void _fillIfEmpty(TextEditingController controller, String value) {
     if (controller.text.isEmpty) controller.text = value;
   }
@@ -80,6 +163,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     _phoneController.dispose();
     _addressController.dispose();
     _noteController.dispose();
+    _couponController.dispose();
     super.dispose();
   }
 
@@ -104,8 +188,21 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         shipping: shipping,
         paymentMethod: _paymentMethod,
         note: _noteController.text,
+        couponCode: _coupon?.code,
       );
       await OrderService.saveLastShipping(shipping);
+      if (_saveToBook && !_usedSavedAddress) {
+        try {
+          await AddressService.create(
+            fullName: shipping.fullName,
+            phone: shipping.phone,
+            address: shipping.address,
+            isDefault: true,
+          );
+        } catch (_) {
+          // Lưu sổ địa chỉ chỉ là tiện ích, đơn đã đặt xong
+        }
+      }
       if (!mounted) return;
       widget.controller.clear();
       Navigator.pushReplacement(
@@ -125,6 +222,112 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     } finally {
       if (mounted) setState(() => _submitting = false);
     }
+  }
+
+  Widget _buildCouponBox() {
+    final coupon = _coupon;
+    if (coupon != null) {
+      return Container(
+        padding: const EdgeInsets.fromLTRB(12, 8, 4, 8),
+        decoration: BoxDecoration(
+          color: const Color(0xFFE6F6EC),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Row(
+          children: [
+            const Icon(
+              Icons.local_offer_rounded,
+              color: Color(0xFF1E8E4A),
+              size: 20,
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '${coupon.code} · giảm ${formatVnd(coupon.discount)}',
+                    style: GoogleFonts.montserrat(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: const Color(0xFF1E8E4A),
+                    ),
+                  ),
+                  if (coupon.description != null &&
+                      coupon.description!.isNotEmpty)
+                    Text(
+                      coupon.description!,
+                      style: GoogleFonts.montserrat(
+                        fontSize: 11,
+                        color: const Color(0xFF4F7A5E),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            IconButton(
+              tooltip: 'Bỏ mã giảm giá',
+              onPressed: _submitting ? null : _removeCoupon,
+              icon: const Icon(Icons.close_rounded, size: 20),
+            ),
+          ],
+        ),
+      );
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: TextField(
+                controller: _couponController,
+                textCapitalization: TextCapitalization.characters,
+                onSubmitted: (_) => _applyCoupon(),
+                decoration: _inputDecoration(
+                  'Nhập mã giảm giá',
+                  Icons.local_offer_outlined,
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            SizedBox(
+              height: 48,
+              child: FilledButton(
+                style: FilledButton.styleFrom(
+                  backgroundColor: _pink,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                onPressed: _applyingCoupon || _needsLogin ? null : _applyCoupon,
+                child: _applyingCoupon
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : const Text('Áp dụng'),
+              ),
+            ),
+          ],
+        ),
+        if (_couponError != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 6, left: 4),
+            child: Text(
+              _couponError!,
+              style: GoogleFonts.montserrat(
+                fontSize: 11,
+                color: const Color(0xFFD32F2F),
+              ),
+            ),
+          ),
+      ],
+    );
   }
 
   InputDecoration _inputDecoration(String label, IconData icon) =>
@@ -174,8 +377,19 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               _LoginRequiredCard(onLogin: _goToLogin),
               const SizedBox(height: 16),
             ],
-            _SectionTitle(title: 'Thông tin giao hàng'),
-            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(child: _SectionTitle(title: 'Thông tin giao hàng')),
+                if (!_needsLogin)
+                  TextButton.icon(
+                    onPressed: _pickAddress,
+                    icon: const Icon(Icons.bookmark_border_rounded, size: 18),
+                    label: const Text('Sổ địa chỉ'),
+                    style: TextButton.styleFrom(foregroundColor: _pink),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 8),
             TextFormField(
               controller: _nameController,
               textCapitalization: TextCapitalization.words,
@@ -225,6 +439,22 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 Icons.edit_note_rounded,
               ),
             ),
+            if (_addressBookEmpty && !_usedSavedAddress)
+              CheckboxListTile(
+                contentPadding: EdgeInsets.zero,
+                controlAffinity: ListTileControlAffinity.leading,
+                activeColor: _pink,
+                value: _saveToBook,
+                onChanged: (v) => setState(() => _saveToBook = v ?? false),
+                title: Text(
+                  'Lưu địa chỉ này vào sổ địa chỉ',
+                  style: GoogleFonts.montserrat(fontSize: 12),
+                ),
+              ),
+            const SizedBox(height: 22),
+            _SectionTitle(title: 'Mã giảm giá'),
+            const SizedBox(height: 8),
+            _buildCouponBox(),
             const SizedBox(height: 22),
             _SectionTitle(title: 'Phương thức thanh toán'),
             const SizedBox(height: 8),
@@ -288,6 +518,48 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 ),
               ),
             const Divider(height: 20),
+            if (_coupon != null) ...[
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Tạm tính',
+                      style: GoogleFonts.montserrat(
+                        fontSize: 12,
+                        color: const Color(0xFF555555),
+                      ),
+                    ),
+                  ),
+                  Text(
+                    formatVnd(subtotal),
+                    style: GoogleFonts.montserrat(fontSize: 12),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Giảm giá (${_coupon!.code})',
+                      style: GoogleFonts.montserrat(
+                        fontSize: 12,
+                        color: const Color(0xFF1E8E4A),
+                      ),
+                    ),
+                  ),
+                  Text(
+                    '-${formatVnd(_coupon!.discount)}',
+                    style: GoogleFonts.montserrat(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: const Color(0xFF1E8E4A),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+            ],
             Row(
               children: [
                 Expanded(
@@ -300,7 +572,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   ),
                 ),
                 Text(
-                  formatVnd(subtotal),
+                  formatVnd(subtotal - (_coupon?.discount ?? 0)),
                   style: GoogleFonts.montserrat(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
