@@ -21,6 +21,7 @@ class MainLayout extends StatefulWidget {
 class _MainLayoutState extends State<MainLayout> {
   int _currentIndex = 0;
   final CartController _cartController = CartController();
+  final SearchRequests _searchRequests = SearchRequests();
 
   // Thanh điều hướng đang thu nhỏ hay không (đổi theo hướng cuộn)
   bool _navCollapsed = false;
@@ -54,13 +55,26 @@ class _MainLayoutState extends State<MainLayout> {
         navigatorKey: _navKeys[2],
         child: CartScreen(controller: _cartController),
       ),
-      _TabNavigator(navigatorKey: _navKeys[3], child: const SearchScreen()),
+      _TabNavigator(
+        navigatorKey: _navKeys[3],
+        child: SearchScreen(requests: _searchRequests),
+      ),
       _TabNavigator(navigatorKey: _navKeys[4], child: const ProfileScreen()),
     ];
   }
 
   void _onCartChanged() {
     if (mounted) setState(() {});
+  }
+
+  void _openSearch(SearchAction action) {
+    // Đang mở trang con trong tab Search thì quay về màn tìm kiếm
+    _navKeys[3].currentState?.popUntil((route) => route.isFirst);
+    setState(() {
+      _currentIndex = 3;
+      _navCollapsed = false;
+    });
+    _searchRequests.send(action);
   }
 
   void _openCart() {
@@ -77,6 +91,7 @@ class _MainLayoutState extends State<MainLayout> {
     _cartController
       ..removeListener(_onCartChanged)
       ..dispose();
+    _searchRequests.dispose();
     super.dispose();
   }
 
@@ -148,6 +163,7 @@ class _MainLayoutState extends State<MainLayout> {
         body: CartScope(
           controller: _cartController,
           onOpenCart: _openCart,
+          onOpenSearch: _openSearch,
           child: NotificationListener<ScrollUpdateNotification>(
             onNotification: _onScroll,
             child: IndexedStack(

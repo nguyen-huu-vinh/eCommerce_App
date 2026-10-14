@@ -22,6 +22,8 @@ import 'discounted_products_screen.dart';
 import 'profile_screen.dart';
 import 'utils/currency.dart';
 import 'services/auth_service.dart';
+import 'search_screen.dart';
+import 'widgets/cart_scope.dart';
 
 class HomeScreen extends StatefulWidget {
   final ScrollController? scrollController; // Controller nhận từ MainLayout
@@ -338,8 +340,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
                 const SizedBox(height: 16),
 
-                // 2. SEARCH BAR
-                const SearchBarWidget(),
+                // 2. SEARCH BAR: bấm vào là sang tab Search và mở bàn phím
+                SearchBarWidget(
+                  onTap: () =>
+                      CartScope.maybeOf(context)?.onOpenSearch
+                          ?.call(SearchAction.focus),
+                ),
 
                 const SizedBox(height: 20),
 
@@ -362,13 +368,17 @@ class _HomeScreenState extends State<HomeScreen> {
                           AppButton(
                             label: 'Sort',
                             icon: Icons.swap_vert,
-                            onTap: () {},
+                            onTap: () =>
+                                CartScope.maybeOf(context)?.onOpenSearch
+                                    ?.call(SearchAction.sort),
                           ),
                           const SizedBox(width: 8),
                           AppButton(
                             label: 'Filter',
                             icon: Icons.filter_alt_outlined,
-                            onTap: () {},
+                            onTap: () =>
+                                CartScope.maybeOf(context)?.onOpenSearch
+                                    ?.call(SearchAction.filter),
                           ),
                         ],
                       ),

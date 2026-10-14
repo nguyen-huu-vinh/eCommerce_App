@@ -8,11 +8,15 @@ class SearchBarWidget extends StatelessWidget {
   final ValueChanged<String>? onChanged;
   final VoidCallback? onMicTap;
 
+  /// Có giá trị thì ô chỉ để bấm (không gõ tại chỗ), VD mở tab tìm kiếm
+  final VoidCallback? onTap;
+
   const SearchBarWidget({
     super.key,
     this.controller,
     this.onChanged,
     this.onMicTap,
+    this.onTap,
   });
 
   @override
@@ -40,6 +44,9 @@ class SearchBarWidget extends StatelessWidget {
             child: TextField(
               controller: controller,
               onChanged: onChanged,
+              readOnly: onTap != null,
+              showCursor: onTap == null,
+              onTap: onTap,
               style: GoogleFonts.montserrat(
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
@@ -56,17 +63,19 @@ class SearchBarWidget extends StatelessWidget {
               ),
             ),
           ),
-          BouncingButton(
-            onTap: onMicTap ?? () {},
-            child: const Padding(
-              padding: EdgeInsets.all(4.0),
-              child: Icon(
-                Icons.mic_none_outlined,
-                color: Color(0xFFBBBBBB),
-                size: 20,
+          // Chỉ hiện micro khi thật sự có chức năng tìm bằng giọng nói
+          if (onMicTap != null)
+            BouncingButton(
+              onTap: onMicTap!,
+              child: const Padding(
+                padding: EdgeInsets.all(4.0),
+                child: Icon(
+                  Icons.mic_none_outlined,
+                  color: Color(0xFFBBBBBB),
+                  size: 20,
+                ),
               ),
             ),
-          ),
         ],
       ),
     );

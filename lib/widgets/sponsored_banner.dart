@@ -9,7 +9,7 @@ class SponsoredBanner extends StatelessWidget {
 
   const SponsoredBanner({
     super.key,
-    this.title = 'Sponserd',
+    this.title = 'Sponsored',
     this.subtitle = 'up to 50% Off',
     this.imageAsset = 'assets/images/sponsored_shoes.png',
     this.onTap,
@@ -22,7 +22,7 @@ class SponsoredBanner extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 1. TIÊU ĐỀ "Sponserd"
+          // 1. TIÊU ĐỀ "Sponsored"
           Text(
             title,
             style: GoogleFonts.montserrat(

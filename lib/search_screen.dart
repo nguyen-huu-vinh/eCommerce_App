@@ -22,8 +22,42 @@ String _normalize(String text) {
   return buffer.toString().trim();
 }
 
+/// Việc mà nơi khác (VD trang chủ) muốn màn Search làm khi mở ra
+enum SearchAction { focus, sort, filter }
+
+/// Kênh gửi yêu cầu cho màn Search. Gửi cùng một việc 2 lần vẫn được xử lý
+/// (ValueNotifier thì bỏ qua nếu giá trị không đổi).
+class SearchRequests extends ChangeNotifier {
+  SearchAction? last;
+
+  void send(SearchAction action) {
+    last = action;
+    notifyListeners();
+  }
+}
+
+enum _SortOption {
+  relevance('Mặc định'),
+  priceAsc('Giá thấp đến cao'),
+  priceDesc('Giá cao đến thấp'),
+  discount('Giảm giá nhiều nhất'),
+  nameAsc('Tên A → Z');
+
+  const _SortOption(this.label);
+  final String label;
+}
+
+double _salePrice(Product p) {
+  final discount = p.discountPrice;
+  return discount != null && discount < p.price ? discount : p.price;
+}
+
+double _discountRatio(Product p) => 1 - _salePrice(p) / p.price;
+
 class SearchScreen extends StatefulWidget {
-  const SearchScreen({super.key});
+  final SearchRequests? requests;
+
+  const SearchScreen({super.key, this.requests});
 
   @override
   State<SearchScreen> createState() => _SearchScreenState();
@@ -31,6 +65,10 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController _searchController = TextEditingController();
+  final FocusNode _searchFocus = FocusNode();
+  _SortOption _sort = _SortOption.relevance;
+  final Set<String> _categories = {};
+  bool _onlySale = false;
   List<Product> _products = [];
   bool _isLoading = true;
   String? _errorMessage;
@@ -39,13 +77,179 @@ class _SearchScreenState extends State<SearchScreen> {
   void initState() {
     super.initState();
     _searchController.addListener(() => setState(() {}));
+    widget.requests?.addListener(_handleRequest);
     _loadProducts();
   }
 
   @override
   void dispose() {
+    widget.requests?.removeListener(_handleRequest);
     _searchController.dispose();
+    _searchFocus.dispose();
     super.dispose();
+  }
+
+  void _handleRequest() {
+    final action = widget.requests?.last;
+    // Đợi tab Search hiện lên rồi mới mở bàn phím / bảng chọn
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      switch (action) {
+        case SearchAction.focus:
+          _searchFocus.requestFocus();
+        case SearchAction.sort:
+          _openSortSheet();
+        case SearchAction.filter:
+          _openFilterSheet();
+        case null:
+          break;
+      }
+    });
+    // Yêu cầu vẽ khung hình kế tiếp để việc trên chắc chắn chạy, kể cả khi
+    // đang đứng sẵn ở tab Search (không có gì khác thay đổi trên màn hình)
+    WidgetsBinding.instance.ensureVisualUpdate();
+  }
+
+  int get _activeFilterCount => _categories.length + (_onlySale ? 1 : 0);
+
+  bool get _isFiltering =>
+      _searchController.text.trim().isNotEmpty || _activeFilterCount > 0;
+
+  /// Danh mục lấy ngay từ danh sách sản phẩm, không cần gọi thêm API
+  List<String> get _availableCategories {
+    final names = {
+      for (final p in _products)
+        if (p.category != null && p.category!.trim().isNotEmpty)
+          p.category!.trim(),
+    }.toList()..sort();
+    return names;
+  }
+
+  Future<void> _openSortSheet() async {
+    FocusScope.of(context).unfocus();
+    final picked = await showModalBottomSheet<_SortOption>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheetContext) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _SheetTitle('Sắp xếp theo'),
+            for (final option in _SortOption.values)
+              ListTile(
+                title: Text(option.label),
+                trailing: option == _sort
+                    ? const Icon(Icons.check_rounded, color: _pink)
+                    : null,
+                onTap: () => Navigator.pop(sheetContext, option),
+              ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+    if (picked != null && mounted) setState(() => _sort = picked);
+  }
+
+  Future<void> _openFilterSheet() async {
+    FocusScope.of(context).unfocus();
+    final categories = _availableCategories;
+    final selected = {..._categories};
+    var onlySale = _onlySale;
+
+    final applied = await showModalBottomSheet<bool>(
+      context: context,
+      showDragHandle: true,
+      isScrollControlled: true,
+      builder: (sheetContext) => StatefulBuilder(
+        builder: (context, setSheetState) => SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const _SheetTitle('Lọc sản phẩm', padding: EdgeInsets.zero),
+                const SizedBox(height: 14),
+                Text(
+                  'Danh mục',
+                  style: GoogleFonts.montserrat(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                if (categories.isEmpty)
+                  Text(
+                    'Chưa có danh mục',
+                    style: GoogleFonts.montserrat(
+                      fontSize: 12,
+                      color: const Color(0xFF888888),
+                    ),
+                  )
+                else
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      for (final name in categories)
+                        FilterChip(
+                          label: Text(name),
+                          selected: selected.contains(name),
+                          selectedColor: const Color(0xFFFFE3E9),
+                          checkmarkColor: _pink,
+                          onSelected: (on) => setSheetState(
+                            () =>
+                                on ? selected.add(name) : selected.remove(name),
+                          ),
+                        ),
+                    ],
+                  ),
+                const SizedBox(height: 8),
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  activeThumbColor: _pink,
+                  title: const Text('Chỉ sản phẩm đang giảm giá'),
+                  value: onlySale,
+                  onChanged: (v) => setSheetState(() => onlySale = v),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => setSheetState(() {
+                          selected.clear();
+                          onlySale = false;
+                        }),
+                        child: const Text('Xóa lọc'),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: FilledButton(
+                        style: FilledButton.styleFrom(backgroundColor: _pink),
+                        onPressed: () => Navigator.pop(sheetContext, true),
+                        child: const Text('Áp dụng'),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+    if (applied == true && mounted) {
+      setState(() {
+        _categories
+          ..clear()
+          ..addAll(selected);
+        _onlySale = onlySale;
+      });
+    }
   }
 
   Future<void> _loadProducts() async {
@@ -74,10 +278,31 @@ class _SearchScreenState extends State<SearchScreen> {
 
   List<Product> get _filteredProducts {
     final query = _normalize(_searchController.text);
-    if (query.isEmpty) return _products;
-    return _products
-        .where((product) => _normalize(product.name).contains(query))
-        .toList();
+    final result = _products.where((product) {
+      if (query.isNotEmpty && !_normalize(product.name).contains(query)) {
+        return false;
+      }
+      if (_categories.isNotEmpty &&
+          !_categories.contains(product.category?.trim())) {
+        return false;
+      }
+      if (_onlySale && _salePrice(product) >= product.price) return false;
+      return true;
+    }).toList();
+
+    switch (_sort) {
+      case _SortOption.relevance:
+        break;
+      case _SortOption.priceAsc:
+        result.sort((a, b) => _salePrice(a).compareTo(_salePrice(b)));
+      case _SortOption.priceDesc:
+        result.sort((a, b) => _salePrice(b).compareTo(_salePrice(a)));
+      case _SortOption.discount:
+        result.sort((a, b) => _discountRatio(b).compareTo(_discountRatio(a)));
+      case _SortOption.nameAsc:
+        result.sort((a, b) => _normalize(a.name).compareTo(_normalize(b.name)));
+    }
+    return result;
   }
 
   String? _discountLabel(Product product) {
@@ -115,6 +340,7 @@ class _SearchScreenState extends State<SearchScreen> {
             padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
             child: TextField(
               controller: _searchController,
+              focusNode: _searchFocus,
               textInputAction: TextInputAction.search,
               style: GoogleFonts.montserrat(fontSize: 14),
               decoration: InputDecoration(
@@ -142,19 +368,38 @@ class _SearchScreenState extends State<SearchScreen> {
           ),
           if (!_isLoading && _errorMessage == null)
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  hasQuery
-                      ? '${products.length} kết quả'
-                      : 'Tất cả sản phẩm (${products.length})',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black,
+              padding: const EdgeInsets.fromLTRB(16, 0, 8, 8),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      _isFiltering
+                          ? '${products.length} kết quả'
+                          : 'Tất cả sản phẩm (${products.length})',
+                      style: GoogleFonts.montserrat(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black,
+                      ),
+                    ),
                   ),
-                ),
+                  _ToolbarButton(
+                    icon: Icons.swap_vert_rounded,
+                    label: _sort == _SortOption.relevance
+                        ? 'Sắp xếp'
+                        : _sort.label,
+                    active: _sort != _SortOption.relevance,
+                    onTap: _openSortSheet,
+                  ),
+                  _ToolbarButton(
+                    icon: Icons.filter_alt_outlined,
+                    label: _activeFilterCount == 0
+                        ? 'Lọc'
+                        : 'Lọc ($_activeFilterCount)',
+                    active: _activeFilterCount > 0,
+                    onTap: _openFilterSheet,
+                  ),
+                ],
               ),
             ),
           Expanded(child: _buildContent(products, hasQuery)),
@@ -209,6 +454,8 @@ class _SearchScreenState extends State<SearchScreen> {
               Text(
                 hasQuery
                     ? 'Không tìm thấy sản phẩm nào cho "${_searchController.text.trim()}"'
+                    : _activeFilterCount > 0
+                    ? 'Không có sản phẩm nào khớp bộ lọc'
                     : 'Cửa hàng chưa có sản phẩm.',
                 textAlign: TextAlign.center,
                 style: GoogleFonts.montserrat(
@@ -257,4 +504,57 @@ class _SearchScreenState extends State<SearchScreen> {
       ),
     );
   }
+}
+
+const _pink = Color(0xFFFE3E6C);
+
+class _ToolbarButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final bool active;
+  final VoidCallback onTap;
+
+  const _ToolbarButton({
+    required this.icon,
+    required this.label,
+    required this.active,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) => TextButton.icon(
+    onPressed: onTap,
+    style: TextButton.styleFrom(
+      foregroundColor: active ? _pink : const Color(0xFF444444),
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      visualDensity: VisualDensity.compact,
+    ),
+    icon: Icon(icon, size: 18),
+    label: Text(
+      label,
+      style: GoogleFonts.montserrat(
+        fontSize: 12,
+        fontWeight: active ? FontWeight.w700 : FontWeight.w500,
+      ),
+    ),
+  );
+}
+
+class _SheetTitle extends StatelessWidget {
+  final String text;
+  final EdgeInsets padding;
+
+  const _SheetTitle(
+    this.text, {
+    this.padding = const EdgeInsets.fromLTRB(16, 0, 16, 8),
+  });
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: padding,
+    child: Text(
+      text,
+      style: GoogleFonts.montserrat(fontSize: 16, fontWeight: FontWeight.w700),
+    ),
+  );
 }
