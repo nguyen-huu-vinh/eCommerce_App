@@ -37,7 +37,6 @@ class ProductDetailScreen extends StatefulWidget {
 class _ProductDetailScreenState extends State<ProductDetailScreen> {
   static const _pink = Color(0xFFFE3E6C);
   static const _sizePink = Color(0xFFFA7189);
-  static const _defaultSizes = ['S', 'M', 'L', 'XL'];
 
   final PageController _pageController = PageController();
 
@@ -110,9 +109,23 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       ..showSnackBar(SnackBar(content: Text(message)));
   }
 
-  List<String> get _sizes {
-    final sizes = _product?.sizes ?? const <String>[];
-    return sizes.isNotEmpty ? sizes : _defaultSizes;
+  // Server đã trả size mặc định cho sản phẩm cũ; rỗng = không có size
+  List<String> get _sizes => _product?.sizes ?? const <String>[];
+
+  /// Kiểm tra trước khi thêm vào giỏ: hết hàng hoặc đã đủ số lượng trong kho
+  bool _addToCart(CartScope scope) {
+    final product = _product!;
+    if (!product.inStock) {
+      _showMessage('Sản phẩm này đã hết hàng');
+      return false;
+    }
+    if (!scope.controller.add(product, _selectedSize)) {
+      _showMessage(
+        'Giỏ hàng đã có đủ ${product.stock} sản phẩm còn lại trong kho',
+      );
+      return false;
+    }
+    return true;
   }
 
   String? get _selectedSize {
@@ -132,8 +145,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       _showMessage('Không thể mở giỏ hàng');
       return;
     }
-    scope.controller.add(_product!, _selectedSize);
-    scope.onOpenCart();
+    if (_addToCart(scope)) scope.onOpenCart();
   }
 
   void _buyNow() {
@@ -144,7 +156,12 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         _showMessage('Không thể mở trang thanh toán');
         return;
       }
-      scope.controller.add(_product!, _selectedSize);
+      if (!_product!.inStock) {
+        _showMessage('Sản phẩm này đã hết hàng');
+        return;
+      }
+      // Đã đủ số lượng trong giỏ thì vẫn sang thanh toán với giỏ hiện có
+      _addToCart(scope);
       Navigator.push(
         context,
         MaterialPageRoute<void>(
@@ -467,77 +484,111 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           // GIÁ TIỀN
           _buildPrice(product),
 
+          // TỒN KHO: chỉ nhắc khi hết hoặc sắp hết
+          if (!product.inStock || (product.stock ?? 99) <= 5) ...[
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Icon(
+                  product.inStock
+                      ? Icons.inventory_2_outlined
+                      : Icons.remove_shopping_cart_outlined,
+                  size: 16,
+                  color: product.inStock
+                      ? const Color(0xFFE08A00)
+                      : const Color(0xFFD32F2F),
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  product.inStock
+                      ? 'Chỉ còn ${product.stock} sản phẩm'
+                      : 'Hết hàng',
+                  style: GoogleFonts.montserrat(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: product.inStock
+                        ? const Color(0xFFE08A00)
+                        : const Color(0xFFD32F2F),
+                  ),
+                ),
+              ],
+            ),
+          ],
+
           const SizedBox(height: 20),
 
-          // NÚT MUA HÀNG
-          Row(
-            children: [
-              Expanded(
-                child: BouncingButton(
-                  onTap: _goToCart,
-                  child: Container(
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF2B72EC),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(
-                          Icons.shopping_cart_outlined,
-                          color: Colors.white,
-                          size: 18,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          'Go to cart',
-                          style: GoogleFonts.montserrat(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: BouncingButton(
-                  onTap: _buyNow,
-                  child: Container(
-                    height: 48,
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFF71DB93), Color(0xFF31B761)],
+          // NÚT MUA HÀNG (mờ đi khi hết hàng)
+          Opacity(
+            opacity: product.inStock ? 1 : 0.45,
+            child: Row(
+              children: [
+                Expanded(
+                  child: BouncingButton(
+                    onTap: _goToCart,
+                    child: Container(
+                      height: 48,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF2B72EC),
+                        borderRadius: BorderRadius.circular(10),
                       ),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(
-                          Icons.touch_app_outlined,
-                          color: Colors.white,
-                          size: 18,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          'Buy Now',
-                          style: GoogleFonts.montserrat(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.shopping_cart_outlined,
                             color: Colors.white,
+                            size: 18,
                           ),
-                        ),
-                      ],
+                          const SizedBox(width: 8),
+                          Text(
+                            'Go to cart',
+                            style: GoogleFonts.montserrat(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
+                const SizedBox(width: 12),
+                Expanded(
+                  child: BouncingButton(
+                    onTap: _buyNow,
+                    child: Container(
+                      height: 48,
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFF71DB93), Color(0xFF31B761)],
+                        ),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.touch_app_outlined,
+                            color: Colors.white,
+                            size: 18,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Buy Now',
+                            style: GoogleFonts.montserrat(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
 
           // SIMILAR TO

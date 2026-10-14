@@ -20,7 +20,10 @@ class Product {
   final double? rating;
   final int? ratingCount;
   final List<String> images; // nhiều ảnh cho slider, rỗng thì dùng imageUrl
-  final List<String> sizes; // rỗng thì trang chi tiết dùng danh sách mặc định
+  final List<String> sizes; // rỗng = sản phẩm không có size (VD mỹ phẩm)
+
+  /// Số lượng còn trong kho; null = không giới hạn
+  final int? stock;
 
   const Product({
     required this.id,
@@ -39,6 +42,7 @@ class Product {
     this.ratingCount,
     this.images = const [],
     this.sizes = const [],
+    this.stock,
   });
 
   factory Product.fromJson(Map<String, dynamic> json) {
@@ -62,6 +66,7 @@ class Product {
       ratingCount: json['rating_count'] as int?,
       images: stringList(json['images']),
       sizes: stringList(json['sizes']),
+      stock: json['stock'] as int?,
     );
   }
 
@@ -83,7 +88,10 @@ class Product {
     'rating_count': ratingCount,
     'images': images,
     'sizes': sizes,
+    'stock': stock,
   };
+
+  bool get inStock => stock == null || stock! > 0;
 
   /// Danh sách ảnh dùng cho slider (luôn có ít nhất 1 ảnh)
   List<String> get gallery => images.isNotEmpty ? images : [imageUrl];

@@ -76,14 +76,28 @@ class CartController extends ChangeNotifier {
     }
   }
 
-  void add(Product product, String? size) {
+  /// Tổng số lượng của một sản phẩm trong giỏ, cộng mọi size
+  int quantityOf(int productId) => _items.values
+      .where((item) => item.product.id == productId)
+      .fold(0, (total, item) => total + item.quantity);
+
+  /// Còn thêm được 1 cái nữa không, theo số tồn kho lúc xem sản phẩm
+  /// (server vẫn kiểm tra lại khi đặt hàng)
+  bool canAddMore(Product product) =>
+      product.stock == null || quantityOf(product.id) < product.stock!;
+
+  /// Thêm 1 sản phẩm; trả về false nếu đã đủ số lượng còn trong kho
+  bool add(Product product, String? size) {
+    if (!canAddMore(product)) return false;
     final item = CartItem(product: product, size: size);
     final existing = _items[item.key];
     _items[item.key] = item.withQuantity((existing?.quantity ?? 0) + 1);
     _changed();
+    return true;
   }
 
   void setQuantity(CartItem item, int quantity) {
+    if (quantity > item.quantity && !canAddMore(item.product)) return;
     if (quantity <= 0) {
       _items.remove(item.key);
     } else {

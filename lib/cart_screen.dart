@@ -121,6 +121,7 @@ class CartScreen extends StatelessWidget {
               for (final item in items) ...[
                 _CartItemTile(
                   item: item,
+                  canIncrease: controller.canAddMore(item.product),
                   onQuantityChanged: (quantity) =>
                       controller.setQuantity(item, quantity),
                   onRemove: () => controller.remove(item),
@@ -168,11 +169,13 @@ class CartScreen extends StatelessWidget {
 
 class _CartItemTile extends StatelessWidget {
   final CartItem item;
+  final bool canIncrease;
   final ValueChanged<int> onQuantityChanged;
   final VoidCallback onRemove;
 
   const _CartItemTile({
     required this.item,
+    required this.canIncrease,
     required this.onQuantityChanged,
     required this.onRemove,
   });
@@ -296,7 +299,10 @@ class _CartItemTile extends StatelessWidget {
                     ),
                     _QuantityButton(
                       icon: Icons.add,
-                      onPressed: () => onQuantityChanged(item.quantity + 1),
+                      // Đủ số lượng còn trong kho thì không cho tăng nữa
+                      onPressed: canIncrease
+                          ? () => onQuantityChanged(item.quantity + 1)
+                          : null,
                     ),
                   ],
                 ),
@@ -311,7 +317,7 @@ class _CartItemTile extends StatelessWidget {
 
 class _QuantityButton extends StatelessWidget {
   final IconData icon;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
 
   const _QuantityButton({required this.icon, required this.onPressed});
 
