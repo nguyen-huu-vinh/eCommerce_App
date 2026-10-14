@@ -13,6 +13,7 @@ Future<bool?> showReviewSheet(
 }) => showModalBottomSheet<bool>(
   context: context,
   isScrollControlled: true,
+  useRootNavigator: true,
   useSafeArea: true,
   backgroundColor: Colors.white,
   shape: const RoundedRectangleBorder(
@@ -59,9 +60,7 @@ class _ReviewSheetState extends State<_ReviewSheet> {
       );
       if (!mounted) return;
       if (!status.canReview) {
-        setState(
-          () => _error = 'Bạn chỉ có thể đánh giá sau khi đã nhận hàng',
-        );
+        setState(() => _error = 'Bạn chỉ có thể đánh giá sau khi đã nhận hàng');
       }
       final existing = status.review;
       if (existing != null) {
@@ -122,7 +121,9 @@ class _ReviewSheetState extends State<_ReviewSheet> {
         20,
         18,
         20,
-        20 + MediaQuery.of(context).viewInsets.bottom,
+        20 +
+            MediaQuery.of(context).viewInsets.bottom +
+            MediaQuery.of(context).viewPadding.bottom,
       ),
       child: _loading
           ? const SizedBox(

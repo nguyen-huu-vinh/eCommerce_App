@@ -1,10 +1,15 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:latlong2/latlong.dart';
 
 import 'models/address.dart';
 import 'services/address_service.dart';
 import 'services/api_client.dart';
+import 'services/place_service.dart';
+import 'widgets/map_address_picker.dart';
 
 /// Sổ địa chỉ giao hàng. Với [pickMode] = true, chạm vào một địa chỉ sẽ đóng
 /// màn hình và trả địa chỉ đó về cho nơi gọi (dùng ở bước thanh toán).
@@ -100,12 +105,15 @@ class _AddressBookScreenState extends State<AddressBookScreen> {
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: _pink,
-        foregroundColor: Colors.white,
-        onPressed: () => _openForm(),
-        icon: const Icon(Icons.add_location_alt_outlined),
-        label: const Text('Thêm địa chỉ'),
+      floatingActionButton: Padding(
+        padding: EdgeInsets.only(bottom: 84),
+        child: FloatingActionButton.extended(
+          backgroundColor: _pink,
+          foregroundColor: Colors.white,
+          onPressed: () => _openForm(),
+          icon: const Icon(Icons.add_location_alt_outlined),
+          label: const Text('Thêm địa chỉ'),
+        ),
       ),
       body: _error != null && addresses == null
           ? Center(
@@ -157,7 +165,7 @@ class _AddressBookScreenState extends State<AddressBookScreen> {
           : RefreshIndicator(
               onRefresh: _load,
               child: ListView.separated(
-                padding: const EdgeInsets.fromLTRB(16, 4, 16, 96),
+                padding: EdgeInsets.fromLTRB(16, 4, 16, 196),
                 itemCount: addresses.length,
                 separatorBuilder: (_, _) => const SizedBox(height: 10),
                 itemBuilder: (context, index) {
@@ -171,7 +179,8 @@ class _AddressBookScreenState extends State<AddressBookScreen> {
                     onDelete: () => _confirmDelete(address),
                     onSetDefault: address.isDefault
                         ? null
-                        : () => _run(() => AddressService.setDefault(address.id)),
+                        : () =>
+                              _run(() => AddressService.setDefault(address.id)),
                   );
                 },
               ),
@@ -315,8 +324,56 @@ class _AddressFormScreenState extends State<AddressFormScreen> {
   late bool _isDefault = widget.address?.isDefault ?? false;
   bool _saving = false;
 
+  List<Place> _suggestions = [];
+  Timer? _debounce;
+  LatLng? _picked;
+  // Chữ vừa được điền từ gợi ý/bản đồ: không tìm gợi ý lại cho chính nó
+  String? _filled;
+
+  @override
+  void initState() {
+    super.initState();
+    _address.addListener(_onAddressChanged);
+  }
+
+  void _onAddressChanged() {
+    final text = _address.text.trim();
+    if (text == _filled) return;
+    _picked = null;
+    _debounce?.cancel();
+    if (text.length < 4) {
+      if (_suggestions.isNotEmpty) setState(() => _suggestions = []);
+      return;
+    }
+    _debounce = Timer(const Duration(milliseconds: 700), () async {
+      try {
+        final found = await PlaceService.search(text);
+        if (mounted && _address.text.trim() == text) {
+          setState(() => _suggestions = found);
+        }
+      } catch (_) {}
+    });
+  }
+
+  void _fill(Place place) {
+    _filled = place.name.trim();
+    _address.text = place.name;
+    _picked = place.position;
+    setState(() => _suggestions = []);
+    FocusScope.of(context).unfocus();
+  }
+
+  Future<void> _pickOnMap() async {
+    // Mở trên navigator gốc để thanh điều hướng không che nút xác nhận
+    final place = await Navigator.of(context, rootNavigator: true).push<Place>(
+      MaterialPageRoute(builder: (_) => MapAddressPicker(initial: _picked)),
+    );
+    if (place != null && mounted) _fill(place);
+  }
+
   @override
   void dispose() {
+    _debounce?.cancel();
     _label.dispose();
     _name.dispose();
     _phone.dispose();
@@ -351,9 +408,8 @@ class _AddressFormScreenState extends State<AddressFormScreen> {
     } catch (e) {
       if (!mounted) return;
       setState(() => _saving = false);
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(errorText(e))));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(errorText(e))));
     }
   }
 
@@ -388,7 +444,7 @@ class _AddressFormScreenState extends State<AddressFormScreen> {
       body: Form(
         key: _formKey,
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+          padding: EdgeInsets.fromLTRB(16, 8, 16, 116),
           children: [
             TextFormField(
               controller: _label,
@@ -403,9 +459,8 @@ class _AddressFormScreenState extends State<AddressFormScreen> {
               controller: _name,
               textCapitalization: TextCapitalization.words,
               decoration: _decoration('Họ và tên', Icons.person_outline),
-              validator: (v) => v == null || v.trim().isEmpty
-                  ? 'Vui lòng nhập họ tên'
-                  : null,
+              validator: (v) =>
+                  v == null || v.trim().isEmpty ? 'Vui lòng nhập họ tên' : null,
             ),
             const SizedBox(height: 12),
             TextFormField(
@@ -435,6 +490,27 @@ class _AddressFormScreenState extends State<AddressFormScreen> {
               validator: (v) => v == null || v.trim().isEmpty
                   ? 'Vui lòng nhập địa chỉ'
                   : null,
+            ),
+            for (final place in _suggestions)
+              ListTile(
+                dense: true,
+                leading: const Icon(Icons.place_outlined, color: _pink),
+                title: Text(
+                  place.name,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: GoogleFonts.montserrat(fontSize: 12.5),
+                ),
+                onTap: () => _fill(place),
+              ),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton.icon(
+                onPressed: _pickOnMap,
+                icon: const Icon(Icons.map_outlined, size: 18),
+                label: const Text('Chọn trên bản đồ'),
+                style: TextButton.styleFrom(foregroundColor: _pink),
+              ),
             ),
             const SizedBox(height: 8),
             SwitchListTile(
