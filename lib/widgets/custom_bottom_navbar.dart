@@ -3,6 +3,8 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import '../theme/app_theme.dart';
+
 class CustomBottomNavBar extends StatelessWidget {
   final int currentIndex;
   final Function(int) onTap;
@@ -103,12 +105,12 @@ class CustomBottomNavBar extends StatelessWidget {
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                             colors: [
-                              Colors.white.withOpacity(0.28),
-                              Colors.white.withOpacity(0.08),
+                              context.colors.surface.withOpacity(0.78),
+                              context.colors.surface.withOpacity(0.55),
                             ],
                           ),
                           border: Border.all(
-                            color: Colors.white.withOpacity(0.45),
+                            color: context.colors.border.withOpacity(0.8),
                             width: 1,
                           ),
                         ),
@@ -116,6 +118,7 @@ class CustomBottomNavBar extends StatelessWidget {
                           children: List.generate(
                             iconPaths.length,
                             (i) => _buildTab(
+                              context,
                               i,
                               iconPaths[i],
                               iconSize,
@@ -137,6 +140,7 @@ class CustomBottomNavBar extends StatelessWidget {
   }
 
   Widget _buildTab(
+    BuildContext context,
     int index,
     String iconPath,
     double iconSize,
@@ -168,7 +172,7 @@ class CustomBottomNavBar extends StatelessWidget {
                     width: iconSize,
                     height: iconSize,
                     colorFilter: ColorFilter.mode(
-                      isSelected ? _pink : const Color(0xFF626262),
+                      isSelected ? _pink : context.colors.textSecondary,
                       BlendMode.srcIn,
                     ),
                   ),

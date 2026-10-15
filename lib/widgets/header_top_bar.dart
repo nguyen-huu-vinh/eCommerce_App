@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart'; // Đã sửa import package0 thành package
 import 'package:flutter_svg/flutter_svg.dart';
 
+import '../theme/app_theme.dart';
+
 import 'bouncing_button.dart';
 import 'user_avatar.dart';
 
@@ -11,6 +13,8 @@ class HeaderTopBar extends StatelessWidget {
   final VoidCallback? onMenuTap;
   final VoidCallback? onLogoTap;
   final VoidCallback? onAvatarTap;
+  final VoidCallback? onBellTap;
+  final int unreadCount;
 
   const HeaderTopBar({
     super.key,
@@ -20,6 +24,8 @@ class HeaderTopBar extends StatelessWidget {
     this.onMenuTap,
     this.onLogoTap,
     this.onAvatarTap,
+    this.onBellTap,
+    this.unreadCount = 0,
   });
 
   @override
@@ -39,7 +45,7 @@ class HeaderTopBar extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: context.colors.surface,
                 shape: BoxShape.circle, // Dạng tròn viên thuốc cho icon
                 boxShadow: [
                   BoxShadow(
@@ -54,7 +60,11 @@ class HeaderTopBar extends StatelessWidget {
                 height: 20,
                 child: menuSvgAsset.isNotEmpty
                     ? SvgPicture.asset(menuSvgAsset, fit: BoxFit.contain)
-                    : const Icon(Icons.menu, size: 20, color: Colors.black),
+                    : Icon(
+                        Icons.menu,
+                        size: 20,
+                        color: context.colors.textPrimary,
+                      ),
               ),
             ),
           ),
@@ -65,7 +75,7 @@ class HeaderTopBar extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: context.colors.surface,
                 borderRadius: BorderRadius.circular(20), // Khung viên thuốc dài
                 boxShadow: [
                   BoxShadow(
@@ -85,25 +95,89 @@ class HeaderTopBar extends StatelessWidget {
             ),
           ),
 
-          // 3. AVATAR BỌC KHUNG VIÊN THUỐC TRÒN + NÚT BẤM BOUNCING
-          BouncingButton(
-            onTap: onAvatarTap ?? () {},
-            child: Container(
-              padding: const EdgeInsets.all(3),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle, // Khung viên thuốc tròn
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.08),
-                    blurRadius: 10,
-                    offset: const Offset(0, 2),
+          // 3. CHUÔNG THÔNG BÁO + AVATAR
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (onBellTap != null) ...[
+                BouncingButton(
+                  onTap: onBellTap!,
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: context.colors.surface,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.08),
+                              blurRadius: 10,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Icon(
+                          Icons.notifications_none_rounded,
+                          size: 20,
+                          color: context.colors.textPrimary,
+                        ),
+                      ),
+                      if (unreadCount > 0)
+                        Positioned(
+                          right: -2,
+                          top: -2,
+                          child: Container(
+                            constraints: const BoxConstraints(
+                              minWidth: 18,
+                              minHeight: 18,
+                            ),
+                            padding: const EdgeInsets.symmetric(horizontal: 4),
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: brandPink,
+                              borderRadius: BorderRadius.circular(9),
+                              border: Border.all(
+                                color: context.colors.page,
+                                width: 1.5,
+                              ),
+                            ),
+                            child: Text(
+                              unreadCount > 9 ? '9+' : '$unreadCount',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
-                ],
+                ),
+                const SizedBox(width: 8),
+              ],
+              BouncingButton(
+                onTap: onAvatarTap ?? () {},
+                child: Container(
+                  padding: const EdgeInsets.all(3),
+                  decoration: BoxDecoration(
+                    color: context.colors.surface,
+                    shape: BoxShape.circle, // Khung viên thuốc tròn
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.08),
+                        blurRadius: 10,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  // Ảnh người dùng tự đặt; chưa có thì dùng avatarAsset mặc định
+                  child: UserAvatar(size: 34, fallbackAsset: avatarAsset),
+                ),
               ),
-              // Ảnh người dùng tự đặt; chưa có thì dùng avatarAsset mặc định
-              child: UserAvatar(size: 34, fallbackAsset: avatarAsset),
-            ),
+            ],
           ),
         ],
       ),

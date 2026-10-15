@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../theme/app_theme.dart';
+
 class AppButton extends StatefulWidget {
   final String label;
   final IconData? icon;
   final VoidCallback onTap;
-  final Color backgroundColor;
-  final Color textColor;
-  final Color iconColor;
+  final Color? backgroundColor;
+  final Color? textColor;
+  final Color? iconColor;
   final double fontSize;
   final FontWeight fontWeight;
   final EdgeInsetsGeometry padding;
@@ -18,9 +20,9 @@ class AppButton extends StatefulWidget {
     required this.label,
     required this.onTap,
     this.icon,
-    this.backgroundColor = Colors.white,
-    this.textColor = const Color(0xFF000000),
-    this.iconColor = const Color(0xFF000000),
+    this.backgroundColor,
+    this.textColor,
+    this.iconColor,
     this.fontSize = 12,
     this.fontWeight = FontWeight.w400, // Montserrat Regular mặc định
     this.padding = const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
@@ -67,7 +69,7 @@ class _AppButtonState extends State<AppButton>
           child: Container(
             padding: widget.padding,
             decoration: BoxDecoration(
-              color: widget.backgroundColor,
+              color: widget.backgroundColor ?? context.colors.surface,
               borderRadius: BorderRadius.circular(widget.borderRadius),
               boxShadow: [
                 BoxShadow(
@@ -86,7 +88,7 @@ class _AppButtonState extends State<AppButton>
                   style: GoogleFonts.montserrat(
                     fontSize: widget.fontSize,
                     fontWeight: widget.fontWeight,
-                    color: widget.textColor,
+                    color: widget.textColor ?? context.colors.textPrimary,
                   ),
                 ),
                 if (widget.icon != null) ...[
@@ -94,7 +96,7 @@ class _AppButtonState extends State<AppButton>
                   Icon(
                     widget.icon,
                     size: widget.fontSize + 2,
-                    color: widget.iconColor,
+                    color: widget.iconColor ?? context.colors.textPrimary,
                   ),
                 ],
               ],

@@ -31,17 +31,16 @@ class AddressService {
     bool isDefault = false,
   }) async => SavedAddress.fromJson(
     await apiCall(
-          'POST',
-          '/addresses',
-          body: _body(
-            label: label,
-            fullName: fullName,
-            phone: phone,
-            address: address,
-            isDefault: isDefault,
-          ),
-        )
-        as Map<String, dynamic>,
+      'POST',
+      '/addresses',
+      body: _body(
+        label: label,
+        fullName: fullName,
+        phone: phone,
+        address: address,
+        isDefault: isDefault,
+      ),
+    ) as Map<String, dynamic>,
   );
 
   static Future<void> update(

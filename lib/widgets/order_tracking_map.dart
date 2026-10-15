@@ -1,4 +1,5 @@
 import 'dart:async';
+import '../theme/app_theme.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -125,7 +126,7 @@ class _OrderTrackingMapState extends State<OrderTrackingMap> {
       MaterialPageRoute<void>(
         builder: (_) => Scaffold(
           appBar: AppBar(
-            backgroundColor: Colors.white,
+            backgroundColor: context.colors.page,
             title: Text(
               'Theo dõi đơn DH${widget.orderId}',
               style: GoogleFonts.montserrat(
@@ -155,12 +156,12 @@ class _OrderTrackingMapState extends State<OrderTrackingMap> {
           height: height ?? double.infinity,
           child: Center(
             child: tracking == null && _error == null
-                ? const CircularProgressIndicator(color: _pink)
+                ? CircularProgressIndicator(color: _pink)
                 : Text(
                     _error ?? 'Chưa xác định được vị trí trên bản đồ',
                     style: GoogleFonts.montserrat(
                       fontSize: 12,
-                      color: const Color(0xFF777777),
+                      color: context.colors.textSecondary,
                     ),
                   ),
           ),
@@ -185,7 +186,7 @@ class _OrderTrackingMapState extends State<OrderTrackingMap> {
             child: FloatingActionButton.small(
               heroTag: null,
               tooltip: 'Căn giữa lại',
-              backgroundColor: Colors.white,
+              backgroundColor: context.colors.surface,
               foregroundColor: _pink,
               onPressed: () {
                 _userMoved = false;
@@ -226,7 +227,7 @@ class _OrderTrackingMapState extends State<OrderTrackingMap> {
       : Container(
           clipBehavior: Clip.antiAlias,
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: context.colors.surface,
             borderRadius: BorderRadius.circular(12),
           ),
           child: child,
@@ -405,7 +406,7 @@ class _InfoBanner extends StatelessWidget {
     final content = Row(
       children: [
         const Icon(Icons.two_wheeler_rounded, color: _pink, size: 22),
-        const SizedBox(width: 10),
+        SizedBox(width: 10),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -415,16 +416,16 @@ class _InfoBanner extends StatelessWidget {
                 style: GoogleFonts.montserrat(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
-                  color: const Color(0xFF222222),
+                  color: context.colors.textPrimary,
                 ),
               ),
               if (subtitle != null) ...[
-                const SizedBox(height: 2),
+                SizedBox(height: 2),
                 Text(
                   subtitle,
                   style: GoogleFonts.montserrat(
                     fontSize: 11,
-                    color: const Color(0xFF777777),
+                    color: context.colors.textSecondary,
                   ),
                 ),
               ],
@@ -436,7 +437,7 @@ class _InfoBanner extends StatelessWidget {
 
     if (plain) return content;
     return Material(
-      color: Colors.white,
+      color: context.colors.surface,
       elevation: 3,
       borderRadius: BorderRadius.circular(12),
       child: Padding(padding: const EdgeInsets.all(14), child: content),

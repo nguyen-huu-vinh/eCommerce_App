@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'theme/app_theme.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -24,16 +25,16 @@ class WishlistScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final wishlist = WishlistController.instance;
     return Scaffold(
-      backgroundColor: const Color(0xFFF9F9F9),
+      backgroundColor: context.colors.page,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF9F9F9),
+        backgroundColor: context.colors.page,
         elevation: 0,
         automaticallyImplyLeading: false,
         centerTitle: true,
         title: Text(
           'Yêu thích',
           style: GoogleFonts.montserrat(
-            color: Colors.black,
+            color: context.colors.textPrimary,
             fontSize: 18,
             fontWeight: FontWeight.w600,
           ),
@@ -43,13 +44,13 @@ class WishlistScreen extends StatelessWidget {
         listenable: wishlist,
         builder: (context, _) {
           final products = wishlist.items;
-          if (products.isEmpty) return _buildEmpty();
+          if (products.isEmpty) return _buildEmpty(context);
 
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
+                padding: EdgeInsets.fromLTRB(16, 4, 16, 12),
                 child: Text(
                   '${products.length} sản phẩm',
                   style: GoogleFonts.montserrat(
@@ -61,7 +62,7 @@ class WishlistScreen extends StatelessWidget {
               Expanded(
                 child: MasonryGridView.count(
                   // Chừa chỗ cho thanh điều hướng nổi ở dưới
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 116),
+                  padding: EdgeInsets.fromLTRB(16, 0, 16, 116),
                   crossAxisCount: 2,
                   mainAxisSpacing: 12,
                   crossAxisSpacing: 12,
@@ -93,14 +94,14 @@ class WishlistScreen extends StatelessWidget {
                           top: 6,
                           right: 6,
                           child: Material(
-                            color: Colors.white,
-                            shape: const CircleBorder(),
+                            color: context.colors.surface,
+                            shape: CircleBorder(),
                             elevation: 1,
                             child: IconButton(
                               tooltip: 'Bỏ yêu thích',
                               visualDensity: VisualDensity.compact,
                               onPressed: () => wishlist.remove(product.id),
-                              icon: const Icon(
+                              icon: Icon(
                                 Icons.favorite,
                                 color: _pink,
                                 size: 20,
@@ -120,33 +121,33 @@ class WishlistScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildEmpty() => Center(
+  Widget _buildEmpty(BuildContext context) => Center(
     child: Padding(
-      padding: const EdgeInsets.fromLTRB(32, 24, 32, 116),
+      padding: EdgeInsets.fromLTRB(32, 24, 32, 116),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(
+          Icon(
             Icons.favorite_border_rounded,
             size: 58,
-            color: Color(0xFFB8B8B8),
+            color: context.colors.textMuted,
           ),
-          const SizedBox(height: 14),
+          SizedBox(height: 14),
           Text(
             'Chưa có sản phẩm yêu thích',
             style: GoogleFonts.montserrat(
               fontSize: 16,
               fontWeight: FontWeight.w700,
-              color: const Color(0xFF303030),
+              color: Color(0xFF303030),
             ),
           ),
-          const SizedBox(height: 6),
+          SizedBox(height: 6),
           Text(
             'Bấm vào trái tim ở trang sản phẩm để lưu lại món bạn thích',
             textAlign: TextAlign.center,
             style: GoogleFonts.montserrat(
               fontSize: 13,
-              color: const Color(0xFF777777),
+              color: context.colors.textSecondary,
             ),
           ),
         ],

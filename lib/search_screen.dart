@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+
+import 'theme/app_theme.dart';
+
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'models/product.dart';
 import 'services/product_service.dart';
+import 'services/search_history.dart';
 import 'utils/currency.dart';
 import 'widgets/product_card.dart';
 
@@ -72,11 +76,20 @@ class _SearchScreenState extends State<SearchScreen> {
   List<Product> _products = [];
   bool _isLoading = true;
   String? _errorMessage;
+  List<String> _history = [];
 
   @override
   void initState() {
     super.initState();
     _searchController.addListener(() => setState(() {}));
+    // Ô tìm kiếm nhận/mất focus thì đổi giữa danh sách gợi ý và kết quả
+    _searchFocus.addListener(() {
+      if (!_searchFocus.hasFocus) _saveCurrentQuery();
+      setState(() {});
+    });
+    SearchHistory.load().then((h) {
+      if (mounted) setState(() => _history = h);
+    });
     widget.requests?.addListener(_handleRequest);
     _loadProducts();
   }
@@ -87,6 +100,34 @@ class _SearchScreenState extends State<SearchScreen> {
     _searchController.dispose();
     _searchFocus.dispose();
     super.dispose();
+  }
+
+  Future<void> _saveCurrentQuery() async {
+    final history = await SearchHistory.add(_searchController.text);
+    if (mounted) setState(() => _history = history);
+  }
+
+  /// Chọn một từ khóa từ lịch sử hoặc gợi ý: điền vào ô và hiện kết quả
+  void _pickQuery(String query) {
+    _searchController.text = query;
+    _searchController.selection = TextSelection.collapsed(offset: query.length);
+    _searchFocus.unfocus(); // mất focus sẽ tự lưu vào lịch sử
+  }
+
+  /// Tên sản phẩm khớp từ đang gõ, ưu tiên tên bắt đầu bằng từ đó
+  List<String> get _suggestions {
+    final query = _normalize(_searchController.text);
+    if (query.isEmpty) return [];
+    final names = <String>{
+      for (final p in _products)
+        if (_normalize(p.name).contains(query)) p.name.trim(),
+    }.toList();
+    names.sort((a, b) {
+      final aStarts = _normalize(a).startsWith(query) ? 0 : 1;
+      final bStarts = _normalize(b).startsWith(query) ? 0 : 1;
+      return aStarts != bStarts ? aStarts - bStarts : a.compareTo(b);
+    });
+    return names.take(6).toList();
   }
 
   void _handleRequest() {
@@ -226,12 +267,12 @@ class _SearchScreenState extends State<SearchScreen> {
                         child: const Text('Xóa lọc'),
                       ),
                     ),
-                    const SizedBox(width: 10),
+                    SizedBox(width: 10),
                     Expanded(
                       child: FilledButton(
                         style: FilledButton.styleFrom(backgroundColor: _pink),
                         onPressed: () => Navigator.pop(sheetContext, true),
-                        child: const Text('Áp dụng'),
+                        child: Text('Áp dụng'),
                       ),
                     ),
                   ],
@@ -319,15 +360,15 @@ class _SearchScreenState extends State<SearchScreen> {
     final hasQuery = _searchController.text.trim().isNotEmpty;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF9F9F9),
+      backgroundColor: context.colors.page,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF9F9F9),
+        backgroundColor: context.colors.page,
         elevation: 0,
         automaticallyImplyLeading: false,
         title: Text(
           'Tìm kiếm',
           style: GoogleFonts.montserrat(
-            color: Colors.black,
+            color: context.colors.textPrimary,
             fontSize: 18,
             fontWeight: FontWeight.w600,
           ),
@@ -342,6 +383,7 @@ class _SearchScreenState extends State<SearchScreen> {
               controller: _searchController,
               focusNode: _searchFocus,
               textInputAction: TextInputAction.search,
+              onSubmitted: (_) => _searchFocus.unfocus(),
               style: GoogleFonts.montserrat(fontSize: 14),
               decoration: InputDecoration(
                 hintText: 'Tìm sản phẩm theo tên...',
@@ -349,7 +391,10 @@ class _SearchScreenState extends State<SearchScreen> {
                   fontSize: 14,
                   color: const Color(0xFFBBBBBB),
                 ),
-                prefixIcon: const Icon(Icons.search, color: Color(0xFF626262)),
+                prefixIcon: Icon(
+                  Icons.search,
+                  color: context.colors.textSecondary,
+                ),
                 suffixIcon: hasQuery
                     ? IconButton(
                         tooltip: 'Xóa tìm kiếm',
@@ -358,7 +403,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       )
                     : null,
                 filled: true,
-                fillColor: Colors.white,
+                fillColor: context.colors.surface,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,
@@ -366,7 +411,7 @@ class _SearchScreenState extends State<SearchScreen> {
               ),
             ),
           ),
-          if (!_isLoading && _errorMessage == null)
+          if (!_isLoading && _errorMessage == null && !_showingHints)
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 8, 8),
               child: Row(
@@ -379,7 +424,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       style: GoogleFonts.montserrat(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
-                        color: Colors.black,
+                        color: context.colors.textPrimary,
                       ),
                     ),
                   ),
@@ -402,9 +447,90 @@ class _SearchScreenState extends State<SearchScreen> {
                 ],
               ),
             ),
-          Expanded(child: _buildContent(products, hasQuery)),
+          Expanded(
+            child: _showingHints
+                ? _buildHints()
+                : _buildContent(products, hasQuery),
+          ),
         ],
       ),
+    );
+  }
+
+  bool get _showingHints {
+    if (!_searchFocus.hasFocus) return false;
+    return _searchController.text.trim().isEmpty
+        ? _history.isNotEmpty
+        : _suggestions.isNotEmpty;
+  }
+
+  Widget _buildHints() {
+    final colors = context.colors;
+    final typing = _searchController.text.trim().isNotEmpty;
+    final entries = typing ? _suggestions : _history;
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+      children: [
+        if (!typing)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 4),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'Tìm kiếm gần đây',
+                    style: GoogleFonts.montserrat(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: colors.textPrimary,
+                    ),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () async {
+                    final h = await SearchHistory.clear();
+                    if (mounted) setState(() => _history = h);
+                  },
+                  child: Text(
+                    'Xóa tất cả',
+                    style: GoogleFonts.montserrat(fontSize: 12, color: _pink),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        for (final entry in entries)
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            dense: true,
+            leading: Icon(
+              typing ? Icons.search : Icons.history_rounded,
+              size: 20,
+              color: colors.textSecondary,
+            ),
+            title: Text(
+              entry,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: GoogleFonts.montserrat(
+                fontSize: 13,
+                color: colors.textPrimary,
+              ),
+            ),
+            trailing: typing
+                ? null
+                : IconButton(
+                    tooltip: 'Xóa khỏi lịch sử',
+                    icon: Icon(Icons.close, size: 18, color: colors.textMuted),
+                    onPressed: () async {
+                      final h = await SearchHistory.remove(entry);
+                      if (mounted) setState(() => _history = h);
+                    },
+                  ),
+            onTap: () => _pickQuery(entry),
+          ),
+      ],
     );
   }
 
@@ -445,12 +571,12 @@ class _SearchScreenState extends State<SearchScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(
+              Icon(
                 Icons.search_off_rounded,
                 size: 54,
-                color: Color(0xFFB8B8B8),
+                color: context.colors.textMuted,
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
               Text(
                 hasQuery
                     ? 'Không tìm thấy sản phẩm nào cho "${_searchController.text.trim()}"'
@@ -460,7 +586,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 textAlign: TextAlign.center,
                 style: GoogleFonts.montserrat(
                   fontSize: 14,
-                  color: const Color(0xFF808488),
+                  color: context.colors.textSecondary,
                 ),
               ),
             ],

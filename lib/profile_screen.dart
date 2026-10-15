@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'theme/app_theme.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -10,6 +11,7 @@ import 'my_orders_screen.dart';
 import 'services/auth_service.dart';
 import 'services/cart_controller.dart';
 import 'services/order_service.dart';
+import 'services/push_service.dart';
 import 'services/wishlist_controller.dart';
 import 'widgets/user_avatar.dart';
 
@@ -22,7 +24,6 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   static const _pink = Color(0xFFFE3E6C);
-  static const _pageColor = Color(0xFFF7F7F8);
 
   Map<String, dynamic>? _profile;
   bool _isLoading = true;
@@ -82,19 +83,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.photo_library_outlined),
-              title: const Text('Chọn từ thư viện'),
+              title: Text('Chọn từ thư viện'),
               onTap: () => Navigator.pop(sheetContext, 'gallery'),
             ),
             if (hasAvatar)
               ListTile(
-                leading: const Icon(Icons.delete_outline, color: _pink),
-                title: const Text(
+                leading: Icon(Icons.delete_outline, color: _pink),
+                title: Text(
                   'Xóa ảnh đại diện',
                   style: TextStyle(color: _pink),
                 ),
                 onTap: () => Navigator.pop(sheetContext, 'delete'),
               ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
           ],
         ),
       ),
@@ -150,6 +151,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _logout() async {
     // Xóa dữ liệu riêng của người này để tài khoản khác đăng nhập sau
     // không thấy giỏ hàng, yêu thích hay địa chỉ của họ
+    // Báo server trước (cần token đăng nhập) để máy này thôi nhận thông báo
+    await PushService.unregisterDevice();
     await Future.wait([
       AuthService.logout(),
       CartController.clearSaved(),
@@ -172,9 +175,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _pageColor,
+      backgroundColor: context.colors.page,
       appBar: AppBar(
-        backgroundColor: _pageColor,
+        backgroundColor: context.colors.page,
         elevation: 0,
         // Mở từ tab Cài đặt thì là trang gốc, không có gì để quay lại
         automaticallyImplyLeading: false,
@@ -183,13 +186,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 tooltip: 'Quay lại',
                 onPressed: () => Navigator.maybePop(context),
                 icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
-                color: const Color(0xFF222222),
+                color: context.colors.textPrimary,
               )
             : null,
         title: Text(
           'Tài khoản của tôi',
           style: GoogleFonts.montserrat(
-            color: const Color(0xFF222222),
+            color: context.colors.textPrimary,
             fontSize: 17,
             fontWeight: FontWeight.w700,
           ),
@@ -226,10 +229,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
       children: [
         Expanded(
           child: ListView(
-            padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+            padding: EdgeInsets.fromLTRB(20, 8, 20, 24),
             children: [
               _buildIdentityHeader(displayName, isAdmin),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               _buildMenuTile(
                 icon: Icons.receipt_long_outlined,
                 title: 'Đơn hàng của tôi',
@@ -247,7 +250,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 title: 'Đổi mật khẩu',
                 screen: const ChangePasswordScreen(),
               ),
-              const SizedBox(height: 28),
+              SizedBox(height: 10),
+              _buildThemeTile(),
+              SizedBox(height: 28),
               Row(
                 children: [
                   Expanded(
@@ -256,7 +261,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       style: GoogleFonts.montserrat(
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
-                        color: const Color(0xFF777777),
+                        color: context.colors.textSecondary,
                       ),
                     ),
                   ),
@@ -264,11 +269,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               const SizedBox(height: 10),
               Container(
-                padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+                padding: EdgeInsets.fromLTRB(16, 4, 16, 8),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: context.colors.surface,
                   borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: const Color(0xFFECEDEF)),
+                  border: Border.all(color: context.colors.border),
                 ),
                 child: Column(
                   children: [
@@ -289,7 +294,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       label: 'Loại tài khoản',
                       value: isAdmin ? 'Quản trị viên' : 'Khách hàng',
                     ),
-                    const Divider(height: 1, indent: 44),
+                    Divider(height: 1, indent: 44),
                     _buildReadOnlyRow(
                       icon: Icons.numbers_outlined,
                       label: 'Mã khách hàng',
@@ -306,18 +311,66 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  Widget _buildThemeTile() {
+    return ValueListenableBuilder<ThemeMode>(
+      valueListenable: ThemeController.mode,
+      builder: (context, mode, _) {
+        // Đang theo hệ thống thì công tắc phản ánh giao diện hiện tại
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        void toggle(bool dark) =>
+            ThemeController.set(dark ? ThemeMode.dark : ThemeMode.light);
+        return Material(
+          color: context.colors.surface,
+          borderRadius: BorderRadius.circular(14),
+          child: ListTile(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+              side: BorderSide(color: context.colors.border),
+            ),
+            leading: Icon(
+              isDark ? Icons.dark_mode_outlined : Icons.light_mode_outlined,
+              color: _pink,
+            ),
+            title: Text(
+              'Chế độ tối',
+              style: GoogleFonts.montserrat(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: context.colors.textPrimary,
+              ),
+            ),
+            subtitle: Text(
+              isDark ? 'Đang bật' : 'Đang tắt',
+              style: GoogleFonts.montserrat(
+                fontSize: 11,
+                color: context.colors.textSecondary,
+              ),
+            ),
+            trailing: Switch(
+              value: isDark,
+              activeColor: Colors.white,
+              activeTrackColor: _pink,
+              onChanged: toggle,
+            ),
+            onTap: () => toggle(!isDark),
+          ),
+        );
+      },
+    );
+  }
+
   Widget _buildMenuTile({
     required IconData icon,
     required String title,
     required Widget screen,
   }) {
     return Material(
-      color: Colors.white,
+      color: context.colors.surface,
       borderRadius: BorderRadius.circular(14),
       child: ListTile(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(14),
-          side: const BorderSide(color: Color(0xFFECEDEF)),
+          side: BorderSide(color: context.colors.border),
         ),
         leading: Icon(icon, color: _pink),
         title: Text(
@@ -325,12 +378,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
           style: GoogleFonts.montserrat(
             fontSize: 13,
             fontWeight: FontWeight.w600,
-            color: const Color(0xFF252525),
+            color: context.colors.textPrimary,
           ),
         ),
-        trailing: const Icon(
+        trailing: Icon(
           Icons.chevron_right_rounded,
-          color: Color(0xFF9B9B9B),
+          color: context.colors.textSecondary,
         ),
         onTap: () => Navigator.push(
           context,
@@ -343,11 +396,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildIdentityHeader(String displayName, bool isAdmin) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(20, 22, 20, 20),
+      padding: EdgeInsets.fromLTRB(20, 22, 20, 20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFECEDEF)),
+        border: Border.all(color: context.colors.border),
       ),
       child: Column(
         children: [
@@ -359,8 +412,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
               children: [
                 Container(
                   padding: const EdgeInsets.all(4),
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFFFE6EC),
+                  decoration: BoxDecoration(
+                    color: _pink.withOpacity(0.16),
                     shape: BoxShape.circle,
                   ),
                   child: const UserAvatar(
@@ -390,7 +443,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     decoration: BoxDecoration(
                       color: _pink,
                       shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 3),
+                      border: Border.all(color: context.colors.surface, width: 3),
                     ),
                     child: const Icon(
                       Icons.photo_camera_rounded,
@@ -402,21 +455,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ],
             ),
           ),
-          const SizedBox(height: 14),
+          SizedBox(height: 14),
           Text(
             displayName,
             textAlign: TextAlign.center,
             style: GoogleFonts.montserrat(
               fontSize: 20,
               fontWeight: FontWeight.w700,
-              color: const Color(0xFF222222),
+              color: context.colors.textPrimary,
             ),
           ),
           const SizedBox(height: 7),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 5),
             decoration: BoxDecoration(
-              color: const Color(0xFFFFEDF1),
+              color: _pink.withOpacity(0.14),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
@@ -424,7 +477,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               style: GoogleFonts.montserrat(
                 fontSize: 9,
                 fontWeight: FontWeight.w700,
-                color: const Color(0xFFD93358),
+                color: _pink,
               ),
             ),
           ),
@@ -443,7 +496,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: Row(
         children: [
           Icon(icon, color: _pink, size: 21),
-          const SizedBox(width: 14),
+          SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -452,22 +505,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   label,
                   style: GoogleFonts.montserrat(
                     fontSize: 11,
-                    color: const Color(0xFF777777),
+                    color: context.colors.textSecondary,
                   ),
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: 4),
                 Text(
                   value,
                   style: GoogleFonts.montserrat(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    color: const Color(0xFF252525),
+                    color: context.colors.textPrimary,
                   ),
                 ),
               ],
             ),
           ),
-          const Icon(Icons.lock_outline, size: 16, color: Color(0xFF9B9B9B)),
+          Icon(Icons.lock_outline, size: 16, color: context.colors.textSecondary),
         ],
       ),
     );
@@ -519,10 +572,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.account_circle_outlined,
                     size: 54,
-                    color: Color(0xFF999999),
+                    color: context.colors.textSecondary,
                   ),
                   const SizedBox(height: 12),
                   Text(

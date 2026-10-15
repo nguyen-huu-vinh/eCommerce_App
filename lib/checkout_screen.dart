@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'theme/app_theme.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -335,18 +336,18 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         labelText: label,
         prefixIcon: Icon(icon, size: 20),
         filled: true,
-        fillColor: Colors.white,
+        fillColor: context.colors.surface,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Color(0xFFE3E3E3)),
+          borderSide: BorderSide(color: Color(0xFFE3E3E3)),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Color(0xFFE3E3E3)),
+          borderSide: BorderSide(color: Color(0xFFE3E3E3)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: _pink),
+          borderSide: BorderSide(color: _pink),
         ),
       );
 
@@ -354,14 +355,14 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   Widget build(BuildContext context) {
     final subtotal = widget.controller.subtotal;
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F8F8),
+      backgroundColor: context.colors.page,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF8F8F8),
+        backgroundColor: context.colors.page,
         elevation: 0,
         title: Text(
           'Thanh toán',
           style: GoogleFonts.montserrat(
-            color: const Color(0xFF222222),
+            color: context.colors.textPrimary,
             fontSize: 17,
             fontWeight: FontWeight.w700,
           ),
@@ -492,7 +493,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             const SizedBox(height: 10),
             for (final item in widget.controller.items)
               Padding(
-                padding: const EdgeInsets.only(bottom: 9),
+                padding: EdgeInsets.only(bottom: 9),
                 child: Row(
                   children: [
                     Expanded(
@@ -502,7 +503,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                         overflow: TextOverflow.ellipsis,
                         style: GoogleFonts.montserrat(
                           fontSize: 12,
-                          color: const Color(0xFF555555),
+                          color: context.colors.textSecondary,
                         ),
                       ),
                     ),
@@ -517,7 +518,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   ],
                 ),
               ),
-            const Divider(height: 20),
+            Divider(height: 20),
             if (_coupon != null) ...[
               Row(
                 children: [
@@ -526,7 +527,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       'Tạm tính',
                       style: GoogleFonts.montserrat(
                         fontSize: 12,
-                        color: const Color(0xFF555555),
+                        color: context.colors.textSecondary,
                       ),
                     ),
                   ),
@@ -581,14 +582,14 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 5),
+            SizedBox(height: 5),
             Align(
               alignment: Alignment.centerRight,
               child: Text(
                 'Miễn phí vận chuyển',
                 style: GoogleFonts.montserrat(
                   fontSize: 11,
-                  color: const Color(0xFF777777),
+                  color: context.colors.textSecondary,
                 ),
               ),
             ),
@@ -668,7 +669,7 @@ class _LoginRequiredCard extends StatelessWidget {
 class _SectionTitle extends StatelessWidget {
   final String title;
 
-  const _SectionTitle({required this.title});
+  _SectionTitle({required this.title});
 
   @override
   Widget build(BuildContext context) => Text(
@@ -676,7 +677,7 @@ class _SectionTitle extends StatelessWidget {
     style: GoogleFonts.montserrat(
       fontSize: 14,
       fontWeight: FontWeight.w700,
-      color: const Color(0xFF252525),
+      color: context.colors.textPrimary,
     ),
   );
 }
@@ -707,15 +708,15 @@ class _PaymentOption extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: context.colors.surface,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: selected ? const Color(0xFFFE3E6C) : const Color(0xFFE3E3E3),
+            color: selected ? const Color(0xFFFE3E6C) : Color(0xFFE3E3E3),
           ),
         ),
         child: Row(
           children: [
-            Icon(icon, color: const Color(0xFF555555), size: 21),
+            Icon(icon, color: context.colors.textSecondary, size: 21),
             const SizedBox(width: 10),
             Expanded(
               child: Column(
@@ -728,12 +729,12 @@ class _PaymentOption extends StatelessWidget {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  const SizedBox(height: 2),
+                  SizedBox(height: 2),
                   Text(
                     subtitle,
                     style: GoogleFonts.montserrat(
                       fontSize: 10,
-                      color: const Color(0xFF777777),
+                      color: context.colors.textSecondary,
                     ),
                   ),
                 ],

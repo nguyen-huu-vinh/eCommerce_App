@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+
+import 'theme/app_theme.dart';
+
 import 'package:google_fonts/google_fonts.dart';
 
 import 'widgets/header_top_bar.dart';
@@ -8,6 +11,9 @@ import 'widgets/app_button.dart';
 import 'widgets/promo_banner_slider.dart';
 import 'widgets/deal_of_the_day_section.dart';
 import 'widgets/product_card.dart';
+import 'services/api_client.dart';
+import 'services/notification_service.dart';
+import 'notifications_screen.dart';
 import 'widgets/trending_products_section.dart';
 import 'widgets/new_arrivals_banner.dart';
 import 'widgets/sponsored_banner.dart';
@@ -45,6 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
     futureTrendingProducts = ProductService.fetchTrending();
     // Lấy hồ sơ để avatar góc trên hiện ảnh người dùng; lỗi thì giữ ảnh mặc định
     AuthService.me().catchError((Object _) => null);
+    NotificationService.refreshUnread();
   }
 
   bool _isDiscounted(Product product) {
@@ -64,6 +71,7 @@ class _HomeScreenState extends State<HomeScreen> {
   /// Kéo xuống để tải lại Deal of the Day và Trending
   Future<void> _refreshHome() async {
     ProductService.clearCache();
+    NotificationService.refreshUnread();
     final deals = ProductService.fetchDealsOfTheDay();
     final trending = ProductService.fetchTrending();
     setState(() {
@@ -97,14 +105,14 @@ class _HomeScreenState extends State<HomeScreen> {
       barrierDismissible: true,
       barrierLabel: 'Đóng danh mục',
       barrierColor: Colors.black54,
-      transitionDuration: const Duration(milliseconds: 280),
+      transitionDuration: Duration(milliseconds: 280),
       pageBuilder: (dialogContext, _, _) => StatefulBuilder(
         builder: (panelContext, setPanelState) {
           final width = MediaQuery.sizeOf(dialogContext).width;
           return Align(
             alignment: Alignment.centerLeft,
             child: Material(
-              color: const Color(0xFFF8F8F8),
+              color: context.colors.surfaceAlt,
               child: SizedBox(
                 width: width < 400 ? width * 0.84 : 336,
                 height: double.infinity,
@@ -135,7 +143,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 style: GoogleFonts.montserrat(
                                   fontSize: 15,
                                   fontWeight: FontWeight.w700,
-                                  color: const Color(0xFF202124),
+                                  color: context.colors.textPrimary,
                                 ),
                               ),
                             ),
@@ -149,13 +157,13 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       const Divider(height: 1),
                       Padding(
-                        padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
+                        padding: EdgeInsets.fromLTRB(20, 20, 20, 10),
                         child: Text(
                           'DANH MỤC',
                           style: GoogleFonts.montserrat(
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
-                            color: const Color(0xFF777777),
+                            color: context.colors.textSecondary,
                           ),
                         ),
                       ),
@@ -220,9 +228,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
-                                  trailing: const Icon(
+                                  trailing: Icon(
                                     Icons.chevron_right,
-                                    color: Color(0xFF777777),
+                                    color: context.colors.textSecondary,
                                   ),
                                   onTap: () =>
                                       Navigator.pop(dialogContext, category),
@@ -292,6 +300,14 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  Future<void> _openNotifications() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const NotificationsScreen()),
+    );
+    NotificationService.refreshUnread();
+  }
+
   void _openProfile() {
     Navigator.push(
       context,
@@ -300,7 +316,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   // Đưa danh sách categories vào trong State để quản lý dễ dàng hơn
-  final List<Map<String, String>> categories = const [
+  final List<Map<String, String>> categories = [
     {'title': 'Beauty', 'image': 'assets/images/Ellipse 4.png'},
     {'title': 'Fashion', 'image': 'assets/images/unsplash__3Q3tsJ01nc.png'},
     {'title': 'Kids', 'image': 'assets/images/unsplash_GCDjllzoKLo.png'},
@@ -312,7 +328,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF9F9F9),
+      backgroundColor: context.colors.page,
       body: SafeArea(
         child: RefreshIndicator(
           color: const Color(0xFFFE3E6C),
@@ -328,14 +344,19 @@ class _HomeScreenState extends State<HomeScreen> {
                 const SizedBox(height: 12),
 
                 // 1. HEADER TOP BAR
-                HeaderTopBar(
-                  menuSvgAsset: 'assets/icon/menu.svg',
-                  logoAsset: 'assets/images/logoipsum.png',
-                  avatarAsset:
-                      'assets/images/2289_SkVNQSBGQU1PIDEwMjgtMTE2 1.png',
-                  onMenuTap: _openCategoryMenu,
-                  onLogoTap: _reloadHome,
-                  onAvatarTap: _openProfile,
+                ValueListenableBuilder<int>(
+                  valueListenable: NotificationService.unread,
+                  builder: (context, unread, _) => HeaderTopBar(
+                    menuSvgAsset: 'assets/icon/menu.svg',
+                    logoAsset: 'assets/images/logoipsum.png',
+                    avatarAsset:
+                        'assets/images/2289_SkVNQSBGQU1PIDEwMjgtMTE2 1.png',
+                    onMenuTap: _openCategoryMenu,
+                    onLogoTap: _reloadHome,
+                    onAvatarTap: _openProfile,
+                    onBellTap: _openNotifications,
+                    unreadCount: unread,
+                  ),
                 ),
 
                 const SizedBox(height: 16),
@@ -351,7 +372,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                 // 3. SECTION: ALL FEATURED + BUTTONS
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  padding: EdgeInsets.symmetric(horizontal: 16.0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -360,7 +381,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         style: GoogleFonts.montserrat(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
-                          color: const Color(0xFF000000),
+                          color: context.colors.textPrimary,
                         ),
                       ),
                       Row(
@@ -372,7 +393,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 CartScope.maybeOf(context)?.onOpenSearch
                                     ?.call(SearchAction.sort),
                           ),
-                          const SizedBox(width: 8),
+                          SizedBox(width: 8),
                           AppButton(
                             label: 'Filter',
                             icon: Icons.filter_alt_outlined,
@@ -386,31 +407,30 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 18),
+                SizedBox(height: 18),
 
                 // 4. CATEGORIES (DANH MỤC TRÒN)
                 Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 10),
-                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  margin: EdgeInsets.symmetric(horizontal: 10),
+                  padding: EdgeInsets.symmetric(vertical: 8),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: context.colors.surface,
                     borderRadius: BorderRadius.circular(12),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withOpacity(0.04),
                         blurRadius: 8,
-                        offset: const Offset(0, 2),
+                        offset: Offset(0, 2),
                       ),
                     ],
                   ),
                   child: SizedBox(
                     height: 96,
                     child: ListView.separated(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      padding: EdgeInsets.symmetric(horizontal: 12),
                       scrollDirection: Axis.horizontal,
                       itemCount: categories.length,
-                      separatorBuilder: (context, index) =>
-                          const SizedBox(width: 16),
+                      separatorBuilder: (context, index) => SizedBox(width: 16),
                       itemBuilder: (context, index) {
                         final category = categories[index];
 
@@ -431,9 +451,9 @@ class _HomeScreenState extends State<HomeScreen> {
                               Container(
                                 width: 64,
                                 height: 64,
-                                decoration: const BoxDecoration(
+                                decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  color: Color(0xFFF2F2F2),
+                                  color: context.colors.surfaceAlt,
                                 ),
                                 child: ClipOval(
                                   child: Image.asset(
@@ -442,7 +462,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     errorBuilder: (context, error, stackTrace) {
                                       return Container(
                                         color: Colors.grey.shade300,
-                                        child: const Icon(
+                                        child: Icon(
                                           Icons.image,
                                           color: Colors.grey,
                                         ),
@@ -451,13 +471,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                 ),
                               ),
-                              const SizedBox(height: 8),
+                              SizedBox(height: 8),
                               Text(
                                 category['title']!,
                                 style: GoogleFonts.montserrat(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w400,
-                                  color: const Color(0xFF21003D),
+                                  color: context.colors.textPrimary,
                                 ),
                               ),
                             ],
@@ -468,26 +488,24 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
 
                 // 5. BANNER SLIDE
-                const PromoBannerSlider(),
+                PromoBannerSlider(),
 
-                const SizedBox(height: 20),
+                SizedBox(height: 20),
 
                 // 6. DEAL OF THE DAY SECTION
                 DealOfTheDaySection(
                   onViewAllTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
-                        builder: (_) => const DealOfTheDayScreen(),
-                      ),
+                      MaterialPageRoute(builder: (_) => DealOfTheDayScreen()),
                     );
                   },
                 ),
 
-                const SizedBox(height: 20),
+                SizedBox(height: 20),
 
                 // 7. DANH SÁCH SẢN PHẨM DEALS (đã đổi sang API thật)
                 SizedBox(
@@ -496,10 +514,13 @@ class _HomeScreenState extends State<HomeScreen> {
                     future: futureDealProducts,
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(child: CircularProgressIndicator());
+                        return Center(child: CircularProgressIndicator());
                       }
                       if (snapshot.hasError) {
-                        return Center(child: Text('Lỗi: ${snapshot.error}'));
+                        return _SectionRetry(
+                          message: errorText(snapshot.error!),
+                          onRetry: _refreshHome,
+                        );
                       }
                       final products = (snapshot.data ?? [])
                           .where(
@@ -514,17 +535,17 @@ class _HomeScreenState extends State<HomeScreen> {
                             'Hiện chưa có sản phẩm giảm giá.',
                             style: GoogleFonts.montserrat(
                               fontSize: 13,
-                              color: const Color(0xFF777777),
+                              color: context.colors.textSecondary,
                             ),
                           ),
                         );
                       }
                       return ListView.separated(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        padding: EdgeInsets.symmetric(horizontal: 16),
                         scrollDirection: Axis.horizontal,
                         itemCount: products.length,
                         separatorBuilder: (context, index) =>
-                            const SizedBox(width: 12),
+                            SizedBox(width: 12),
                         itemBuilder: (context, index) {
                           final item = products[index];
                           final hasReducedPrice =
@@ -555,7 +576,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
 
-                // const SizedBox(height: 20),
+                // SizedBox(height: 20),
                 //
                 // // 8. SPECIAL OFFERS CARD
                 // SpecialOffersCard(
@@ -570,7 +591,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 //   imageAsset: 'assets/images/Rectangle 55.png',
                 //   onVisitTap: () {},
                 // ),
-                const SizedBox(height: 20),
+                SizedBox(height: 20),
 
                 // 10. TRENDING PRODUCTS SECTION
                 TrendingProductsSection(
@@ -578,13 +599,13 @@ class _HomeScreenState extends State<HomeScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const TrendingProductsScreen(),
+                        builder: (context) => TrendingProductsScreen(),
                       ),
                     );
                   },
                 ),
 
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
 
                 // 11. DANH SÁCH TRENDING PRODUCTS
                 SizedBox(
@@ -593,18 +614,26 @@ class _HomeScreenState extends State<HomeScreen> {
                     future: futureTrendingProducts,
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(child: CircularProgressIndicator());
+                        return Center(child: CircularProgressIndicator());
                       }
                       if (snapshot.hasError) {
-                        return Center(child: Text('Lỗi: ${snapshot.error}'));
+                        return _SectionRetry(
+                          message: errorText(snapshot.error!),
+                          onRetry: _refreshHome,
+                        );
                       }
                       final products = snapshot.data ?? [];
+                      if (products.isEmpty) {
+                        return _SectionRetry(
+                          message: 'Hiện chưa có sản phẩm trending.',
+                        );
+                      }
                       return ListView.separated(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        padding: EdgeInsets.symmetric(horizontal: 16),
                         scrollDirection: Axis.horizontal,
                         itemCount: products.length,
                         separatorBuilder: (context, index) =>
-                            const SizedBox(width: 12),
+                            SizedBox(width: 12),
                         itemBuilder: (context, index) {
                           final item = products[index];
                           final hasReducedPrice =
@@ -636,7 +665,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
 
                 // 12. NEW ARRIVALS BANNER
                 NewArrivalsBanner(
@@ -644,14 +673,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   onViewAllTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
-                        builder: (_) => const NewArrivalsScreen(),
-                      ),
+                      MaterialPageRoute(builder: (_) => NewArrivalsScreen()),
                     );
                   },
                 ),
 
-                const SizedBox(height: 20),
+                SizedBox(height: 20),
 
                 // 13. SPONSERD BANNER
                 SponsoredBanner(
@@ -674,6 +701,42 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Thông báo trong một khu vực của trang chủ, kèm nút thử lại khi tải lỗi.
+class _SectionRetry extends StatelessWidget {
+  final String message;
+  final VoidCallback? onRetry;
+
+  _SectionRetry({required this.message, this.onRetry});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: GoogleFonts.montserrat(
+              fontSize: 13,
+              color: context.colors.textSecondary,
+            ),
+          ),
+          if (onRetry != null)
+            TextButton.icon(
+              onPressed: onRetry,
+              icon: const Icon(Icons.refresh, size: 18),
+              label: const Text('Thử lại'),
+              style: TextButton.styleFrom(
+                foregroundColor: const Color(0xFFFE3E6C),
+              ),
+            ),
+        ],
       ),
     );
   }

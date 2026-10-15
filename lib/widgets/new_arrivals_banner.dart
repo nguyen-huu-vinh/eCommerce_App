@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/app_theme.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'bouncing_button.dart';
@@ -10,7 +11,7 @@ class NewArrivalsBanner extends StatelessWidget {
   final String buttonText;
   final VoidCallback? onViewAllTap;
 
-  const NewArrivalsBanner({
+  NewArrivalsBanner({
     super.key,
     this.imageAsset = 'assets/images/hot_summer_sale.png',
     this.title = 'New Arrivals',
@@ -22,20 +23,20 @@ class NewArrivalsBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Bấm vào bất kỳ chỗ nào trên banner cũng mở danh sách sản phẩm mới
-    return BouncingButton(onTap: onViewAllTap ?? () {}, child: _buildCard());
+    return BouncingButton(onTap: onViewAllTap ?? () {}, child: _buildCard(context));
   }
 
-  Widget _buildCard() {
+  Widget _buildCard(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
+      margin: EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
             blurRadius: 8,
-            offset: const Offset(0, 2),
+            offset: Offset(0, 2),
           ),
         ],
       ),
@@ -53,10 +54,10 @@ class NewArrivalsBanner extends StatelessWidget {
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
                   return Container(
-                    color: const Color(
+                    color: Color(
                       0xFFFBE4C8,
                     ), // Màu cam nhạt giống nền thiết kế
-                    child: const Center(
+                    child: Center(
                       child: Icon(Icons.image, size: 48, color: Colors.orange),
                     ),
                   );
@@ -66,7 +67,7 @@ class NewArrivalsBanner extends StatelessWidget {
 
             // 2. PHẦN THÔNG TIN BÊN DƯỚI (TIÊU ĐỀ + NÚT BẤM)
             Padding(
-              padding: const EdgeInsets.all(12.0),
+              padding: EdgeInsets.all(12.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -81,16 +82,16 @@ class NewArrivalsBanner extends StatelessWidget {
                         style: GoogleFonts.montserrat(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
-                          color: const Color(0xFF000000),
+                          color: context.colors.textPrimary,
                         ),
                       ),
-                      const SizedBox(height: 2),
+                      SizedBox(height: 2),
                       Text(
                         subtitle,
                         style: GoogleFonts.montserrat(
                           fontSize: 13,
                           fontWeight: FontWeight.w400,
-                          color: const Color(0xFF000000),
+                          color: context.colors.textPrimary,
                         ),
                       ),
                     ],

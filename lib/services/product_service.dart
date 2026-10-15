@@ -99,14 +99,30 @@ class ProductService {
   }
 
   static Future<List<Product>> _fetchList(Uri uri) async {
-    final res = await http.get(uri).timeout(_timeout);
-
-    if (res.statusCode != 200) {
-      throw ProductException('Có lỗi xảy ra (mã ${res.statusCode})');
+    // Render vừa "thức dậy" hay mạng chập chờn thường lỗi ngay lần đầu:
+    // thử lại vài lần trước khi báo lỗi cho người dùng
+    const maxAttempts = 3;
+    for (var attempt = 1; ; attempt++) {
+      try {
+        final res = await http.get(uri).timeout(_timeout);
+        if (res.statusCode >= 500 && attempt < maxAttempts) {
+          await Future<void>.delayed(Duration(seconds: 2 * attempt));
+          continue;
+        }
+        if (res.statusCode != 200) {
+          throw ProductException('Có lỗi xảy ra (mã ${res.statusCode})');
+        }
+        final list = jsonDecode(utf8.decode(res.bodyBytes)) as List;
+        return list
+            .map((e) => Product.fromJson(e as Map<String, dynamic>))
+            .toList();
+      } on ProductException {
+        rethrow;
+      } catch (_) {
+        // Hết thời gian chờ 70s đã đủ lâu, không đợi thêm lần nữa
+        if (attempt >= maxAttempts) rethrow;
+        await Future<void>.delayed(Duration(seconds: 2 * attempt));
+      }
     }
-    final list = jsonDecode(utf8.decode(res.bodyBytes)) as List;
-    return list
-        .map((e) => Product.fromJson(e as Map<String, dynamic>))
-        .toList();
   }
 }

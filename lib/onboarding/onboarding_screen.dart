@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/app_theme.dart';
 
 import 'onboarding_page_1.dart';
 import 'onboarding_page_2.dart';
@@ -16,7 +17,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController _pageController = PageController();
   int _currentIndex = 0;
 
-  final List<Widget> _pages = const [
+  final List<Widget> _pages = [
     OnboardingPage1(),
     OnboardingPage2(),
     OnboardingPage3(),
@@ -25,13 +26,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.colors.page,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 18.0),
+          padding: EdgeInsets.symmetric(horizontal: 18.0),
           child: Column(
             children: [
-              const SizedBox(height: 10),
+              SizedBox(height: 10),
               // Header
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -41,13 +42,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       children: [
                         TextSpan(
                           text: '${_currentIndex + 1}',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: Colors.black,
+                            color: context.colors.textPrimary,
                           ),
                         ),
-                        const TextSpan(
+                        TextSpan(
                           text: '/3',
                           style: TextStyle(
                             fontSize: 18,
@@ -68,12 +69,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         ),
                       );
                     },
-                    child: const Text(
+                    child: Text(
                       'Skip',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black,
+                        color: context.colors.textPrimary,
                       ),
                     ),
                   ),
@@ -122,13 +123,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         _pages.length,
                         (index) => AnimatedContainer(
                           duration: const Duration(milliseconds: 300),
-                          margin: const EdgeInsets.symmetric(horizontal: 3),
+                          margin: EdgeInsets.symmetric(horizontal: 3),
                           width: _currentIndex == index ? 40 : 8,
                           height: 8,
                           decoration: BoxDecoration(
                             color: _currentIndex == index
-                                ? const Color(0xFF17223B)
-                                : const Color(0xFFD9D9D9),
+                                ? Color(0xFF17223B)
+                                : Color(0xFFD9D9D9),
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
@@ -140,7 +141,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       onPressed: () {
                         if (_currentIndex < _pages.length - 1) {
                           _pageController.nextPage(
-                            duration: const Duration(milliseconds: 300),
+                            duration: Duration(milliseconds: 300),
                             curve: Curves.easeInOut,
                           );
                         } else {

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'theme/app_theme.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -69,17 +70,17 @@ class _AddressBookScreenState extends State<AddressBookScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Xóa địa chỉ?'),
+        title: Text('Xóa địa chỉ?'),
         content: Text(address.address),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, false),
-            child: const Text('Hủy'),
+            child: Text('Hủy'),
           ),
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: _pink),
             onPressed: () => Navigator.pop(dialogContext, true),
-            child: const Text('Xóa'),
+            child: Text('Xóa'),
           ),
         ],
       ),
@@ -91,15 +92,15 @@ class _AddressBookScreenState extends State<AddressBookScreen> {
   Widget build(BuildContext context) {
     final addresses = _addresses;
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F7F8),
+      backgroundColor: context.colors.page,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF7F7F8),
+        backgroundColor: context.colors.page,
         elevation: 0,
         centerTitle: true,
         title: Text(
           widget.pickMode ? 'Chọn địa chỉ' : 'Sổ địa chỉ',
           style: GoogleFonts.montserrat(
-            color: const Color(0xFF222222),
+            color: context.colors.textPrimary,
             fontSize: 17,
             fontWeight: FontWeight.w700,
           ),
@@ -133,16 +134,16 @@ class _AddressBookScreenState extends State<AddressBookScreen> {
           : addresses.isEmpty
           ? Center(
               child: Padding(
-                padding: const EdgeInsets.all(24),
+                padding: EdgeInsets.all(24),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.location_off_outlined,
                       size: 56,
-                      color: Color(0xFFB8B8B8),
+                      color: context.colors.textMuted,
                     ),
-                    const SizedBox(height: 12),
+                    SizedBox(height: 12),
                     Text(
                       'Bạn chưa lưu địa chỉ nào',
                       style: GoogleFonts.montserrat(
@@ -150,12 +151,12 @@ class _AddressBookScreenState extends State<AddressBookScreen> {
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: 4),
                     Text(
                       'Lưu địa chỉ để đặt hàng nhanh hơn',
                       style: GoogleFonts.montserrat(
                         fontSize: 12,
-                        color: const Color(0xFF777777),
+                        color: context.colors.textSecondary,
                       ),
                     ),
                   ],
@@ -167,7 +168,7 @@ class _AddressBookScreenState extends State<AddressBookScreen> {
               child: ListView.separated(
                 padding: EdgeInsets.fromLTRB(16, 4, 16, 196),
                 itemCount: addresses.length,
-                separatorBuilder: (_, _) => const SizedBox(height: 10),
+                separatorBuilder: (_, _) => SizedBox(height: 10),
                 itemBuilder: (context, index) {
                   final address = addresses[index];
                   return _AddressCard(
@@ -196,7 +197,7 @@ class _AddressCard extends StatelessWidget {
   final VoidCallback onDelete;
   final VoidCallback? onSetDefault;
 
-  const _AddressCard({
+  _AddressCard({
     required this.address,
     required this.onTap,
     required this.onEdit,
@@ -208,19 +209,19 @@ class _AddressCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final label = address.label;
     return Material(
-      color: Colors.white,
+      color: context.colors.surface,
       borderRadius: BorderRadius.circular(12),
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: onTap,
         child: Container(
-          padding: const EdgeInsets.fromLTRB(14, 12, 6, 6),
+          padding: EdgeInsets.fromLTRB(14, 12, 6, 6),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: address.isDefault
-                  ? const Color(0xFFFE3E6C)
-                  : const Color(0xFFECEDEF),
+                  ? Color(0xFFFE3E6C)
+                  : context.colors.border,
             ),
           ),
           child: Column(
@@ -236,16 +237,16 @@ class _AddressCard extends StatelessWidget {
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    SizedBox(width: 8),
                   ],
                   if (address.isDefault)
                     Container(
-                      padding: const EdgeInsets.symmetric(
+                      padding: EdgeInsets.symmetric(
                         horizontal: 7,
                         vertical: 2,
                       ),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFFFEDF1),
+                        color: Color(0xFFFFEDF1),
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
@@ -253,11 +254,11 @@ class _AddressCard extends StatelessWidget {
                         style: GoogleFonts.montserrat(
                           fontSize: 10,
                           fontWeight: FontWeight.w600,
-                          color: const Color(0xFFD93358),
+                          color: Color(0xFFD93358),
                         ),
                       ),
                     ),
-                  const Spacer(),
+                  Spacer(),
                   PopupMenuButton<String>(
                     tooltip: 'Tùy chọn',
                     onSelected: (value) {
@@ -266,13 +267,13 @@ class _AddressCard extends StatelessWidget {
                       if (value == 'delete') onDelete();
                     },
                     itemBuilder: (_) => [
-                      const PopupMenuItem(value: 'edit', child: Text('Sửa')),
+                      PopupMenuItem(value: 'edit', child: Text('Sửa')),
                       if (onSetDefault != null)
-                        const PopupMenuItem(
+                        PopupMenuItem(
                           value: 'default',
                           child: Text('Đặt làm mặc định'),
                         ),
-                      const PopupMenuItem(value: 'delete', child: Text('Xóa')),
+                      PopupMenuItem(value: 'delete', child: Text('Xóa')),
                     ],
                   ),
                 ],
@@ -284,15 +285,15 @@ class _AddressCard extends StatelessWidget {
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              const SizedBox(height: 3),
+              SizedBox(height: 3),
               Padding(
-                padding: const EdgeInsets.only(right: 8, bottom: 8),
+                padding: EdgeInsets.only(right: 8, bottom: 8),
                 child: Text(
                   address.address,
                   style: GoogleFonts.montserrat(
                     fontSize: 12,
                     height: 1.4,
-                    color: const Color(0xFF555555),
+                    color: context.colors.textSecondary,
                   ),
                 ),
               ),
@@ -345,7 +346,7 @@ class _AddressFormScreenState extends State<AddressFormScreen> {
       if (_suggestions.isNotEmpty) setState(() => _suggestions = []);
       return;
     }
-    _debounce = Timer(const Duration(milliseconds: 700), () async {
+    _debounce = Timer(Duration(milliseconds: 700), () async {
       try {
         final found = await PlaceService.search(text);
         if (mounted && _address.text.trim() == text) {
@@ -417,7 +418,7 @@ class _AddressFormScreenState extends State<AddressFormScreen> {
     labelText: label,
     prefixIcon: Icon(icon, size: 20),
     filled: true,
-    fillColor: Colors.white,
+    fillColor: context.colors.surface,
     border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
   );
 
@@ -427,15 +428,15 @@ class _AddressFormScreenState extends State<AddressFormScreen> {
     // Địa chỉ mặc định đang sửa không thể tự bỏ mặc định (phải chọn cái khác)
     final lockDefault = widget.address?.isDefault ?? false;
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F7F8),
+      backgroundColor: context.colors.page,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF7F7F8),
+        backgroundColor: context.colors.page,
         elevation: 0,
         centerTitle: true,
         title: Text(
           editing ? 'Sửa địa chỉ' : 'Thêm địa chỉ',
           style: GoogleFonts.montserrat(
-            color: const Color(0xFF222222),
+            color: context.colors.textPrimary,
             fontSize: 17,
             fontWeight: FontWeight.w700,
           ),
@@ -494,7 +495,7 @@ class _AddressFormScreenState extends State<AddressFormScreen> {
             for (final place in _suggestions)
               ListTile(
                 dense: true,
-                leading: const Icon(Icons.place_outlined, color: _pink),
+                leading: Icon(Icons.place_outlined, color: _pink),
                 title: Text(
                   place.name,
                   maxLines: 2,

@@ -1,6 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Bản release cần khai báo rõ; bản debug Flutter tự thêm nên trước giờ không lộ lỗi -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Android 13+ cần quyền này mới hiện được thông báo push -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <application
         android:label="ecommerce_a"
         android:name="${applicationName}"

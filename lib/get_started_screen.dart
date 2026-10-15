@@ -13,7 +13,7 @@ class GetStartedScreen extends StatelessWidget {
         children: [
           // 1. Ảnh nền full màn hình
           Container(
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               image: DecorationImage(
                 image: AssetImage('assets/images/nen.png'),
                 fit: BoxFit.cover,
@@ -32,7 +32,7 @@ class GetStartedScreen extends StatelessWidget {
                   Colors.black.withOpacity(0.3),
                   Colors.black.withOpacity(0.8),
                 ],
-                stops: const [0.4, 0.7, 1.0],
+                stops: [0.4, 0.7, 1.0],
               ),
             ),
           ),
@@ -40,7 +40,7 @@ class GetStartedScreen extends StatelessWidget {
           // 3. Nội dung chữ và nút bấm
           SafeArea(
             child: Padding(
-              padding: const EdgeInsets.symmetric(
+              padding: EdgeInsets.symmetric(
                 horizontal: 32.0,
                 vertical: 24.0,
               ),
@@ -48,7 +48,7 @@ class GetStartedScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   // Tiêu đề lớn
-                  const Text(
+                  Text(
                     'You want\nAuthentic, here\nyou go!',
                     textAlign: TextAlign.center,
                     style: TextStyle(
@@ -59,10 +59,10 @@ class GetStartedScreen extends StatelessWidget {
                     ),
                   ),
 
-                  const SizedBox(height: 14),
+                  SizedBox(height: 14),
 
                   // Dòng chú thích nhỏ
-                  const Text(
+                  Text(
                     'Find it here, buy it now!',
                     textAlign: TextAlign.center,
                     style: TextStyle(
@@ -72,7 +72,7 @@ class GetStartedScreen extends StatelessWidget {
                     ),
                   ),
 
-                  const SizedBox(height: 34),
+                  SizedBox(height: 34),
 
                   // Nút Get Started
                   SizedBox(

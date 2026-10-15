@@ -57,5 +57,6 @@ String _errorMessage(http.Response res) {
 }
 
 /// Thông báo thân thiện cho mọi loại lỗi (mất mạng, timeout...)
-String errorText(Object error) =>
-    error is ApiException ? error.message : 'Không thể kết nối máy chủ, vui lòng thử lại';
+String errorText(Object error) => error is ApiException
+    ? error.message
+    : 'Không thể kết nối máy chủ, vui lòng thử lại';

@@ -4,6 +4,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 
+import 'notification_service.dart';
+
 const String baseUrl = 'https://stylish-backend-lyrx.onrender.com';
 
 class AuthException implements Exception {
@@ -100,6 +102,7 @@ class AuthService {
 
   static Future<void> logout() {
     avatarUrl.value = null;
+    NotificationService.unread.value = 0;
     return _storage.delete(key: _tokenKey);
   }
 

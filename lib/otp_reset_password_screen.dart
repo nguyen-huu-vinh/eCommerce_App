@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'theme/app_theme.dart';
 import 'package:flutter/services.dart';
 
 import 'services/auth_service.dart';
@@ -74,7 +75,7 @@ class _OtpResetPasswordScreenState extends State<OtpResetPasswordScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.colors.page,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
@@ -83,10 +84,10 @@ class _OtpResetPasswordScreenState extends State<OtpResetPasswordScreen> {
             children: [
               IconButton(
                 onPressed: () => Navigator.maybePop(context),
-                icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+                icon: Icon(Icons.arrow_back_ios_new_rounded, size: 20),
                 color: Colors.black,
                 style: IconButton.styleFrom(
-                  backgroundColor: const Color(0xFFF3F3F3),
+                  backgroundColor: context.colors.surfaceAlt,
                   padding: const EdgeInsets.all(10),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
@@ -94,12 +95,12 @@ class _OtpResetPasswordScreenState extends State<OtpResetPasswordScreen> {
                 ),
               ),
               const SizedBox(height: 28),
-              const Text(
+              Text(
                 'Nhập mã OTP',
                 style: TextStyle(
                   fontSize: 30,
                   fontWeight: FontWeight.w800,
-                  color: Colors.black,
+                  color: context.colors.textPrimary,
                 ),
               ),
               const SizedBox(height: 12),
@@ -148,7 +149,7 @@ class _OtpResetPasswordScreenState extends State<OtpResetPasswordScreen> {
                 child: ElevatedButton(
                   onPressed: _isLoading ? null : _resetPassword,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFF83758),
+                    backgroundColor: Color(0xFFF83758),
                     foregroundColor: Colors.white,
                     elevation: 0,
                     shape: RoundedRectangleBorder(
@@ -156,7 +157,7 @@ class _OtpResetPasswordScreenState extends State<OtpResetPasswordScreen> {
                     ),
                   ),
                   child: _isLoading
-                      ? const SizedBox(
+                      ? SizedBox(
                           width: 24,
                           height: 24,
                           child: CircularProgressIndicator(
@@ -164,7 +165,7 @@ class _OtpResetPasswordScreenState extends State<OtpResetPasswordScreen> {
                             color: Colors.white,
                           ),
                         )
-                      : const Text(
+                      : Text(
                           'Đặt lại mật khẩu',
                           style: TextStyle(
                             fontSize: 18,
@@ -196,8 +197,8 @@ class _OtpResetPasswordScreenState extends State<OtpResetPasswordScreen> {
       obscureText: obscureText,
       decoration: InputDecoration(
         hintText: hintText,
-        hintStyle: const TextStyle(color: Color(0xFFA8A8A9), fontSize: 14),
-        prefixIcon: Icon(icon, color: const Color(0xFF626262)),
+        hintStyle: TextStyle(color: context.colors.textMuted, fontSize: 14),
+        prefixIcon: Icon(icon, color: context.colors.textSecondary),
         suffixIcon: onToggleVisibility == null
             ? null
             : IconButton(
@@ -206,19 +207,19 @@ class _OtpResetPasswordScreenState extends State<OtpResetPasswordScreen> {
                   obscureText
                       ? Icons.visibility_outlined
                       : Icons.visibility_off_outlined,
-                  color: const Color(0xFF626262),
+                  color: context.colors.textSecondary,
                 ),
               ),
         filled: true,
-        fillColor: const Color(0xFFF3F3F3),
+        fillColor: context.colors.surfaceAlt,
         contentPadding: const EdgeInsets.symmetric(vertical: 16),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Color(0xFFA8A8A9)),
+          borderSide: BorderSide(color: context.colors.border),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Color(0xFFA8A8A9)),
+          borderSide: BorderSide(color: context.colors.border),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),

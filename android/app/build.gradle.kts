@@ -4,6 +4,11 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
+// Chưa tải google-services.json từ Firebase thì bỏ qua để app vẫn build được
+if (file("google-services.json").exists()) {
+    apply(plugin = "com.google.gms.google-services")
+}
+
 android {
     namespace = "com.example.ecommerce_a"
     compileSdk = flutter.compileSdkVersion

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/app_theme.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class SponsoredBanner extends StatelessWidget {
@@ -18,7 +19,7 @@ class SponsoredBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
+      margin: EdgeInsets.symmetric(horizontal: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -28,7 +29,7 @@ class SponsoredBanner extends StatelessWidget {
             style: GoogleFonts.montserrat(
               fontSize: 20,
               fontWeight: FontWeight.w600,
-              color: const Color(0xFF000000),
+              color: context.colors.textPrimary,
             ),
           ),
           const SizedBox(height: 12),
@@ -38,7 +39,7 @@ class SponsoredBanner extends StatelessWidget {
             onTap: onTap,
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: context.colors.surface,
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
@@ -76,7 +77,7 @@ class SponsoredBanner extends StatelessWidget {
 
                     // Dòng chữ "up to 50% Off" + Icon mũi tên
                     Padding(
-                      padding: const EdgeInsets.symmetric(
+                      padding: EdgeInsets.symmetric(
                         horizontal: 16,
                         vertical: 14,
                       ),
@@ -88,13 +89,13 @@ class SponsoredBanner extends StatelessWidget {
                             style: GoogleFonts.montserrat(
                               fontSize: 16,
                               fontWeight: FontWeight.w700,
-                              color: const Color(0xFF000000),
+                              color: context.colors.textPrimary,
                             ),
                           ),
-                          const Icon(
+                          Icon(
                             Icons.arrow_forward_ios,
                             size: 16,
-                            color: Color(0xFF000000),
+                            color: context.colors.textPrimary,
                           ),
                         ],
                       ),

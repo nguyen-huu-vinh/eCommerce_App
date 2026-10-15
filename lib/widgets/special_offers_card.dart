@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/app_theme.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'bouncing_button.dart'; // Import BouncingButton
@@ -23,7 +24,7 @@ class SpecialOffersCard extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
@@ -64,7 +65,7 @@ class SpecialOffersCard extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: 16),
+          SizedBox(width: 16),
 
           // 2. CỤM TIÊU ĐỀ VÀ MÔ TẢ BÊN PHẢI
           Expanded(
@@ -80,7 +81,7 @@ class SpecialOffersCard extends StatelessWidget {
                       style: GoogleFonts.montserrat(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
-                        color: const Color(0xFF000000),
+                        color: context.colors.textPrimary,
                       ),
                     ),
                     const SizedBox(width: 6),
@@ -90,7 +91,7 @@ class SpecialOffersCard extends StatelessWidget {
                       padding: const EdgeInsets.all(3),
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: Colors.white,
+                        color: context.colors.surface,
                         border: Border.all(
                           color: const Color(0xFFE0E0E0),
                           width: 1,
@@ -100,7 +101,7 @@ class SpecialOffersCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: 4),
 
                 // Subtitle
                 Text(
@@ -109,7 +110,7 @@ class SpecialOffersCard extends StatelessWidget {
                     fontSize: 12,
                     fontWeight: FontWeight.w300,
                     height: 1.3,
-                    color: const Color(0xFF000000),
+                    color: context.colors.textPrimary,
                   ),
                 ),
               ],

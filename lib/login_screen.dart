@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'theme/app_theme.dart';
 
 import 'signup_screen.dart';
 import 'forgot_password_screen.dart';
 import 'get_started_screen.dart';
 // Sửa đường dẫn này cho khớp vị trí file auth_service.dart trong project của bạn
 import '../services/auth_service.dart';
+import '../services/push_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -50,6 +52,7 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _isLoading = true);
     try {
       await AuthService.login(email: email, password: password);
+      PushService.registerDevice(); // không chờ: lỗi push không chặn đăng nhập
       if (!mounted) return;
       Navigator.pushReplacement(
         context,
@@ -68,7 +71,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.colors.page,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
@@ -78,17 +81,17 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 20),
 
               // 1. Tiêu đề Welcome Back!
-              const Text(
+              Text(
                 'Welcome Back!',
                 style: TextStyle(
                   fontSize: 36,
                   fontWeight: FontWeight.w800,
-                  color: Colors.black,
+                  color: context.colors.textPrimary,
                   height: 1.2,
                 ),
               ),
 
-              const SizedBox(height: 32),
+              SizedBox(height: 32),
 
               // 2. Ô nhập Email (backend đăng nhập bằng email)
               TextField(
@@ -96,29 +99,29 @@ class _LoginScreenState extends State<LoginScreen> {
                 keyboardType: TextInputType.emailAddress,
                 decoration: InputDecoration(
                   hintText: 'Email',
-                  hintStyle: const TextStyle(
-                    color: Color(0xFFA8A8A9),
+                  hintStyle: TextStyle(
+                    color: context.colors.textMuted,
                     fontSize: 14,
                   ),
-                  prefixIcon: const Icon(
+                  prefixIcon: Icon(
                     Icons.person,
-                    color: Color(0xFF626262),
+                    color: context.colors.textSecondary,
                   ),
                   filled: true,
-                  fillColor: const Color(0xFFF3F3F3),
-                  contentPadding: const EdgeInsets.symmetric(vertical: 16),
+                  fillColor: context.colors.surfaceAlt,
+                  contentPadding: EdgeInsets.symmetric(vertical: 16),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: Color(0xFFA8A8A9)),
+                    borderSide: BorderSide(color: context.colors.border),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: Color(0xFFA8A8A9)),
+                    borderSide: BorderSide(color: context.colors.border),
                   ),
                 ),
               ),
 
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
 
               // 3. Ô nhập Password
               TextField(
@@ -126,17 +129,17 @@ class _LoginScreenState extends State<LoginScreen> {
                 obscureText: _isPasswordHidden,
                 decoration: InputDecoration(
                   hintText: 'Password',
-                  hintStyle: const TextStyle(
-                    color: Color(0xFFA8A8A9),
+                  hintStyle: TextStyle(
+                    color: context.colors.textMuted,
                     fontSize: 14,
                   ),
-                  prefixIcon: const Icon(Icons.lock, color: Color(0xFF626262)),
+                  prefixIcon: Icon(Icons.lock, color: context.colors.textSecondary),
                   suffixIcon: IconButton(
                     icon: Icon(
                       _isPasswordHidden
                           ? Icons.visibility_outlined
                           : Icons.visibility_off_outlined,
-                      color: const Color(0xFF626262),
+                      color: context.colors.textSecondary,
                     ),
                     onPressed: () {
                       setState(() {
@@ -145,15 +148,15 @@ class _LoginScreenState extends State<LoginScreen> {
                     },
                   ),
                   filled: true,
-                  fillColor: const Color(0xFFF3F3F3),
+                  fillColor: context.colors.surfaceAlt,
                   contentPadding: const EdgeInsets.symmetric(vertical: 16),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: Color(0xFFA8A8A9)),
+                    borderSide: BorderSide(color: context.colors.border),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: Color(0xFFA8A8A9)),
+                    borderSide: BorderSide(color: context.colors.border),
                   ),
                 ),
               ),
@@ -231,7 +234,7 @@ class _LoginScreenState extends State<LoginScreen> {
               //   ),
               // ),
 
-              // const SizedBox(height: 20),
+              // SizedBox(height: 20),
 
               // // 7. Nút Đăng nhập bằng Google
               // Center(
@@ -240,7 +243,7 @@ class _LoginScreenState extends State<LoginScreen> {
               //       // Xử lý đăng nhập Google
               //     },
               //     style: ElevatedButton.styleFrom(
-              //       shape: const CircleBorder(),
+              //       shape: CircleBorder(),
               //     ),
               //     child: Image.asset(
               //       'assets/images/Google.png',
@@ -253,7 +256,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text(
+                    Text(
                       'Create An Account ',
                       style: TextStyle(color: Color(0xFF575757), fontSize: 14),
                     ),

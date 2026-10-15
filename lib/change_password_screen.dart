@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'theme/app_theme.dart';
 
 import 'services/auth_service.dart';
 
@@ -79,16 +80,16 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.colors.page,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: context.colors.page,
         elevation: 0,
         // Mở từ trang Tài khoản: AppBar tự hiện nút quay lại
         foregroundColor: Colors.black,
-        title: const Text(
+        title: Text(
           'Đổi mật khẩu',
           style: TextStyle(
-            color: Colors.black,
+            color: context.colors.textPrimary,
             fontSize: 22,
             fontWeight: FontWeight.w700,
           ),
@@ -140,7 +141,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                     ),
                   ),
                   child: _isLoading
-                      ? const SizedBox(
+                      ? SizedBox(
                           width: 20,
                           height: 20,
                           child: CircularProgressIndicator(
@@ -148,7 +149,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                             color: Colors.white,
                           ),
                         )
-                      : const Text(
+                      : Text(
                           'Cập nhật mật khẩu',
                           style: TextStyle(
                             fontSize: 16,
@@ -175,27 +176,27 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
       obscureText: !isVisible,
       decoration: InputDecoration(
         hintText: hintText,
-        hintStyle: const TextStyle(color: Color(0xFFA8A8A9), fontSize: 14),
-        prefixIcon: const Icon(Icons.lock_outline, color: Color(0xFF626262)),
+        hintStyle: TextStyle(color: context.colors.textMuted, fontSize: 14),
+        prefixIcon: Icon(Icons.lock_outline, color: context.colors.textSecondary),
         suffixIcon: IconButton(
           icon: Icon(
             isVisible
                 ? Icons.visibility_off_outlined
                 : Icons.visibility_outlined,
-            color: const Color(0xFF626262),
+            color: context.colors.textSecondary,
           ),
           onPressed: onToggle,
         ),
         filled: true,
-        fillColor: const Color(0xFFF3F3F3),
+        fillColor: context.colors.surfaceAlt,
         contentPadding: const EdgeInsets.symmetric(vertical: 16),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFA8A8A9)),
+          borderSide: BorderSide(color: context.colors.border),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFA8A8A9)),
+          borderSide: BorderSide(color: context.colors.border),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),

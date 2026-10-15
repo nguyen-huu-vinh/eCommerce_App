@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/app_theme.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -26,9 +27,9 @@ class BankTransferCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFFFD3DE)),
+        border: Border.all(color: Color(0xFFFFD3DE)),
       ),
       child: Column(
         children: [
@@ -37,10 +38,10 @@ class BankTransferCard extends StatelessWidget {
             style: GoogleFonts.montserrat(
               fontSize: 14,
               fontWeight: FontWeight.w700,
-              color: const Color(0xFF222222),
+              color: context.colors.textPrimary,
             ),
           ),
-          const SizedBox(height: 4),
+          SizedBox(height: 4),
           Text(
             'Mở app ngân hàng bất kỳ và quét mã bên dưới.\n'
             'Số tiền và nội dung đã được điền sẵn.',
@@ -48,7 +49,7 @@ class BankTransferCard extends StatelessWidget {
             style: GoogleFonts.montserrat(
               fontSize: 11,
               height: 1.5,
-              color: const Color(0xFF777777),
+              color: context.colors.textSecondary,
             ),
           ),
           const SizedBox(height: 12),
@@ -98,13 +99,13 @@ class BankTransferCard extends StatelessWidget {
             highlight: true,
             onCopy: () => _copy(context, 'nội dung', transfer.content),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           Text(
             'Đơn sẽ được xác nhận sau khi cửa hàng nhận được tiền.',
             textAlign: TextAlign.center,
             style: GoogleFonts.montserrat(
               fontSize: 11,
-              color: const Color(0xFF777777),
+              color: context.colors.textSecondary,
             ),
           ),
         ],
@@ -119,7 +120,7 @@ class _CopyRow extends StatelessWidget {
   final bool highlight;
   final VoidCallback? onCopy;
 
-  const _CopyRow({
+  _CopyRow({
     required this.label,
     required this.value,
     this.highlight = false,
@@ -136,7 +137,7 @@ class _CopyRow extends StatelessWidget {
             label,
             style: GoogleFonts.montserrat(
               fontSize: 12,
-              color: const Color(0xFF777777),
+              color: context.colors.textSecondary,
             ),
           ),
         ),
@@ -150,8 +151,8 @@ class _CopyRow extends StatelessWidget {
               fontSize: 12,
               fontWeight: FontWeight.w700,
               color: highlight
-                  ? const Color(0xFFFE3E6C)
-                  : const Color(0xFF222222),
+                  ? Color(0xFFFE3E6C)
+                  : context.colors.textPrimary,
             ),
           ),
         ),
@@ -164,10 +165,10 @@ class _CopyRow extends StatelessWidget {
                   padding: EdgeInsets.zero,
                   visualDensity: VisualDensity.compact,
                   onPressed: onCopy,
-                  icon: const Icon(
+                  icon: Icon(
                     Icons.copy_rounded,
                     size: 16,
-                    color: Color(0xFF777777),
+                    color: context.colors.textSecondary,
                   ),
                 ),
         ),

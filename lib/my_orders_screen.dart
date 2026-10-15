@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'theme/app_theme.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'models/order.dart';
@@ -10,7 +11,6 @@ import 'widgets/review_sheet.dart';
 import 'utils/network_image.dart';
 
 const _pink = Color(0xFFFE3E6C);
-const _pageColor = Color(0xFFF7F7F8);
 
 /// Các tab lọc đơn, null là "Tất cả"
 const _tabStatuses = <String?>[
@@ -94,7 +94,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     return DefaultTabController(
       length: _tabStatuses.length,
       child: Scaffold(
-        backgroundColor: _pageColor,
+        backgroundColor: context.colors.page,
         appBar: _buildAppBar(
           context,
           'Đơn hàng của tôi',
@@ -102,7 +102,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
             isScrollable: true,
             tabAlignment: TabAlignment.start,
             labelColor: _pink,
-            unselectedLabelColor: const Color(0xFF555555),
+            unselectedLabelColor: Color(0xFF555555),
             indicatorColor: _pink,
             labelStyle: GoogleFonts.montserrat(
               fontSize: 12,
@@ -121,7 +121,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
 
   Widget _buildBody() {
     if (_isLoading) {
-      return const Center(child: CircularProgressIndicator(color: _pink));
+      return Center(child: CircularProgressIndicator(color: _pink));
     }
     final orders = _orders;
     if (orders == null) {
@@ -151,8 +151,8 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
       onRefresh: _loadOrders,
       child: orders.isEmpty
           ? ListView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              children: const [
+              physics: AlwaysScrollableScrollPhysics(),
+              children: [
                 SizedBox(height: 120),
                 _MessageView(
                   icon: Icons.receipt_long_outlined,
@@ -161,10 +161,10 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
               ],
             )
           : ListView.separated(
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 116),
+              physics: AlwaysScrollableScrollPhysics(),
+              padding: EdgeInsets.fromLTRB(16, 12, 16, 116),
               itemCount: orders.length,
-              separatorBuilder: (_, _) => const SizedBox(height: 10),
+              separatorBuilder: (_, _) => SizedBox(height: 10),
               itemBuilder: (context, index) => _OrderCard(
                 order: orders[index],
                 onTap: () => _openOrder(orders[index]),
@@ -239,16 +239,16 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
           for (final reason in _cancelReasons)
             SimpleDialogOption(
               onPressed: () => Navigator.pop(dialogContext, reason),
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               child: Text(reason, style: GoogleFonts.montserrat(fontSize: 13)),
             ),
           Align(
             alignment: Alignment.centerRight,
             child: Padding(
-              padding: const EdgeInsets.only(right: 12),
+              padding: EdgeInsets.only(right: 12),
               child: TextButton(
                 onPressed: () => Navigator.pop(dialogContext),
-                child: const Text('Không hủy'),
+                child: Text('Không hủy'),
               ),
             ),
           ),
@@ -275,22 +275,22 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     final order = _order;
     final note = order.note;
     return Scaffold(
-      backgroundColor: _pageColor,
+      backgroundColor: context.colors.page,
       appBar: _buildAppBar(context, 'Đơn ${order.code}'),
       body: RefreshIndicator(
         color: _pink,
         onRefresh: _refresh,
         child: ListView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 116),
+          physics: AlwaysScrollableScrollPhysics(),
+          padding: EdgeInsets.fromLTRB(16, 8, 16, 116),
           children: [
             _StatusBanner(order: order),
             if (order.status != 'cancelled') ...[
-              const SizedBox(height: 10),
+              SizedBox(height: 10),
               _Section(child: _ProgressStepper(order: order)),
             ],
             if (order.status == 'shipping') ...[
-              const SizedBox(height: 10),
+              SizedBox(height: 10),
               OrderTrackingMap(
                 orderId: order.id,
                 // Shipper bấm "đã giao" thì tải lại để cập nhật trạng thái
@@ -298,31 +298,31 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
               ),
             ],
             if (order.awaitingTransfer) ...[
-              const SizedBox(height: 10),
+              SizedBox(height: 10),
               BankTransferCard(transfer: order.bankTransfer!),
             ],
-            const SizedBox(height: 10),
+            SizedBox(height: 10),
             _Section(
               title: 'Lịch sử đơn hàng',
               child: _Timeline(events: order.timeline.reversed.toList()),
             ),
-            const SizedBox(height: 10),
+            SizedBox(height: 10),
             _Section(
               title: 'Địa chỉ nhận hàng',
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _DetailText('${order.fullName} · ${order.phone}', bold: true),
-                  const SizedBox(height: 4),
+                  SizedBox(height: 4),
                   _DetailText(order.address),
                   if (note != null && note.isNotEmpty) ...[
-                    const SizedBox(height: 6),
+                    SizedBox(height: 6),
                     _DetailText('Ghi chú: $note'),
                   ],
                 ],
               ),
             ),
-            const SizedBox(height: 10),
+            SizedBox(height: 10),
             _Section(
               title: 'Sản phẩm',
               child: Column(
@@ -334,27 +334,27 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                           ? () => _reviewItem(item)
                           : null,
                     ),
-                    if (item != order.items.last) const Divider(height: 20),
+                    if (item != order.items.last) Divider(height: 20),
                   ],
                 ],
               ),
             ),
-            const SizedBox(height: 10),
+            SizedBox(height: 10),
             _Section(
               child: Column(
                 children: [
                   _SummaryRow(label: 'Mã đơn hàng', value: order.code),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8),
                   _SummaryRow(
                     label: 'Thời gian đặt',
                     value: order.createdAtLabel,
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8),
                   _SummaryRow(label: 'Thanh toán', value: order.paymentLabel),
-                  const SizedBox(height: 8),
-                  const _SummaryRow(label: 'Phí vận chuyển', value: 'Miễn phí'),
+                  SizedBox(height: 8),
+                  _SummaryRow(label: 'Phí vận chuyển', value: 'Miễn phí'),
                   if (order.discount > 0) ...[
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     _SummaryRow(
                       label: order.couponCode == null
                           ? 'Giảm giá'
@@ -362,7 +362,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                       value: '-${formatVnd(order.discount)}',
                     ),
                   ],
-                  const Divider(height: 22),
+                  Divider(height: 22),
                   _SummaryRow(
                     label: 'Tổng cộng',
                     value: formatVnd(order.total),
@@ -372,20 +372,20 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
               ),
             ),
             if (order.canCancel) ...[
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               SizedBox(
                 height: 48,
                 child: OutlinedButton(
                   onPressed: _cancelling ? null : _cancelOrder,
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: const Color(0xFFDA294F),
-                    side: const BorderSide(color: Color(0xFFDA294F)),
+                    foregroundColor: Color(0xFFDA294F),
+                    side: BorderSide(color: Color(0xFFDA294F)),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
                   child: _cancelling
-                      ? const SizedBox(
+                      ? SizedBox(
                           width: 20,
                           height: 20,
                           child: CircularProgressIndicator(strokeWidth: 2.2),
@@ -411,7 +411,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
 class _StatusBanner extends StatelessWidget {
   final Order order;
 
-  const _StatusBanner({required this.order});
+  _StatusBanner({required this.order});
 
   @override
   Widget build(BuildContext context) {
@@ -439,12 +439,12 @@ class _StatusBanner extends StatelessWidget {
     };
     final cancelled = order.status == 'cancelled';
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: cancelled
-              ? const [Color(0xFF8A8A8A), Color(0xFFA9A9A9)]
-              : const [Color(0xFFFE3E6C), Color(0xFFFF7A95)],
+              ? [Color(0xFF8A8A8A), Color(0xFFA9A9A9)]
+              : [Color(0xFFFE3E6C), Color(0xFFFF7A95)],
         ),
         borderRadius: BorderRadius.circular(12),
       ),
@@ -462,7 +462,7 @@ class _StatusBanner extends StatelessWidget {
                     color: Colors.white,
                   ),
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: 4),
                 Text(
                   message,
                   style: GoogleFonts.montserrat(
@@ -474,7 +474,7 @@ class _StatusBanner extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12),
           Icon(icon, size: 40, color: Colors.white),
         ],
       ),
@@ -486,7 +486,7 @@ class _StatusBanner extends StatelessWidget {
 class _ProgressStepper extends StatelessWidget {
   final Order order;
 
-  const _ProgressStepper({required this.order});
+  _ProgressStepper({required this.order});
 
   @override
   Widget build(BuildContext context) {
@@ -495,15 +495,15 @@ class _ProgressStepper extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         for (var i = 0; i < _progressSteps.length; i++)
-          Expanded(child: _buildStep(i, current)),
+          Expanded(child: _buildStep(context, i, current)),
       ],
     );
   }
 
-  Widget _buildStep(int index, int current) {
+  Widget _buildStep(BuildContext context, int index, int current) {
     final (status, label, icon) = _progressSteps[index];
     final done = index <= current;
-    final color = done ? _pink : const Color(0xFFCFCFCF);
+    final color = done ? _pink : Color(0xFFCFCFCF);
     // Thời điểm gần nhất đơn chuyển sang bước này
     final reachedAt = order.timeline
         .where((event) => event.status == status)
@@ -513,7 +513,7 @@ class _ProgressStepper extends StatelessWidget {
     Widget line(bool active) => Expanded(
       child: Container(
         height: 2,
-        color: active ? _pink : const Color(0xFFE3E3E3),
+        color: active ? _pink : Color(0xFFE3E3E3),
       ),
     );
 
@@ -521,30 +521,30 @@ class _ProgressStepper extends StatelessWidget {
       children: [
         Row(
           children: [
-            index == 0 ? const Spacer() : line(index <= current),
+            index == 0 ? Spacer() : line(index <= current),
             Container(
               width: 34,
               height: 34,
               decoration: BoxDecoration(
-                color: done ? _pink : Colors.white,
+                color: done ? _pink : context.colors.surface,
                 shape: BoxShape.circle,
                 border: Border.all(color: color, width: 2),
               ),
               child: Icon(icon, size: 17, color: done ? Colors.white : color),
             ),
             index == _progressSteps.length - 1
-                ? const Spacer()
+                ? Spacer()
                 : line(index < current),
           ],
         ),
-        const SizedBox(height: 6),
+        SizedBox(height: 6),
         Text(
           label,
           textAlign: TextAlign.center,
           style: GoogleFonts.montserrat(
             fontSize: 11,
             fontWeight: index == current ? FontWeight.w700 : FontWeight.w500,
-            color: done ? const Color(0xFF222222) : const Color(0xFF999999),
+            color: done ? context.colors.textPrimary : context.colors.textSecondary,
           ),
         ),
         if (done && reachedAt != null) ...[
@@ -609,7 +609,7 @@ class _Timeline extends StatelessWidget {
                     ],
                   ),
                 ),
-                const SizedBox(width: 10),
+                SizedBox(width: 10),
                 Expanded(
                   child: Padding(
                     padding: EdgeInsets.only(
@@ -623,7 +623,7 @@ class _Timeline extends StatelessWidget {
                           style: GoogleFonts.montserrat(
                             fontSize: 13,
                             fontWeight: FontWeight.w700,
-                            color: i == 0 ? _pink : const Color(0xFF444444),
+                            color: i == 0 ? _pink : context.colors.textSecondary,
                           ),
                         ),
                         if (events[i].note case final note?
@@ -631,12 +631,12 @@ class _Timeline extends StatelessWidget {
                           const SizedBox(height: 3),
                           _DetailText(note),
                         ],
-                        const SizedBox(height: 3),
+                        SizedBox(height: 3),
                         Text(
                           events[i].createdAtLabel,
                           style: GoogleFonts.montserrat(
                             fontSize: 11,
-                            color: const Color(0xFF999999),
+                            color: context.colors.textSecondary,
                           ),
                         ),
                       ],
@@ -656,7 +656,7 @@ PreferredSizeWidget _buildAppBar(
   String title, {
   PreferredSizeWidget? bottom,
 }) => AppBar(
-  backgroundColor: _pageColor,
+  backgroundColor: context.colors.page,
   bottom: bottom,
   elevation: 0,
   centerTitle: true,
@@ -664,12 +664,12 @@ PreferredSizeWidget _buildAppBar(
     tooltip: 'Quay lại',
     onPressed: () => Navigator.maybePop(context),
     icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
-    color: const Color(0xFF222222),
+    color: Color(0xFF222222),
   ),
   title: Text(
     title,
     style: GoogleFonts.montserrat(
-      color: const Color(0xFF222222),
+      color: context.colors.textPrimary,
       fontSize: 17,
       fontWeight: FontWeight.w700,
     ),
@@ -687,13 +687,13 @@ class _OrderCard extends StatelessWidget {
     final first = order.items.isEmpty ? null : order.items.first;
     final others = order.items.length - 1;
     return Material(
-      color: Colors.white,
+      color: context.colors.surface,
       borderRadius: BorderRadius.circular(12),
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.all(12),
+          padding: EdgeInsets.all(12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -705,7 +705,7 @@ class _OrderCard extends StatelessWidget {
                       style: GoogleFonts.montserrat(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
-                        color: const Color(0xFF222222),
+                        color: context.colors.textPrimary,
                       ),
                     ),
                   ),
@@ -725,7 +725,7 @@ class _OrderCard extends StatelessWidget {
                 Row(
                   children: [
                     _Thumbnail(url: first.imageUrl, size: 48),
-                    const SizedBox(width: 10),
+                    SizedBox(width: 10),
                     Expanded(
                       child: Text(
                         others > 0
@@ -735,14 +735,14 @@ class _OrderCard extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                         style: GoogleFonts.montserrat(
                           fontSize: 12,
-                          color: const Color(0xFF444444),
+                          color: context.colors.textSecondary,
                         ),
                       ),
                     ),
                   ],
                 ),
               ],
-              const Divider(height: 22),
+              Divider(height: 22),
               Row(
                 children: [
                   Expanded(
@@ -750,7 +750,7 @@ class _OrderCard extends StatelessWidget {
                       '${order.itemCount} sản phẩm',
                       style: GoogleFonts.montserrat(
                         fontSize: 12,
-                        color: const Color(0xFF777777),
+                        color: context.colors.textSecondary,
                       ),
                     ),
                   ),
@@ -809,7 +809,7 @@ class _OrderLineRow extends StatelessWidget {
                     label: const Text('Đánh giá'),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: _pink,
-                      side: const BorderSide(color: _pink),
+                      side: BorderSide(color: _pink),
                       visualDensity: VisualDensity.compact,
                       textStyle: GoogleFonts.montserrat(
                         fontSize: 11,
@@ -894,16 +894,16 @@ class _Section extends StatelessWidget {
   final String? title;
   final Widget child;
 
-  const _Section({this.title, required this.child});
+  _Section({this.title, required this.child});
 
   @override
   Widget build(BuildContext context) {
     final title = this.title;
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(14),
+      padding: EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -915,10 +915,10 @@ class _Section extends StatelessWidget {
               style: GoogleFonts.montserrat(
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
-                color: const Color(0xFF252525),
+                color: context.colors.textPrimary,
               ),
             ),
-            const SizedBox(height: 10),
+            SizedBox(height: 10),
           ],
           child,
         ],
@@ -931,7 +931,7 @@ class _DetailText extends StatelessWidget {
   final String text;
   final bool bold;
 
-  const _DetailText(this.text, {this.bold = false});
+  _DetailText(this.text, {this.bold = false});
 
   @override
   Widget build(BuildContext context) => Text(
@@ -940,7 +940,7 @@ class _DetailText extends StatelessWidget {
       fontSize: 12,
       height: 1.4,
       fontWeight: bold ? FontWeight.w600 : FontWeight.w400,
-      color: bold ? const Color(0xFF222222) : const Color(0xFF555555),
+      color: bold ? context.colors.textPrimary : context.colors.textSecondary,
     ),
   );
 }
@@ -950,7 +950,7 @@ class _SummaryRow extends StatelessWidget {
   final String value;
   final bool emphasized;
 
-  const _SummaryRow({
+  _SummaryRow({
     required this.label,
     required this.value,
     this.emphasized = false,
@@ -965,7 +965,7 @@ class _SummaryRow extends StatelessWidget {
           style: GoogleFonts.montserrat(
             fontSize: emphasized ? 14 : 12,
             fontWeight: emphasized ? FontWeight.w700 : FontWeight.w500,
-            color: const Color(0xFF555555),
+            color: context.colors.textSecondary,
           ),
         ),
       ),
@@ -974,7 +974,7 @@ class _SummaryRow extends StatelessWidget {
         style: GoogleFonts.montserrat(
           fontSize: emphasized ? 15 : 12,
           fontWeight: FontWeight.w700,
-          color: emphasized ? _pink : const Color(0xFF555555),
+          color: emphasized ? _pink : context.colors.textSecondary,
         ),
       ),
     ],
@@ -997,19 +997,19 @@ class _MessageView extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Center(
     child: Padding(
-      padding: const EdgeInsets.all(24),
+      padding: EdgeInsets.all(24),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 54, color: const Color(0xFFB8B8B8)),
-          const SizedBox(height: 12),
+          Icon(icon, size: 54, color: context.colors.textMuted),
+          SizedBox(height: 12),
           Text(
             title,
             textAlign: TextAlign.center,
             style: GoogleFonts.montserrat(
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: const Color(0xFF444444),
+              color: context.colors.textSecondary,
             ),
           ),
           if (actionLabel != null && onAction != null) ...[

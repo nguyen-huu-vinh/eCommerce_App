@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'theme/app_theme.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'services/cart_controller.dart';
@@ -28,12 +29,12 @@ class CartScreen extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, false),
-            child: const Text('Hủy'),
+            child: Text('Hủy'),
           ),
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: _pink),
             onPressed: () => Navigator.pop(dialogContext, true),
-            child: const Text('Xóa'),
+            child: Text('Xóa'),
           ),
         ],
       ),
@@ -44,15 +45,15 @@ class CartScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F8F8),
+      backgroundColor: context.colors.page,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF8F8F8),
+        backgroundColor: context.colors.page,
         elevation: 0,
         centerTitle: true,
         title: Text(
           'Giỏ hàng',
           style: GoogleFonts.montserrat(
-            color: const Color(0xFF222222),
+            color: context.colors.textPrimary,
             fontSize: 17,
             fontWeight: FontWeight.w700,
           ),
@@ -79,10 +80,10 @@ class CartScreen extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.shopping_bag_outlined,
                     size: 58,
-                    color: Color(0xFFB8B8B8),
+                    color: context.colors.textMuted,
                   ),
                   const SizedBox(height: 14),
                   Text(
@@ -93,12 +94,12 @@ class CartScreen extends StatelessWidget {
                       color: const Color(0xFF303030),
                     ),
                   ),
-                  const SizedBox(height: 6),
+                  SizedBox(height: 6),
                   Text(
                     'Hãy chọn món đồ bạn yêu thích',
                     style: GoogleFonts.montserrat(
                       fontSize: 13,
-                      color: const Color(0xFF777777),
+                      color: context.colors.textSecondary,
                     ),
                   ),
                 ],
@@ -185,7 +186,7 @@ class _CartItemTile extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
@@ -206,7 +207,7 @@ class _CartItemTile extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -222,7 +223,7 @@ class _CartItemTile extends StatelessWidget {
                         style: GoogleFonts.montserrat(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
-                          color: const Color(0xFF222222),
+                          color: context.colors.textPrimary,
                         ),
                       ),
                     ),
@@ -235,25 +236,25 @@ class _CartItemTile extends StatelessWidget {
                       ),
                       padding: EdgeInsets.zero,
                       onPressed: onRemove,
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.close_rounded,
                         size: 18,
-                        color: Color(0xFF777777),
+                        color: context.colors.textSecondary,
                       ),
                     ),
                   ],
                 ),
                 if (item.size != null) ...[
-                  const SizedBox(height: 4),
+                  SizedBox(height: 4),
                   Text(
                     'Kích cỡ: ${item.size}',
                     style: GoogleFonts.montserrat(
                       fontSize: 11,
-                      color: const Color(0xFF777777),
+                      color: context.colors.textSecondary,
                     ),
                   ),
                 ],
-                const SizedBox(height: 5),
+                SizedBox(height: 5),
                 Wrap(
                   spacing: 6,
                   crossAxisAlignment: WrapCrossAlignment.center,
@@ -264,8 +265,8 @@ class _CartItemTile extends StatelessWidget {
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
                         color: item.isDiscounted
-                            ? const Color(0xFFFE3E6C)
-                            : const Color(0xFF222222),
+                            ? Color(0xFFFE3E6C)
+                            : context.colors.textPrimary,
                       ),
                     ),
                     if (item.isDiscounted)
@@ -273,7 +274,7 @@ class _CartItemTile extends StatelessWidget {
                         formatVnd(item.product.price),
                         style: GoogleFonts.montserrat(
                           fontSize: 11,
-                          color: const Color(0xFF999999),
+                          color: context.colors.textSecondary,
                           decoration: TextDecoration.lineThrough,
                         ),
                       ),
@@ -356,9 +357,9 @@ class _OrderSummary extends StatelessWidget {
     child: Column(
       children: [
         _SummaryRow(label: 'Tạm tính', value: subtotal),
-        const SizedBox(height: 10),
+        SizedBox(height: 10),
         _SummaryRow(label: 'Phí vận chuyển', value: 'Miễn phí'),
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
         _SummaryRow(label: 'Tổng cộng', value: total, emphasized: true),
       ],
     ),
@@ -370,7 +371,7 @@ class _SummaryRow extends StatelessWidget {
   final String value;
   final bool emphasized;
 
-  const _SummaryRow({
+  _SummaryRow({
     required this.label,
     required this.value,
     this.emphasized = false,
@@ -385,7 +386,7 @@ class _SummaryRow extends StatelessWidget {
           style: GoogleFonts.montserrat(
             fontSize: emphasized ? 14 : 12,
             fontWeight: emphasized ? FontWeight.w700 : FontWeight.w500,
-            color: const Color(0xFF555555),
+            color: context.colors.textSecondary,
           ),
         ),
       ),
@@ -394,7 +395,7 @@ class _SummaryRow extends StatelessWidget {
         style: GoogleFonts.montserrat(
           fontSize: emphasized ? 14 : 12,
           fontWeight: FontWeight.w700,
-          color: emphasized ? const Color(0xFF222222) : const Color(0xFF555555),
+          color: emphasized ? context.colors.textPrimary : context.colors.textSecondary,
         ),
       ),
     ],

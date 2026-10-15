@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'theme/app_theme.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -77,9 +78,9 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
     final products = _filteredProducts;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF9F9F9),
+      backgroundColor: context.colors.page,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF9F9F9),
+        backgroundColor: context.colors.page,
         elevation: 0,
         leading: IconButton(
           tooltip: 'Quay lại',
@@ -90,7 +91,7 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
         title: Text(
           widget.category,
           style: GoogleFonts.montserrat(
-            color: Colors.black,
+            color: context.colors.textPrimary,
             fontSize: 18,
             fontWeight: FontWeight.w600,
           ),
@@ -106,7 +107,7 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
               style: GoogleFonts.montserrat(fontSize: 14),
               decoration: InputDecoration(
                 hintText: 'Tìm trong ${widget.category}...',
-                prefixIcon: const Icon(Icons.search, color: Color(0xFF626262)),
+                prefixIcon: Icon(Icons.search, color: context.colors.textSecondary),
                 suffixIcon: _searchController.text.isEmpty
                     ? null
                     : IconButton(
@@ -115,7 +116,7 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
                         icon: const Icon(Icons.close),
                       ),
                 filled: true,
-                fillColor: Colors.white,
+                fillColor: context.colors.surface,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,
@@ -132,7 +133,7 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
                 style: GoogleFonts.montserrat(
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
-                  color: Colors.black,
+                  color: context.colors.textPrimary,
                 ),
               ),
             ),
@@ -176,7 +177,7 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
     if (products.isEmpty) {
       return Center(
         child: Padding(
-          padding: const EdgeInsets.all(24),
+          padding: EdgeInsets.all(24),
           child: Text(
             _searchController.text.isEmpty
                 ? 'Danh mục này chưa có sản phẩm.'
@@ -184,7 +185,7 @@ class _CategoryProductsScreenState extends State<CategoryProductsScreen> {
             textAlign: TextAlign.center,
             style: GoogleFonts.montserrat(
               fontSize: 14,
-              color: const Color(0xFF808488),
+              color: context.colors.textSecondary,
             ),
           ),
         ),

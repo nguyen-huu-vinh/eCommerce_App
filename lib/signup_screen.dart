@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'theme/app_theme.dart';
 
 import 'package:flutter/material.dart';
 
@@ -91,7 +92,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.colors.page,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
@@ -101,17 +102,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
               const SizedBox(height: 20),
 
               // 1. Tiêu đề Create an account
-              const Text(
+              Text(
                 'Create an\naccount',
                 style: TextStyle(
                   fontSize: 36,
                   fontWeight: FontWeight.w800,
-                  color: Colors.black,
+                  color: context.colors.textPrimary,
                   height: 1.2,
                 ),
               ),
 
-              const SizedBox(height: 32),
+              SizedBox(height: 32),
 
               // 2. Ô nhập Email
               TextField(
@@ -119,29 +120,29 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 keyboardType: TextInputType.emailAddress,
                 decoration: InputDecoration(
                   hintText: 'Email',
-                  hintStyle: const TextStyle(
-                    color: Color(0xFFA8A8A9),
+                  hintStyle: TextStyle(
+                    color: context.colors.textMuted,
                     fontSize: 14,
                   ),
-                  prefixIcon: const Icon(
+                  prefixIcon: Icon(
                     Icons.person,
-                    color: Color(0xFF626262),
+                    color: context.colors.textSecondary,
                   ),
                   filled: true,
-                  fillColor: const Color(0xFFF3F3F3),
-                  contentPadding: const EdgeInsets.symmetric(vertical: 16),
+                  fillColor: context.colors.surfaceAlt,
+                  contentPadding: EdgeInsets.symmetric(vertical: 16),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: Color(0xFFA8A8A9)),
+                    borderSide: BorderSide(color: context.colors.border),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: Color(0xFFA8A8A9)),
+                    borderSide: BorderSide(color: context.colors.border),
                   ),
                 ),
               ),
 
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
 
               // 3. Ô nhập Password
               TextField(
@@ -149,17 +150,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 obscureText: _isPasswordHidden,
                 decoration: InputDecoration(
                   hintText: 'Password',
-                  hintStyle: const TextStyle(
-                    color: Color(0xFFA8A8A9),
+                  hintStyle: TextStyle(
+                    color: context.colors.textMuted,
                     fontSize: 14,
                   ),
-                  prefixIcon: const Icon(Icons.lock, color: Color(0xFF626262)),
+                  prefixIcon: Icon(Icons.lock, color: context.colors.textSecondary),
                   suffixIcon: IconButton(
                     icon: Icon(
                       _isPasswordHidden
                           ? Icons.visibility_off_outlined
                           : Icons.visibility_outlined,
-                      color: const Color(0xFF626262),
+                      color: context.colors.textSecondary,
                     ),
                     onPressed: () {
                       setState(() {
@@ -168,20 +169,20 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     },
                   ),
                   filled: true,
-                  fillColor: const Color(0xFFF3F3F3),
-                  contentPadding: const EdgeInsets.symmetric(vertical: 16),
+                  fillColor: context.colors.surfaceAlt,
+                  contentPadding: EdgeInsets.symmetric(vertical: 16),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: Color(0xFFA8A8A9)),
+                    borderSide: BorderSide(color: context.colors.border),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: Color(0xFFA8A8A9)),
+                    borderSide: BorderSide(color: context.colors.border),
                   ),
                 ),
               ),
 
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
 
               // 4. Ô nhập Confirm Password
               TextField(
@@ -189,17 +190,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 obscureText: _isConfirmPasswordHidden,
                 decoration: InputDecoration(
                   hintText: 'Confirm Password',
-                  hintStyle: const TextStyle(
-                    color: Color(0xFFA8A8A9),
+                  hintStyle: TextStyle(
+                    color: context.colors.textMuted,
                     fontSize: 14,
                   ),
-                  prefixIcon: const Icon(Icons.lock, color: Color(0xFF626262)),
+                  prefixIcon: Icon(Icons.lock, color: context.colors.textSecondary),
                   suffixIcon: IconButton(
                     icon: Icon(
                       _isConfirmPasswordHidden
                           ? Icons.visibility_off_outlined
                           : Icons.visibility_outlined,
-                      color: const Color(0xFF626262),
+                      color: context.colors.textSecondary,
                     ),
                     onPressed: () {
                       setState(() {
@@ -208,15 +209,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     },
                   ),
                   filled: true,
-                  fillColor: const Color(0xFFF3F3F3),
+                  fillColor: context.colors.surfaceAlt,
                   contentPadding: const EdgeInsets.symmetric(vertical: 16),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: Color(0xFFA8A8A9)),
+                    borderSide: BorderSide(color: context.colors.border),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: Color(0xFFA8A8A9)),
+                    borderSide: BorderSide(color: context.colors.border),
                   ),
                 ),
               ),
@@ -302,8 +303,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
               //       padding: const EdgeInsets.all(12),
               //       decoration: BoxDecoration(
               //         shape: BoxShape.circle,
-              //         color: const Color(0xFFF3F3F3),
-              //         border: Border.all(color: const Color(0xFFA8A8A9)),
+              //         color: context.colors.surfaceAlt,
+              //         border: Border.all(color: Color(0xFFA8A8A9)),
               //       ),
               //       child: Image.asset(
               //         'assets/images/Google.png',
@@ -313,14 +314,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
               //     ),
               //   ),
               // ),
-              const SizedBox(height: 28),
+              SizedBox(height: 28),
 
               // 9. Dòng chữ "I Already Have an Account Login"
               Center(
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text(
+                    Text(
                       'I Already Have an Account ',
                       style: TextStyle(color: Color(0xFF575757), fontSize: 14),
                     ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/app_theme.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'bouncing_button.dart';
@@ -66,13 +67,13 @@ class ProductCard extends StatelessWidget {
       onTap: effectiveOnTap ?? () {},
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: context.colors.surface,
           borderRadius: BorderRadius.circular(10),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.05),
               blurRadius: 8,
-              offset: const Offset(0, 2),
+              offset: Offset(0, 2),
             ),
           ],
         ),
@@ -86,7 +87,7 @@ class ProductCard extends StatelessWidget {
 
               // 2. PHẦN THÔNG TIN SẢN PHẨM
               Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: EdgeInsets.all(8.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -97,10 +98,10 @@ class ProductCard extends StatelessWidget {
                       style: GoogleFonts.montserrat(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
-                        color: const Color(0xFF000000),
+                        color: context.colors.textPrimary,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: 4),
 
                     if (description != null && description!.isNotEmpty) ...[
                       Text(
@@ -110,10 +111,10 @@ class ProductCard extends StatelessWidget {
                         style: GoogleFonts.montserrat(
                           fontSize: 10,
                           fontWeight: FontWeight.w400,
-                          color: const Color(0xFF555555),
+                          color: context.colors.textSecondary,
                         ),
                       ),
-                      const SizedBox(height: 6),
+                      SizedBox(height: 6),
                     ],
 
                     // GIÁ CẢ & GIẢM GIÁ
@@ -126,7 +127,7 @@ class ProductCard extends StatelessWidget {
                           style: GoogleFonts.montserrat(
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
-                            color: const Color(0xFF000000),
+                            color: context.colors.textPrimary,
                           ),
                         ),
                         if (originalPrice != null)
@@ -136,7 +137,7 @@ class ProductCard extends StatelessWidget {
                               fontSize: 10,
                               fontWeight: FontWeight.w400,
                               decoration: TextDecoration.lineThrough,
-                              color: const Color(0xFF808488),
+                              color: context.colors.textSecondary,
                             ),
                           ),
                         if (discount != null)
@@ -166,14 +167,14 @@ class ProductCard extends StatelessWidget {
                               color: const Color(0xFFEDB310),
                             );
                           }),
-                          const SizedBox(width: 4),
+                          SizedBox(width: 4),
                           if (ratingCount != null)
                             Text(
                               '($ratingCount)',
                               style: GoogleFonts.montserrat(
                                 fontSize: 9,
                                 fontWeight: FontWeight.w400,
-                                color: const Color(0xFF808488),
+                                color: context.colors.textSecondary,
                               ),
                             ),
                         ],

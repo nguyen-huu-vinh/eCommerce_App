@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/app_theme.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../models/review.dart';
@@ -142,14 +143,14 @@ class _ReviewSheetState extends State<_ReviewSheet> {
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: 4),
                   Text(
                     widget.productName,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: GoogleFonts.montserrat(
                       fontSize: 12,
-                      color: const Color(0xFF777777),
+                      color: context.colors.textSecondary,
                     ),
                   ),
                   const SizedBox(height: 14),

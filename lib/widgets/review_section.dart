@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/app_theme.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../models/review.dart';
@@ -118,7 +119,7 @@ class _ReviewSectionState extends State<ReviewSection> {
         ),
         const SizedBox(height: 8),
         if (_loading && summary == null)
-          const Padding(
+          Padding(
             padding: EdgeInsets.symmetric(vertical: 20),
             child: Center(child: CircularProgressIndicator(strokeWidth: 2.4)),
           )
@@ -130,11 +131,11 @@ class _ReviewSectionState extends State<ReviewSection> {
                   _error!,
                   style: GoogleFonts.montserrat(
                     fontSize: 12,
-                    color: const Color(0xFF777777),
+                    color: context.colors.textSecondary,
                   ),
                 ),
               ),
-              TextButton(onPressed: _load, child: const Text('Thử lại')),
+              TextButton(onPressed: _load, child: Text('Thử lại')),
             ],
           )
         else if (summary != null && summary.count == 0)
@@ -142,7 +143,7 @@ class _ReviewSectionState extends State<ReviewSection> {
             'Chưa có đánh giá nào. Hãy là người đầu tiên sau khi nhận hàng!',
             style: GoogleFonts.montserrat(
               fontSize: 12,
-              color: const Color(0xFF777777),
+              color: context.colors.textSecondary,
             ),
           )
         else if (summary != null) ...[
@@ -186,12 +187,12 @@ class _ReviewSectionState extends State<ReviewSection> {
               ),
             ),
             _Stars(rating: summary.average ?? 0, size: 14),
-            const SizedBox(height: 2),
+            SizedBox(height: 2),
             Text(
               '${summary.count} đánh giá',
               style: GoogleFonts.montserrat(
                 fontSize: 11,
-                color: const Color(0xFF777777),
+                color: context.colors.textSecondary,
               ),
             ),
           ],
@@ -221,7 +222,7 @@ class _ReviewSectionState extends State<ReviewSection> {
                             value: (summary.distribution[star] ?? 0) / maxCount,
                             minHeight: 6,
                             color: _gold,
-                            backgroundColor: const Color(0xFFEDEDED),
+                            backgroundColor: Color(0xFFEDEDED),
                           ),
                         ),
                       ),
@@ -232,7 +233,7 @@ class _ReviewSectionState extends State<ReviewSection> {
                           textAlign: TextAlign.end,
                           style: GoogleFonts.montserrat(
                             fontSize: 11,
-                            color: const Color(0xFF777777),
+                            color: context.colors.textSecondary,
                           ),
                         ),
                       ),
@@ -286,9 +287,9 @@ class _ReviewTile extends StatelessWidget {
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.all(12),
+      padding: EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(10),
       ),
       child: Column(
@@ -311,7 +312,7 @@ class _ReviewTile extends StatelessWidget {
                 review.dateLabel,
                 style: GoogleFonts.montserrat(
                   fontSize: 11,
-                  color: const Color(0xFF999999),
+                  color: context.colors.textSecondary,
                 ),
               ),
             ],
@@ -319,13 +320,13 @@ class _ReviewTile extends StatelessWidget {
           const SizedBox(height: 4),
           _Stars(rating: review.rating.toDouble(), size: 14),
           if (comment != null && comment.isNotEmpty) ...[
-            const SizedBox(height: 6),
+            SizedBox(height: 6),
             Text(
               comment,
               style: GoogleFonts.montserrat(
                 fontSize: 12,
                 height: 1.45,
-                color: const Color(0xFF444444),
+                color: context.colors.textSecondary,
               ),
             ),
           ],

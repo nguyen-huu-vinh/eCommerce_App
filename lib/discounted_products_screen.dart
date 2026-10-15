@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'theme/app_theme.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -109,20 +110,20 @@ class _DiscountedProductsScreenState extends State<DiscountedProductsScreen> {
     final products = _filteredProducts;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F8F8),
+      backgroundColor: context.colors.page,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF8F8F8),
+        backgroundColor: context.colors.page,
         elevation: 0,
         leading: IconButton(
           tooltip: 'Quay lại',
           onPressed: () => Navigator.maybePop(context),
           icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
-          color: const Color(0xFF222222),
+          color: Color(0xFF222222),
         ),
         title: Text(
           widget.title,
           style: GoogleFonts.montserrat(
-            color: const Color(0xFF222222),
+            color: context.colors.textPrimary,
             fontSize: 17,
             fontWeight: FontWeight.w700,
           ),
@@ -138,9 +139,9 @@ class _DiscountedProductsScreenState extends State<DiscountedProductsScreen> {
               style: GoogleFonts.montserrat(fontSize: 14),
               decoration: InputDecoration(
                 hintText: 'Tìm sản phẩm ưu đãi...',
-                prefixIcon: const Icon(
+                prefixIcon: Icon(
                   Icons.search_rounded,
-                  color: Color(0xFF626262),
+                  color: context.colors.textSecondary,
                 ),
                 suffixIcon: _searchController.text.isEmpty
                     ? null
@@ -150,7 +151,7 @@ class _DiscountedProductsScreenState extends State<DiscountedProductsScreen> {
                         icon: const Icon(Icons.close),
                       ),
                 filled: true,
-                fillColor: Colors.white,
+                fillColor: context.colors.surface,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,
@@ -167,13 +168,13 @@ class _DiscountedProductsScreenState extends State<DiscountedProductsScreen> {
                   color: Color(0xFFFE3E6C),
                   size: 19,
                 ),
-                const SizedBox(width: 8),
+                SizedBox(width: 8),
                 Text(
                   '${products.length} sản phẩm giảm giá',
                   style: GoogleFonts.montserrat(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: const Color(0xFF252525),
+                    color: context.colors.textPrimary,
                   ),
                 ),
               ],
@@ -228,7 +229,7 @@ class _DiscountedProductsScreenState extends State<DiscountedProductsScreen> {
                 size: 44,
                 color: Color(0xFFB1B1B1),
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
               Text(
                 _searchController.text.isEmpty
                     ? 'Hiện chưa có sản phẩm giảm giá.'
@@ -236,7 +237,7 @@ class _DiscountedProductsScreenState extends State<DiscountedProductsScreen> {
                 textAlign: TextAlign.center,
                 style: GoogleFonts.montserrat(
                   fontSize: 14,
-                  color: const Color(0xFF777777),
+                  color: context.colors.textSecondary,
                 ),
               ),
             ],

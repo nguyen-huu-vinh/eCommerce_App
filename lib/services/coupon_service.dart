@@ -15,13 +15,11 @@ class CouponResult {
 class CouponService {
   /// Kiểm tra mã với tạm tính hiện tại; ném [ApiException] nếu mã không dùng được
   static Future<CouponResult> validate(String code, double subtotal) async {
-    final json =
-        await apiCall(
-              'POST',
-              '/coupons/validate',
-              body: {'code': code.trim(), 'subtotal': subtotal},
-            )
-            as Map<String, dynamic>;
+    final json = await apiCall(
+      'POST',
+      '/coupons/validate',
+      body: {'code': code.trim(), 'subtotal': subtotal},
+    ) as Map<String, dynamic>;
     return CouponResult(
       code: json['code'] as String,
       description: json['description'] as String?,

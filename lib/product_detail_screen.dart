@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'theme/app_theme.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'widgets/bouncing_button.dart';
@@ -111,7 +112,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   }
 
   // Server đã trả size mặc định cho sản phẩm cũ; rỗng = không có size
-  List<String> get _sizes => _product?.sizes ?? const <String>[];
+  List<String> get _sizes => _product?.sizes ?? <String>[];
 
   /// Kiểm tra trước khi thêm vào giỏ: hết hàng hoặc đã đủ số lượng trong kho
   bool _addToCart(CartScope scope) {
@@ -179,7 +180,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     final product = _product;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF9F9F9),
+      backgroundColor: context.colors.page,
       body: SafeArea(
         child: Column(
           children: [
@@ -207,8 +208,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.all(10),
-        decoration: const BoxDecoration(
-          color: Colors.white,
+        decoration: BoxDecoration(
+          color: context.colors.surface,
           shape: BoxShape.circle,
         ),
         child: Icon(icon, size: 20, color: color),
@@ -264,7 +265,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   Widget _buildError() {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -273,7 +274,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               textAlign: TextAlign.center,
               style: GoogleFonts.montserrat(
                 fontSize: 14,
-                color: const Color(0xFF555555),
+                color: context.colors.textSecondary,
               ),
             ),
             const SizedBox(height: 16),
@@ -372,9 +373,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                         color: Colors.white.withOpacity(0.9),
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.chevron_right,
-                        color: Colors.black,
+                        color: context.colors.textPrimary,
                         size: 24,
                       ),
                     ),
@@ -431,7 +432,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                           vertical: 10,
                         ),
                         decoration: BoxDecoration(
-                          color: selected ? _sizePink : Colors.white,
+                          color: selected ? _sizePink : context.colors.surface,
                           borderRadius: BorderRadius.circular(10),
                           border: Border.all(color: _sizePink, width: 1.2),
                         ),
@@ -463,13 +464,13 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
           // MÔ TẢ (chỉ hiện khi backend có dữ liệu)
           if (description.isNotEmpty) ...[
-            const SizedBox(height: 4),
+            SizedBox(height: 4),
             Text(
               description,
               style: GoogleFonts.montserrat(
                 fontSize: 13,
                 height: 1.4,
-                color: const Color(0xFF555555),
+                color: context.colors.textSecondary,
               ),
             ),
           ],
@@ -648,16 +649,16 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           } else if (i == full && hasHalf) {
             icon = Icons.star_half;
           }
-          return Icon(icon, size: 16, color: const Color(0xFFEDB310));
+          return Icon(icon, size: 16, color: Color(0xFFEDB310));
         }),
         if (count != null) ...[
-          const SizedBox(width: 6),
+          SizedBox(width: 6),
           Text(
             '$count',
             style: GoogleFonts.montserrat(
               fontSize: 12,
               fontWeight: FontWeight.w500,
-              color: const Color(0xFF808488),
+              color: context.colors.textSecondary,
             ),
           ),
         ],
@@ -677,7 +678,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             style: GoogleFonts.montserrat(
               fontSize: 14,
               decoration: TextDecoration.lineThrough,
-              color: const Color(0xFF808488),
+              color: context.colors.textSecondary,
             ),
           ),
           const SizedBox(width: 8),
@@ -722,7 +723,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       },
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: context.colors.surface,
           borderRadius: BorderRadius.circular(12),
         ),
         clipBehavior: Clip.antiAlias,

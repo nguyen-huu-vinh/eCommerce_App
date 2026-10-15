@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/app_theme.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'bouncing_button.dart';
@@ -69,7 +70,7 @@ class FeatureOfferBanner extends StatelessWidget {
             // 2. NỘI DUNG CHỮ & NÚT BẤM BÊN PHẢI
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.symmetric(
+                padding: EdgeInsets.symmetric(
                   horizontal: 12,
                   vertical: 16,
                 ),
@@ -85,10 +86,10 @@ class FeatureOfferBanner extends StatelessWidget {
                       style: GoogleFonts.montserrat(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
-                        color: const Color(0xFF000000),
+                        color: context.colors.textPrimary,
                       ),
                     ),
-                    const SizedBox(height: 6),
+                    SizedBox(height: 6),
 
                     // Phụ đề
                     Text(
@@ -97,7 +98,7 @@ class FeatureOfferBanner extends StatelessWidget {
                       style: GoogleFonts.montserrat(
                         fontSize: 12,
                         fontWeight: FontWeight.w400,
-                        color: const Color(0xFF000000),
+                        color: context.colors.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 14),

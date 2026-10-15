@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'theme/app_theme.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'models/order.dart';
@@ -21,36 +22,36 @@ class OrderSuccessScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final transfer = order.awaitingTransfer ? order.bankTransfer : null;
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F8F8),
+      backgroundColor: context.colors.page,
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.fromLTRB(24, 32, 24, 116),
           children: [
-            const Icon(Icons.check_circle_rounded, color: _pink, size: 76),
-            const SizedBox(height: 18),
+            Icon(Icons.check_circle_rounded, color: _pink, size: 76),
+            SizedBox(height: 18),
             Text(
               'Đặt hàng thành công!',
               textAlign: TextAlign.center,
               style: GoogleFonts.montserrat(
                 fontSize: 20,
                 fontWeight: FontWeight.w700,
-                color: const Color(0xFF222222),
+                color: context.colors.textPrimary,
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             Text(
               'Cảm ơn bạn đã mua sắm tại Stylish.',
               textAlign: TextAlign.center,
               style: GoogleFonts.montserrat(
                 fontSize: 13,
-                color: const Color(0xFF777777),
+                color: context.colors.textSecondary,
               ),
             ),
             const SizedBox(height: 24),
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: context.colors.surface,
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Column(
@@ -75,7 +76,7 @@ class OrderSuccessScreen extends StatelessWidget {
               const SizedBox(height: 14),
               BankTransferCard(transfer: transfer),
             ],
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
             SizedBox(
               height: 52,
               child: FilledButton(
@@ -108,7 +109,7 @@ class _InfoRow extends StatelessWidget {
   final String label;
   final String value;
 
-  const _InfoRow({required this.label, required this.value});
+  _InfoRow({required this.label, required this.value});
 
   @override
   Widget build(BuildContext context) => Row(
@@ -118,7 +119,7 @@ class _InfoRow extends StatelessWidget {
           label,
           style: GoogleFonts.montserrat(
             fontSize: 12,
-            color: const Color(0xFF777777),
+            color: context.colors.textSecondary,
           ),
         ),
       ),
@@ -127,7 +128,7 @@ class _InfoRow extends StatelessWidget {
         style: GoogleFonts.montserrat(
           fontSize: 13,
           fontWeight: FontWeight.w700,
-          color: const Color(0xFF222222),
+          color: context.colors.textPrimary,
         ),
       ),
     ],

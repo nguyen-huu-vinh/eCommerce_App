@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'theme/app_theme.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'services/auth_service.dart';
@@ -14,7 +15,6 @@ class EditAccountScreen extends StatefulWidget {
 
 class _EditAccountScreenState extends State<EditAccountScreen> {
   static const _pink = Color(0xFFFE3E6C);
-  static const _pageColor = Color(0xFFF7F7F8);
 
   final _profileFormKey = GlobalKey<FormState>();
   final _passwordFormKey = GlobalKey<FormState>();
@@ -101,20 +101,20 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _pageColor,
+      backgroundColor: context.colors.page,
       appBar: AppBar(
-        backgroundColor: _pageColor,
+        backgroundColor: context.colors.page,
         elevation: 0,
         leading: IconButton(
           tooltip: 'Quay lại',
           onPressed: () => Navigator.maybePop(context),
           icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
-          color: const Color(0xFF222222),
+          color: Color(0xFF222222),
         ),
         title: Text(
           'Chỉnh sửa tài khoản',
           style: GoogleFonts.montserrat(
-            color: const Color(0xFF222222),
+            color: context.colors.textPrimary,
             fontSize: 17,
             fontWeight: FontWeight.w700,
           ),
@@ -210,7 +210,7 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                         return null;
                       },
                     ),
-                    const SizedBox(height: 12),
+                    SizedBox(height: 12),
                     _buildPasswordField(
                       controller: _confirmPasswordController,
                       label: 'Xác nhận mật khẩu mới',
@@ -225,7 +225,7 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                         return null;
                       },
                     ),
-                    const SizedBox(height: 18),
+                    SizedBox(height: 18),
                     _primaryButton(
                       label: 'Cập nhật mật khẩu',
                       isLoading: _isChangingPassword,
@@ -242,9 +242,9 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
   }
 
   BoxDecoration get _sectionDecoration => BoxDecoration(
-    color: Colors.white,
+    color: context.colors.surface,
     borderRadius: BorderRadius.circular(14),
-    border: Border.all(color: const Color(0xFFECEDEF)),
+    border: Border.all(color: context.colors.border),
   );
 
   Widget _buildSectionHeading(String title, String subtitle) {
@@ -256,15 +256,15 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
           style: GoogleFonts.montserrat(
             fontSize: 16,
             fontWeight: FontWeight.w700,
-            color: const Color(0xFF222222),
+            color: context.colors.textPrimary,
           ),
         ),
-        const SizedBox(height: 4),
+        SizedBox(height: 4),
         Text(
           subtitle,
           style: GoogleFonts.montserrat(
             fontSize: 12,
-            color: const Color(0xFF777777),
+            color: context.colors.textSecondary,
           ),
         ),
       ],
@@ -287,7 +287,7 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
             padding: const EdgeInsets.only(top: 15),
             child: Icon(icon, color: _pink, size: 21),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12),
           Expanded(
             child: TextFormField(
               controller: controller,
@@ -301,13 +301,13 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                 labelText: label,
                 labelStyle: GoogleFonts.montserrat(
                   fontSize: 11,
-                  color: const Color(0xFF777777),
+                  color: context.colors.textSecondary,
                 ),
                 border: const UnderlineInputBorder(),
                 enabledBorder: const UnderlineInputBorder(
                   borderSide: BorderSide(color: Color(0xFFE2E2E2)),
                 ),
-                focusedBorder: const UnderlineInputBorder(
+                focusedBorder: UnderlineInputBorder(
                   borderSide: BorderSide(color: _pink, width: 1.5),
                 ),
                 errorMaxLines: 2,
@@ -335,7 +335,7 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
       style: GoogleFonts.montserrat(fontSize: 13),
       decoration: InputDecoration(
         labelText: label,
-        prefixIcon: const Icon(Icons.lock_outline, color: Color(0xFF626262)),
+        prefixIcon: Icon(Icons.lock_outline, color: context.colors.textSecondary),
         suffixIcon: IconButton(
           tooltip: isVisible ? 'Ẩn mật khẩu' : 'Hiện mật khẩu',
           onPressed: onToggle,
@@ -346,7 +346,7 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
           ),
         ),
         filled: true,
-        fillColor: const Color(0xFFF7F7F8),
+        fillColor: context.colors.surfaceAlt,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
           borderSide: const BorderSide(color: Color(0xFFE4E4E4)),
