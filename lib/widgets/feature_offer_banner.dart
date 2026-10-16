@@ -26,7 +26,7 @@ class FeatureOfferBanner extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 16),
       height: 170,
       decoration: BoxDecoration(
-        color: const Color(0xFFFBFBFB), // Màu nền xám trắng nhạt theo ảnh
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(

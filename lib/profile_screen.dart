@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+
 import 'theme/app_theme.dart';
+
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -16,7 +18,9 @@ import 'services/wishlist_controller.dart';
 import 'widgets/user_avatar.dart';
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+  final VoidCallback? onBack;
+
+  const ProfileScreen({super.key, this.onBack});
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -89,10 +93,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             if (hasAvatar)
               ListTile(
                 leading: Icon(Icons.delete_outline, color: _pink),
-                title: Text(
-                  'Xóa ảnh đại diện',
-                  style: TextStyle(color: _pink),
-                ),
+                title: Text('Xóa ảnh đại diện', style: TextStyle(color: _pink)),
                 onTap: () => Navigator.pop(sheetContext, 'delete'),
               ),
             SizedBox(height: 8),
@@ -188,7 +189,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
                 color: context.colors.textPrimary,
               )
-            : null,
+            : widget.onBack == null
+            ? null
+            : IconButton(
+                tooltip: 'Quay lại',
+                onPressed: widget.onBack,
+                icon: Icon(
+                  Icons.arrow_back_ios_new_rounded,
+                  size: 18,
+                  color: context.colors.textPrimary,
+                ),
+              ),
         title: Text(
           'Tài khoản của tôi',
           style: GoogleFonts.montserrat(
@@ -443,7 +454,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     decoration: BoxDecoration(
                       color: _pink,
                       shape: BoxShape.circle,
-                      border: Border.all(color: context.colors.surface, width: 3),
+                      border: Border.all(
+                        color: context.colors.surface,
+                        width: 3,
+                      ),
                     ),
                     child: const Icon(
                       Icons.photo_camera_rounded,
@@ -520,7 +534,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ],
             ),
           ),
-          Icon(Icons.lock_outline, size: 16, color: context.colors.textSecondary),
+          Icon(
+            Icons.lock_outline,
+            size: 16,
+            color: context.colors.textSecondary,
+          ),
         ],
       ),
     );

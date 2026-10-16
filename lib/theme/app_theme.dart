@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart' show CupertinoPageTransitionsBuilder;
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -128,6 +129,22 @@ ThemeData buildTheme(Brightness brightness) {
       surfaceTintColor: Colors.transparent,
     ),
     iconTheme: IconThemeData(color: c.textPrimary),
+    // Chuyển trang kiểu trượt mượt của iOS trên cả hai hệ điều hành
+    pageTransitionsTheme: const PageTransitionsTheme(
+      builders: {
+        TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+        TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+      },
+    ),
+    snackBarTheme: SnackBarThemeData(
+      behavior: SnackBarBehavior.floating,
+      backgroundColor: dark ? const Color(0xFF3A3A3C) : const Color(0xFF2B2B2D),
+      contentTextStyle: GoogleFonts.montserrat(
+        color: Colors.white,
+        fontSize: 13,
+      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    ),
     extensions: [c],
   );
 }

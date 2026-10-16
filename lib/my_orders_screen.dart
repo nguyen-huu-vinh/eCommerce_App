@@ -603,7 +603,7 @@ class _Timeline extends StatelessWidget {
                         Expanded(
                           child: Container(
                             width: 2,
-                            color: const Color(0xFFE6E6E6),
+                            color: context.colors.border,
                           ),
                         ),
                     ],
@@ -664,7 +664,7 @@ PreferredSizeWidget _buildAppBar(
     tooltip: 'Quay lại',
     onPressed: () => Navigator.maybePop(context),
     icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
-    color: Color(0xFF222222),
+    color: context.colors.textPrimary,
   ),
   title: Text(
     title,
@@ -883,7 +883,7 @@ class _Thumbnail extends StatelessWidget {
       errorBuilder: (context, error, stack) => Container(
         width: size,
         height: size,
-        color: const Color(0xFFF0F0F0),
+        color: context.colors.surfaceAlt,
         child: const Icon(Icons.image_not_supported_outlined, size: 18),
       ),
     ),

@@ -50,18 +50,30 @@ class _MainLayoutState extends State<MainLayout> {
         navigatorKey: _navKeys[0],
         child: HomeScreen(scrollController: _homeScrollController),
       ),
-      _TabNavigator(navigatorKey: _navKeys[1], child: const WishlistScreen()),
+      _TabNavigator(
+        navigatorKey: _navKeys[1],
+        child: WishlistScreen(onBack: _goHome),
+      ),
       _TabNavigator(
         navigatorKey: _navKeys[2],
-        child: CartScreen(controller: _cartController),
+        child: CartScreen(controller: _cartController, onBack: _goHome),
       ),
       _TabNavigator(
         navigatorKey: _navKeys[3],
-        child: SearchScreen(requests: _searchRequests),
+        child: SearchScreen(requests: _searchRequests, onBack: _goHome),
       ),
-      _TabNavigator(navigatorKey: _navKeys[4], child: const ProfileScreen()),
+      _TabNavigator(
+        navigatorKey: _navKeys[4],
+        child: ProfileScreen(onBack: _goHome),
+      ),
     ];
   }
+
+  // Nút back ở các tab gốc: quay về tab Trang chủ
+  void _goHome() => setState(() {
+    _currentIndex = 0;
+    _navCollapsed = false;
+  });
 
   void _onCartChanged() {
     if (mounted) setState(() {});

@@ -85,7 +85,7 @@ class _OtpResetPasswordScreenState extends State<OtpResetPasswordScreen> {
               IconButton(
                 onPressed: () => Navigator.maybePop(context),
                 icon: Icon(Icons.arrow_back_ios_new_rounded, size: 20),
-                color: Colors.black,
+                color: context.colors.textPrimary,
                 style: IconButton.styleFrom(
                   backgroundColor: context.colors.surfaceAlt,
                   padding: const EdgeInsets.all(10),

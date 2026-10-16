@@ -3,6 +3,7 @@ import '../theme/app_theme.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'bouncing_button.dart';
+import 'skeleton.dart';
 import '../models/product.dart'; // sửa đường dẫn cho khớp vị trí file product.dart
 import '../product_detail_screen.dart'; // sửa đường dẫn cho khớp vị trí file product_detail_screen.dart
 import '../utils/network_image.dart';
@@ -273,13 +274,22 @@ class _ProductCardImageState extends State<_ProductCardImage> {
     return AspectRatio(
       aspectRatio: _aspectRatio,
       child: Container(
-        color: Colors.grey.shade100,
+        color: context.colors.surfaceAlt,
         child: Image(
           image: _imageProvider,
           fit: BoxFit.contain,
+          frameBuilder: (context, child, frame, sync) {
+            if (sync) return child;
+            return AnimatedOpacity(
+              opacity: frame == null ? 0 : 1,
+              duration: const Duration(milliseconds: 250),
+              curve: Curves.easeOut,
+              child: child,
+            );
+          },
           loadingBuilder: (context, child, progress) {
             if (progress == null) return child;
-            return const Center(child: CircularProgressIndicator());
+            return const Shimmer(child: SkeletonBox(radius: 0));
           },
           errorBuilder: (context, error, stackTrace) {
             return const Center(

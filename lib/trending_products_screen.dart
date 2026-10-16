@@ -1,3 +1,4 @@
+import 'widgets/skeleton.dart';
 import 'package:flutter/material.dart';
 import 'theme/app_theme.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
@@ -90,7 +91,7 @@ class _TrendingProductsScreenState extends State<TrendingProductsScreen> {
             }
           },
           icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
-          color: Color(0xFF222222),
+          color: context.colors.textPrimary,
         ),
         title: Text(
           'Sản phẩm nổi bật',
@@ -160,9 +161,7 @@ class _TrendingProductsScreenState extends State<TrendingProductsScreen> {
 
   Widget _buildContent(List<Product> products) {
     if (_isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(color: Color(0xFFFE3E6C)),
-      );
+      return const ProductGridSkeleton();
     }
 
     if (_errorMessage != null) {

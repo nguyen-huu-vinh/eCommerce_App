@@ -222,7 +222,7 @@ class _ReviewSectionState extends State<ReviewSection> {
                             value: (summary.distribution[star] ?? 0) / maxCount,
                             minHeight: 6,
                             color: _gold,
-                            backgroundColor: Color(0xFFEDEDED),
+                            backgroundColor: context.colors.surfaceAlt,
                           ),
                         ),
                       ),

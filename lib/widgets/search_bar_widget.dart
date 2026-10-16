@@ -51,7 +51,7 @@ class SearchBarWidget extends StatelessWidget {
               style: GoogleFonts.montserrat(
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
-                color: const Color(0xFF1F1F1F),
+                color: context.colors.textPrimary,
               ),
               decoration: InputDecoration(
                 hintText: 'Search any Product..',

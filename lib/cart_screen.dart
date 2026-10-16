@@ -9,8 +9,9 @@ import 'utils/network_image.dart';
 
 class CartScreen extends StatelessWidget {
   final CartController controller;
+  final VoidCallback? onBack;
 
-  const CartScreen({super.key, required this.controller});
+  const CartScreen({super.key, required this.controller, this.onBack});
 
   static const _pink = Color(0xFFFE3E6C);
 
@@ -50,6 +51,16 @@ class CartScreen extends StatelessWidget {
         backgroundColor: context.colors.page,
         elevation: 0,
         centerTitle: true,
+        leading: onBack == null
+            ? null
+            : IconButton(
+                icon: Icon(
+                  Icons.arrow_back_ios_new,
+                  size: 20,
+                  color: context.colors.textPrimary,
+                ),
+                onPressed: onBack,
+              ),
         title: Text(
           'Giỏ hàng',
           style: GoogleFonts.montserrat(
@@ -91,7 +102,7 @@ class CartScreen extends StatelessWidget {
                     style: GoogleFonts.montserrat(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
-                      color: const Color(0xFF303030),
+                      color: context.colors.textPrimary,
                     ),
                   ),
                   SizedBox(height: 6),
@@ -115,7 +126,7 @@ class CartScreen extends StatelessWidget {
                 style: GoogleFonts.montserrat(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
-                  color: const Color(0xFF666666),
+                  color: context.colors.textSecondary,
                 ),
               ),
               const SizedBox(height: 12),
@@ -202,7 +213,7 @@ class _CartItemTile extends StatelessWidget {
               errorBuilder: (context, error, stack) => Container(
                 width: 82,
                 height: 96,
-                color: const Color(0xFFF0F0F0),
+                color: context.colors.surfaceAlt,
                 child: const Icon(Icons.image_not_supported_outlined),
               ),
             ),
@@ -332,8 +343,8 @@ class _QuantityButton extends StatelessWidget {
       onPressed: onPressed,
       icon: Icon(icon, size: 16),
       style: IconButton.styleFrom(
-        foregroundColor: const Color(0xFF333333),
-        backgroundColor: const Color(0xFFF1F1F1),
+        foregroundColor: context.colors.textPrimary,
+        backgroundColor: context.colors.surfaceAlt,
       ),
     ),
   );
@@ -348,10 +359,10 @@ class _OrderSummary extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(vertical: 14),
-    decoration: const BoxDecoration(
+    decoration: BoxDecoration(
       border: Border(
-        top: BorderSide(color: Color(0xFFE5E5E5)),
-        bottom: BorderSide(color: Color(0xFFE5E5E5)),
+        top: BorderSide(color: context.colors.border),
+        bottom: BorderSide(color: context.colors.border),
       ),
     ),
     child: Column(

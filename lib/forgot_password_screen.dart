@@ -72,7 +72,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               IconButton(
                 onPressed: () => Navigator.maybePop(context),
                 icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
-                color: Colors.black,
+                color: context.colors.textPrimary,
                 padding: EdgeInsets.zero,
                 constraints: BoxConstraints(),
                 style: IconButton.styleFrom(

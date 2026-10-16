@@ -60,8 +60,9 @@ double _discountRatio(Product p) => 1 - _salePrice(p) / p.price;
 
 class SearchScreen extends StatefulWidget {
   final SearchRequests? requests;
+  final VoidCallback? onBack;
 
-  const SearchScreen({super.key, this.requests});
+  const SearchScreen({super.key, this.requests, this.onBack});
 
   @override
   State<SearchScreen> createState() => _SearchScreenState();
@@ -365,6 +366,17 @@ class _SearchScreenState extends State<SearchScreen> {
         backgroundColor: context.colors.page,
         elevation: 0,
         automaticallyImplyLeading: false,
+        leading: widget.onBack == null
+            ? null
+            : IconButton(
+                tooltip: 'Quay lại',
+                onPressed: widget.onBack,
+                icon: Icon(
+                  Icons.arrow_back_ios_new_rounded,
+                  size: 18,
+                  color: context.colors.textPrimary,
+                ),
+              ),
         title: Text(
           'Tìm kiếm',
           style: GoogleFonts.montserrat(

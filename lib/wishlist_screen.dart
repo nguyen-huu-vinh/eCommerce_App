@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+
 import 'theme/app_theme.dart';
+
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -9,7 +11,9 @@ import 'utils/currency.dart';
 import 'widgets/product_card.dart';
 
 class WishlistScreen extends StatelessWidget {
-  const WishlistScreen({super.key});
+  final VoidCallback? onBack;
+
+  const WishlistScreen({super.key, this.onBack});
 
   static const _pink = Color(0xFFFE3E6C);
 
@@ -30,6 +34,17 @@ class WishlistScreen extends StatelessWidget {
         backgroundColor: context.colors.page,
         elevation: 0,
         automaticallyImplyLeading: false,
+        leading: onBack == null
+            ? null
+            : IconButton(
+                tooltip: 'Quay lại',
+                onPressed: onBack,
+                icon: Icon(
+                  Icons.arrow_back_ios_new_rounded,
+                  size: 18,
+                  color: context.colors.textPrimary,
+                ),
+              ),
         centerTitle: true,
         title: Text(
           'Yêu thích',
@@ -138,7 +153,7 @@ class WishlistScreen extends StatelessWidget {
             style: GoogleFonts.montserrat(
               fontSize: 16,
               fontWeight: FontWeight.w700,
-              color: Color(0xFF303030),
+              color: context.colors.textPrimary,
             ),
           ),
           SizedBox(height: 6),

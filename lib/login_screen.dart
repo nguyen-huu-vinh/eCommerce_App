@@ -247,30 +247,50 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 28),
 
               // 6. Đăng nhập bằng Google
-              Center(
-                child: Text(
-                  '- OR Continue with -',
-                  style: TextStyle(
-                    color: context.colors.textSecondary,
-                    fontSize: 12,
+              Row(
+                children: [
+                  Expanded(child: Divider(color: context.colors.border)),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    child: Text(
+                      'hoặc',
+                      style: TextStyle(
+                        color: context.colors.textSecondary,
+                        fontSize: 13,
+                      ),
+                    ),
                   ),
-                ),
+                  Expanded(child: Divider(color: context.colors.border)),
+                ],
               ),
               const SizedBox(height: 16),
-              Center(
-                child: InkWell(
-                  customBorder: const CircleBorder(),
-                  onTap: _isLoading ? null : _loginWithGoogle,
-                  child: Container(
-                    width: 54,
-                    height: 54,
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: context.colors.surface,
-                      border: Border.all(color: context.colors.border),
+              SizedBox(
+                width: double.infinity,
+                height: 55,
+                child: OutlinedButton(
+                  onPressed: _isLoading ? null : _loginWithGoogle,
+                  style: OutlinedButton.styleFrom(
+                    backgroundColor: context.colors.surface,
+                    side: BorderSide(color: context.colors.border),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                    child: Image.asset('assets/images/Google.png'),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Image.asset('assets/images/Google.png',
+                          width: 24, height: 24),
+                      const SizedBox(width: 12),
+                      Text(
+                        'Tiếp tục với Google',
+                        style: TextStyle(
+                          color: context.colors.textPrimary,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),

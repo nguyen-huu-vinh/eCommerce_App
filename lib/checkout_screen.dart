@@ -339,11 +339,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         fillColor: context.colors.surface,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: Color(0xFFE3E3E3)),
+          borderSide: BorderSide(color: context.colors.border),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: Color(0xFFE3E3E3)),
+          borderSide: BorderSide(color: context.colors.border),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
@@ -359,6 +359,14 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       appBar: AppBar(
         backgroundColor: context.colors.page,
         elevation: 0,
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back_ios_new,
+            size: 20,
+            color: context.colors.textPrimary,
+          ),
+          onPressed: () => Navigator.maybePop(context),
+        ),
         title: Text(
           'Thanh toán',
           style: GoogleFonts.montserrat(

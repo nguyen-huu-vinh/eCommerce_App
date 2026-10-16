@@ -66,7 +66,7 @@ class BankTransferCard extends StatelessWidget {
                         child: CircularProgressIndicator(color: _pink),
                       ),
                 errorBuilder: (context, error, stack) => Container(
-                  color: const Color(0xFFF5F5F5),
+                  color: context.colors.surfaceAlt,
                   alignment: Alignment.center,
                   padding: const EdgeInsets.all(16),
                   child: Text(

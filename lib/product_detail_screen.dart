@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'theme/app_theme.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -127,6 +128,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       );
       return false;
     }
+    HapticFeedback.lightImpact();
     return true;
   }
 
@@ -203,7 +205,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     Widget circle(
       IconData icon,
       VoidCallback onTap, {
-      Color color = Colors.black,
+      Color? color,
     }) => BouncingButton(
       onTap: onTap,
       child: Container(
@@ -212,7 +214,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           color: context.colors.surface,
           shape: BoxShape.circle,
         ),
-        child: Icon(icon, size: 20, color: color),
+        child: Icon(icon, size: 20, color: color ?? context.colors.textPrimary),
       ),
     );
     final wishlist = WishlistController.instance;
@@ -233,10 +235,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       product != null && wishlist.contains(product.id);
                   return circle(
                     liked ? Icons.favorite : Icons.favorite_border,
-                    color: liked ? _pink : Colors.black,
+                    color: liked ? _pink : context.colors.textPrimary,
                     () {
                       if (product == null) return;
                       final added = wishlist.toggle(product);
+                      HapticFeedback.selectionClick();
                       _showMessage(
                         added
                             ? 'Đã thêm vào yêu thích'

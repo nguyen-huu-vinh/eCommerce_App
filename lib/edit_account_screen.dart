@@ -109,7 +109,7 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
           tooltip: 'Quay lại',
           onPressed: () => Navigator.maybePop(context),
           icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
-          color: Color(0xFF222222),
+          color: context.colors.textPrimary,
         ),
         title: Text(
           'Chỉnh sửa tài khoản',

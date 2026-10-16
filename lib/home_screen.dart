@@ -1,3 +1,4 @@
+import 'widgets/skeleton.dart';
 import 'package:flutter/material.dart';
 
 import 'theme/app_theme.dart';
@@ -514,7 +515,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     future: futureDealProducts,
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
-                        return Center(child: CircularProgressIndicator());
+                        return const ProductRowSkeleton();
                       }
                       if (snapshot.hasError) {
                         return _SectionRetry(
@@ -614,7 +615,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     future: futureTrendingProducts,
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
-                        return Center(child: CircularProgressIndicator());
+                        return const ProductRowSkeleton();
                       }
                       if (snapshot.hasError) {
                         return _SectionRetry(

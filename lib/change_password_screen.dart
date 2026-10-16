@@ -85,7 +85,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
         backgroundColor: context.colors.page,
         elevation: 0,
         // Mở từ trang Tài khoản: AppBar tự hiện nút quay lại
-        foregroundColor: Colors.black,
+        foregroundColor: context.colors.textPrimary,
         title: Text(
           'Đổi mật khẩu',
           style: TextStyle(

@@ -93,7 +93,7 @@ class SpecialOffersCard extends StatelessWidget {
                         shape: BoxShape.circle,
                         color: context.colors.surface,
                         border: Border.all(
-                          color: const Color(0xFFE0E0E0),
+                          color: context.colors.border,
                           width: 1,
                         ),
                       ),
