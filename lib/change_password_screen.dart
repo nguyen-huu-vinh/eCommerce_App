@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'theme/app_theme.dart';
 
 import 'services/auth_service.dart';
@@ -177,7 +178,10 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
       decoration: InputDecoration(
         hintText: hintText,
         hintStyle: TextStyle(color: context.colors.textMuted, fontSize: 14),
-        prefixIcon: Icon(Icons.lock_outline, color: context.colors.textSecondary),
+        prefixIcon: Icon(
+          Icons.lock_outline,
+          color: context.colors.textSecondary,
+        ),
         suffixIcon: IconButton(
           icon: Icon(
             isVisible

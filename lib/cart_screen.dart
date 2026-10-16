@@ -1,7 +1,10 @@
 import 'widgets/empty_state.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 import 'theme/app_theme.dart';
+
 import 'package:google_fonts/google_fonts.dart';
 
 import 'services/cart_controller.dart';
@@ -15,7 +18,7 @@ class CartScreen extends StatelessWidget {
 
   const CartScreen({super.key, required this.controller, this.onBack});
 
-  static const _pink = Color(0xFFFE3E6C);
+  static const _pink = brandPink;
 
   Future<void> _confirmClear(BuildContext context) async {
     final confirmed = await showDialog<bool>(
@@ -295,7 +298,7 @@ class _CartItemTile extends StatelessWidget {
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
                         color: item.isDiscounted
-                            ? Color(0xFFFE3E6C)
+                            ? brandPink
                             : context.colors.textPrimary,
                       ),
                     ),
@@ -425,7 +428,9 @@ class _SummaryRow extends StatelessWidget {
         style: GoogleFonts.montserrat(
           fontSize: emphasized ? 14 : 12,
           fontWeight: FontWeight.w700,
-          color: emphasized ? context.colors.textPrimary : context.colors.textSecondary,
+          color: emphasized
+              ? context.colors.textPrimary
+              : context.colors.textSecondary,
         ),
       ),
     ],

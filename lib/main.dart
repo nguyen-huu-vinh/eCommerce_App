@@ -6,7 +6,6 @@ import 'services/push_service.dart';
 import 'theme/app_theme.dart';
 import 'splash_screen.dart'; // Import file màn hình splash vừa tạo
 
-
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await PushService.init();

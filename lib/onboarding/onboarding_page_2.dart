@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../theme/app_theme.dart';
 
 class OnboardingPage2 extends StatelessWidget {
@@ -33,7 +34,11 @@ class OnboardingPage2 extends StatelessWidget {
         Text(
           'Amet minim mollit non deserunt ullamco est sit aliqua dolor do amet sint. Velit officia consequat duis enim velit mollit.',
           textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 14, color: context.colors.textMuted, height: 1.5),
+          style: TextStyle(
+            fontSize: 14,
+            color: context.colors.textMuted,
+            height: 1.5,
+          ),
         ),
       ],
     );

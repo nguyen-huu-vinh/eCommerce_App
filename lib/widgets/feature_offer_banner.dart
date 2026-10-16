@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+
 import '../theme/app_theme.dart';
+
 import 'package:google_fonts/google_fonts.dart';
 
 import 'bouncing_button.dart';
@@ -70,10 +72,7 @@ class FeatureOfferBanner extends StatelessWidget {
             // 2. NỘI DUNG CHỮ & NÚT BẤM BÊN PHẢI
             Expanded(
               child: Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 16,
-                ),
+                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment:
@@ -112,7 +111,7 @@ class FeatureOfferBanner extends StatelessWidget {
                           vertical: 8,
                         ),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFFE3E6C), // Màu nút hồng tươi
+                          color: brandPink, // Màu nút hồng tươi
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Row(

@@ -110,7 +110,8 @@ void main() {
       ),
     );
     expect(find.text('Hết hàng'), findsOneWidget);
-    await tester.tap(find.text('Go to cart'));
+    await tester.ensureVisible(find.text('Thêm vào giỏ'));
+    await tester.tap(find.text('Thêm vào giỏ'));
     await tester.pump();
     expect(find.text('Sản phẩm này đã hết hàng'), findsOneWidget);
     expect(cart.itemCount, 0);

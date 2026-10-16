@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+
 import '../theme/app_theme.dart';
+
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -12,7 +14,7 @@ class BankTransferCard extends StatelessWidget {
 
   const BankTransferCard({super.key, required this.transfer});
 
-  static const _pink = Color(0xFFFE3E6C);
+  static const _pink = brandPink;
 
   void _copy(BuildContext context, String label, String value) {
     Clipboard.setData(ClipboardData(text: value));
@@ -150,9 +152,7 @@ class _CopyRow extends StatelessWidget {
             style: GoogleFonts.montserrat(
               fontSize: 12,
               fontWeight: FontWeight.w700,
-              color: highlight
-                  ? Color(0xFFFE3E6C)
-                  : context.colors.textPrimary,
+              color: highlight ? brandPink : context.colors.textPrimary,
             ),
           ),
         ),

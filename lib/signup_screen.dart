@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'theme/app_theme.dart';
 
 import 'package:flutter/material.dart';
@@ -154,7 +155,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     color: context.colors.textMuted,
                     fontSize: 14,
                   ),
-                  prefixIcon: Icon(Icons.lock, color: context.colors.textSecondary),
+                  prefixIcon: Icon(
+                    Icons.lock,
+                    color: context.colors.textSecondary,
+                  ),
                   suffixIcon: IconButton(
                     icon: Icon(
                       _isPasswordHidden
@@ -194,7 +198,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     color: context.colors.textMuted,
                     fontSize: 14,
                   ),
-                  prefixIcon: Icon(Icons.lock, color: context.colors.textSecondary),
+                  prefixIcon: Icon(
+                    Icons.lock,
+                    color: context.colors.textSecondary,
+                  ),
                   suffixIcon: IconButton(
                     icon: Icon(
                       _isConfirmPasswordHidden

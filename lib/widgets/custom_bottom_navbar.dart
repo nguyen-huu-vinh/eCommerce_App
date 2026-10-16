@@ -33,7 +33,7 @@ class CustomBottomNavBar extends StatelessWidget {
 
   static const _duration = Duration(milliseconds: 300);
   static const _curve = Curves.easeInOutCubic;
-  static const _pink = Color(0xFFFE3E6C);
+  static const _pink = brandPink;
 
   // Kích thước khi thanh mở rộng / thu nhỏ
   static const double _fullHeight = 64;
@@ -159,7 +159,9 @@ class CustomBottomNavBar extends StatelessWidget {
             duration: const Duration(milliseconds: 250),
             curve: Curves.easeInOut,
             decoration: BoxDecoration(
-              color: isSelected ? _pink.withValues(alpha: 0.14) : Colors.transparent,
+              color: isSelected
+                  ? _pink.withValues(alpha: 0.14)
+                  : Colors.transparent,
               borderRadius: BorderRadius.circular(24),
             ),
             child: Padding(

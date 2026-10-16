@@ -50,7 +50,7 @@ class ProductDetailScreen extends StatefulWidget {
 }
 
 class _ProductDetailScreenState extends State<ProductDetailScreen> {
-  static const _pink = Color(0xFFFE3E6C);
+  static const _pink = brandPink;
   static const _sizePink = Color(0xFFFA7189);
 
   final PageController _pageController = PageController();
@@ -750,12 +750,16 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                             size: 18,
                           ),
                           const SizedBox(width: 8),
-                          Text(
-                            'Thêm vào giỏ',
-                            style: GoogleFonts.montserrat(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: _pink,
+                          Flexible(
+                            child: Text(
+                              'Thêm vào giỏ',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: GoogleFonts.montserrat(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: _pink,
+                              ),
                             ),
                           ),
                         ],
@@ -782,12 +786,16 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                             size: 18,
                           ),
                           const SizedBox(width: 8),
-                          Text(
-                            'Mua ngay',
-                            style: GoogleFonts.montserrat(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white,
+                          Flexible(
+                            child: Text(
+                              'Mua ngay',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: GoogleFonts.montserrat(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                              ),
                             ),
                           ),
                         ],

@@ -90,7 +90,15 @@ class AppColors extends ThemeExtension<AppColors> {
 }
 
 extension AppColorsContext on BuildContext {
-  AppColors get colors => Theme.of(this).extension<AppColors>()!;
+  /// Bảng màu của giao diện hiện tại. Thiếu (VD trong test dùng MaterialApp
+  /// trần) thì lấy bảng màu mặc định theo độ sáng.
+  AppColors get colors {
+    final theme = Theme.of(this);
+    return theme.extension<AppColors>() ??
+        (theme.brightness == Brightness.dark
+            ? AppColors.dark
+            : AppColors.light);
+  }
 }
 
 ThemeData buildTheme(Brightness brightness) {

@@ -1,6 +1,9 @@
 import 'widgets/empty_state.dart';
+
 import 'package:flutter/material.dart';
+
 import 'theme/app_theme.dart';
+
 import 'package:google_fonts/google_fonts.dart';
 
 import 'models/order.dart';
@@ -11,7 +14,7 @@ import 'widgets/order_tracking_map.dart';
 import 'widgets/review_sheet.dart';
 import 'utils/network_image.dart';
 
-const _pink = Color(0xFFFE3E6C);
+const _pink = brandPink;
 
 /// Các tab lọc đơn, null là "Tất cả"
 const _tabStatuses = <String?>[
@@ -446,7 +449,7 @@ class _StatusBanner extends StatelessWidget {
         gradient: LinearGradient(
           colors: cancelled
               ? [Color(0xFF8A8A8A), Color(0xFFA9A9A9)]
-              : [Color(0xFFFE3E6C), Color(0xFFFF7A95)],
+              : [brandPink, Color(0xFFFF7A95)],
         ),
         borderRadius: BorderRadius.circular(12),
       ),
@@ -546,7 +549,9 @@ class _ProgressStepper extends StatelessWidget {
           style: GoogleFonts.montserrat(
             fontSize: 11,
             fontWeight: index == current ? FontWeight.w700 : FontWeight.w500,
-            color: done ? context.colors.textPrimary : context.colors.textSecondary,
+            color: done
+                ? context.colors.textPrimary
+                : context.colors.textSecondary,
           ),
         ),
         if (done && reachedAt != null) ...[
@@ -625,7 +630,9 @@ class _Timeline extends StatelessWidget {
                           style: GoogleFonts.montserrat(
                             fontSize: 13,
                             fontWeight: FontWeight.w700,
-                            color: i == 0 ? _pink : context.colors.textSecondary,
+                            color: i == 0
+                                ? _pink
+                                : context.colors.textSecondary,
                           ),
                         ),
                         if (events[i].note case final note?

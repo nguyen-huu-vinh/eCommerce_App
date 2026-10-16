@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+
 import 'theme/app_theme.dart';
+
 import 'package:google_fonts/google_fonts.dart';
 
 import 'models/order.dart';
@@ -16,7 +18,7 @@ class OrderSuccessScreen extends StatelessWidget {
     required this.paymentMethod,
   });
 
-  static const _pink = Color(0xFFFE3E6C);
+  static const _pink = brandPink;
 
   @override
   Widget build(BuildContext context) {

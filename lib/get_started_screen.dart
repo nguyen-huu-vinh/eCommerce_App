@@ -39,10 +39,7 @@ class GetStartedScreen extends StatelessWidget {
           // 3. Nội dung chữ và nút bấm
           SafeArea(
             child: Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: 32.0,
-                vertical: 24.0,
-              ),
+              padding: EdgeInsets.symmetric(horizontal: 32.0, vertical: 24.0),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [

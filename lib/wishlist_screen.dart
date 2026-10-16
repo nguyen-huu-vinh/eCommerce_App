@@ -1,4 +1,5 @@
 import 'widgets/empty_state.dart';
+
 import 'package:flutter/material.dart';
 
 import 'theme/app_theme.dart';
@@ -16,7 +17,7 @@ class WishlistScreen extends StatelessWidget {
 
   const WishlistScreen({super.key, this.onBack});
 
-  static const _pink = Color(0xFFFE3E6C);
+  static const _pink = brandPink;
 
   String? _discountLabel(Product product) {
     final discountPrice = product.discountPrice;

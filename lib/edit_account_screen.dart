@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+
 import 'theme/app_theme.dart';
+
 import 'package:google_fonts/google_fonts.dart';
 
 import 'services/auth_service.dart';
@@ -14,7 +16,7 @@ class EditAccountScreen extends StatefulWidget {
 }
 
 class _EditAccountScreenState extends State<EditAccountScreen> {
-  static const _pink = Color(0xFFFE3E6C);
+  static const _pink = brandPink;
 
   final _profileFormKey = GlobalKey<FormState>();
   final _passwordFormKey = GlobalKey<FormState>();
@@ -335,7 +337,10 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
       style: GoogleFonts.montserrat(fontSize: 13),
       decoration: InputDecoration(
         labelText: label,
-        prefixIcon: Icon(Icons.lock_outline, color: context.colors.textSecondary),
+        prefixIcon: Icon(
+          Icons.lock_outline,
+          color: context.colors.textSecondary,
+        ),
         suffixIcon: IconButton(
           tooltip: isVisible ? 'Ẩn mật khẩu' : 'Hiện mật khẩu',
           onPressed: onToggle,

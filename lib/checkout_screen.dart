@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+
 import 'theme/app_theme.dart';
+
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -25,7 +27,7 @@ class CheckoutScreen extends StatefulWidget {
 }
 
 class _CheckoutScreenState extends State<CheckoutScreen> {
-  static const _pink = Color(0xFFFE3E6C);
+  static const _pink = brandPink;
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
@@ -263,7 +265,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       coupon.description!,
                       style: GoogleFonts.montserrat(
                         fontSize: 11,
-                        color: dark ? const Color(0xFF9BD6B4) : const Color(0xFF4F7A5E),
+                        color: dark
+                            ? const Color(0xFF9BD6B4)
+                            : const Color(0xFF4F7A5E),
                       ),
                     ),
                 ],
@@ -725,9 +729,7 @@ class _PaymentOption extends StatelessWidget {
         decoration: BoxDecoration(
           color: context.colors.surface,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(
-            color: selected ? const Color(0xFFFE3E6C) : Color(0xFFE3E3E3),
-          ),
+          border: Border.all(color: selected ? brandPink : Color(0xFFE3E3E3)),
         ),
         child: Row(
           children: [
@@ -755,7 +757,7 @@ class _PaymentOption extends StatelessWidget {
                 ],
               ),
             ),
-            Radio<String>(value: value, activeColor: const Color(0xFFFE3E6C)),
+            Radio<String>(value: value, activeColor: brandPink),
           ],
         ),
       ),

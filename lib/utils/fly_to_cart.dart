@@ -17,13 +17,19 @@ void flyToCart({
     vsync: overlay,
     duration: const Duration(milliseconds: 650),
   );
-  final curve = CurvedAnimation(parent: controller, curve: Curves.easeInOutCubic);
+  final curve = CurvedAnimation(
+    parent: controller,
+    curve: Curves.easeInOutCubic,
+  );
 
   const startSize = 90.0;
   final start = from.center;
   final end = to.center;
   // Điểm uốn nằm cao hơn đường thẳng để ảnh bay thành vòng cung
-  final control = Offset((start.dx + end.dx) / 2, math.min(start.dy, end.dy) - 90);
+  final control = Offset(
+    (start.dx + end.dx) / 2,
+    math.min(start.dy, end.dy) - 90,
+  );
 
   Offset bezier(double t) {
     final u = 1 - t;

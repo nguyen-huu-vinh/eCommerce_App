@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+
 import '../theme/app_theme.dart';
+
 import 'package:google_fonts/google_fonts.dart';
 
 import 'bouncing_button.dart';
@@ -53,7 +55,9 @@ class ProductCard extends StatelessWidget {
   Widget build(BuildContext context) {
     // Ưu tiên onTap được truyền vào; không có thì tự mở trang chi tiết theo id;
     // không có cả hai thì thẻ không phản ứng khi bấm (chỉ hiển thị).
-    final heroTag = id == null ? null : 'product-$id-${identityHashCode(context)}';
+    final heroTag = id == null
+        ? null
+        : 'product-$id-${identityHashCode(context)}';
     final VoidCallback? effectiveOnTap =
         onTap ??
         (id != null
@@ -164,7 +168,7 @@ class ProductCard extends StatelessWidget {
                             style: GoogleFonts.montserrat(
                               fontSize: 10,
                               fontWeight: FontWeight.w600,
-                              color: const Color(0xFFFE3E6C),
+                              color: brandPink,
                             ),
                           ),
                       ],
@@ -291,35 +295,36 @@ class _ProductCardImageState extends State<_ProductCardImage> {
   Widget build(BuildContext context) {
     return AspectRatio(
       aspectRatio: _aspectRatio,
-      child: _wrapHero(Container(
-        color: context.colors.surfaceAlt,
-        child: Image(
-          image: _imageProvider,
-          fit: BoxFit.contain,
-          frameBuilder: (context, child, frame, sync) {
-            if (sync) return child;
-            return AnimatedOpacity(
-              opacity: frame == null ? 0 : 1,
-              duration: const Duration(milliseconds: 250),
-              curve: Curves.easeOut,
-              child: child,
-            );
-          },
-          loadingBuilder: (context, child, progress) {
-            if (progress == null) return child;
-            return const Shimmer(child: SkeletonBox(radius: 0));
-          },
-          errorBuilder: (context, error, stackTrace) {
-            return const Center(
-              child: Icon(Icons.broken_image, color: Colors.grey),
-            );
-          },
-        )),
+      child: _wrapHero(
+        Container(
+          color: context.colors.surfaceAlt,
+          child: Image(
+            image: _imageProvider,
+            fit: BoxFit.contain,
+            frameBuilder: (context, child, frame, sync) {
+              if (sync) return child;
+              return AnimatedOpacity(
+                opacity: frame == null ? 0 : 1,
+                duration: const Duration(milliseconds: 250),
+                curve: Curves.easeOut,
+                child: child,
+              );
+            },
+            loadingBuilder: (context, child, progress) {
+              if (progress == null) return child;
+              return const Shimmer(child: SkeletonBox(radius: 0));
+            },
+            errorBuilder: (context, error, stackTrace) {
+              return const Center(
+                child: Icon(Icons.broken_image, color: Colors.grey),
+              );
+            },
+          ),
+        ),
       ),
     );
   }
 
-  Widget _wrapHero(Widget child) => widget.heroTag == null
-      ? child
-      : Hero(tag: widget.heroTag!, child: child);
+  Widget _wrapHero(Widget child) =>
+      widget.heroTag == null ? child : Hero(tag: widget.heroTag!, child: child);
 }

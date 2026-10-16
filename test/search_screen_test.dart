@@ -140,6 +140,9 @@ void main() {
     expect(_shownNames(tester), ['Áo thun trắng']);
 
     await tester.enterText(find.byType(TextField), '');
+    // Ô tìm đang trống và còn focus thì hiện gợi ý; bỏ focus để thanh Lọc hiện lại
+    FocusManager.instance.primaryFocus?.unfocus();
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Lọc (1)'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Xóa lọc'));

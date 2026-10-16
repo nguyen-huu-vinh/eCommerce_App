@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+
 import '../theme/app_theme.dart';
+
 import 'package:google_fonts/google_fonts.dart';
 
 import 'bouncing_button.dart';
@@ -23,7 +25,10 @@ class NewArrivalsBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Bấm vào bất kỳ chỗ nào trên banner cũng mở danh sách sản phẩm mới
-    return BouncingButton(onTap: onViewAllTap ?? () {}, child: _buildCard(context));
+    return BouncingButton(
+      onTap: onViewAllTap ?? () {},
+      child: _buildCard(context),
+    );
   }
 
   Widget _buildCard(BuildContext context) {
@@ -54,9 +59,7 @@ class NewArrivalsBanner extends StatelessWidget {
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
                   return Container(
-                    color: Color(
-                      0xFFFBE4C8,
-                    ), // Màu cam nhạt giống nền thiết kế
+                    color: Color(0xFFFBE4C8), // Màu cam nhạt giống nền thiết kế
                     child: Center(
                       child: Icon(Icons.image, size: 48, color: Colors.orange),
                     ),

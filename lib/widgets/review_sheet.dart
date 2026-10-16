@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+
 import '../theme/app_theme.dart';
+
 import 'package:google_fonts/google_fonts.dart';
 
 import '../models/review.dart';
@@ -34,7 +36,7 @@ class _ReviewSheet extends StatefulWidget {
 }
 
 class _ReviewSheetState extends State<_ReviewSheet> {
-  static const _pink = Color(0xFFFE3E6C);
+  static const _pink = brandPink;
   final _commentController = TextEditingController();
   int _rating = 0;
   bool _loading = true;

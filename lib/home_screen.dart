@@ -1,4 +1,5 @@
 import 'widgets/skeleton.dart';
+
 import 'package:flutter/material.dart';
 
 import 'theme/app_theme.dart';
@@ -129,7 +130,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               width: 42,
                               height: 42,
                               decoration: const BoxDecoration(
-                                color: Color(0xFFFE3E6C),
+                                color: brandPink,
                                 shape: BoxShape.circle,
                               ),
                               child: const Icon(
@@ -176,7 +177,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ConnectionState.waiting) {
                               return const Center(
                                 child: CircularProgressIndicator(
-                                  color: Color(0xFFFE3E6C),
+                                  color: brandPink,
                                 ),
                               );
                             }
@@ -332,7 +333,7 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: context.colors.page,
       body: SafeArea(
         child: RefreshIndicator(
-          color: const Color(0xFFFE3E6C),
+          color: brandPink,
           onRefresh: _refreshHome,
           child: SingleChildScrollView(
             controller: widget
@@ -733,9 +734,7 @@ class _SectionRetry extends StatelessWidget {
               onPressed: onRetry,
               icon: const Icon(Icons.refresh, size: 18),
               label: const Text('Thử lại'),
-              style: TextButton.styleFrom(
-                foregroundColor: const Color(0xFFFE3E6C),
-              ),
+              style: TextButton.styleFrom(foregroundColor: brandPink),
             ),
         ],
       ),

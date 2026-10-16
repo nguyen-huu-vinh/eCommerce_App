@@ -548,9 +548,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
   Widget _buildContent(List<Product> products, bool hasQuery) {
     if (_isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(color: Color(0xFFFE3E6C)),
-      );
+      return const Center(child: CircularProgressIndicator(color: brandPink));
     }
 
     if (_errorMessage != null) {
@@ -612,7 +610,7 @@ class _SearchScreenState extends State<SearchScreen> {
         ProductService.clearCache();
         return _loadProducts();
       },
-      color: const Color(0xFFFE3E6C),
+      color: brandPink,
       child: MasonryGridView.count(
         // Chừa chỗ cho thanh điều hướng nổi ở dưới
         padding: const EdgeInsets.fromLTRB(16, 4, 16, 116),
@@ -644,7 +642,7 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 }
 
-const _pink = Color(0xFFFE3E6C);
+const _pink = brandPink;
 
 class _ToolbarButton extends StatelessWidget {
   final IconData icon;

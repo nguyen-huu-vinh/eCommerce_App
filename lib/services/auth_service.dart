@@ -77,13 +77,11 @@ class AuthService {
   /// --dart-define=GOOGLE_SERVER_CLIENT_ID=... (và GOOGLE_IOS_CLIENT_ID cho iOS)
   static const _googleServerClientId = String.fromEnvironment(
     'GOOGLE_SERVER_CLIENT_ID',
-    defaultValue:
-        '612145757266-qppf42au046qfq56lfptp3i4q71cdoe8.apps.googleusercontent.com',
+    defaultValue: '612145757266-qppf42au046qfq56lfptp3i4q71cdoe8.apps.googleusercontent.com',
   );
   static const _googleIosClientId = String.fromEnvironment(
     'GOOGLE_IOS_CLIENT_ID',
-    defaultValue:
-        '612145757266-97tj87rtcbv72v8comovo4q96b0oann9.apps.googleusercontent.com',
+    defaultValue: '612145757266-97tj87rtcbv72v8comovo4q96b0oann9.apps.googleusercontent.com',
   );
   static bool _googleReady = false;
 
@@ -113,7 +111,8 @@ class AuthService {
         throw AuthException('Bạn đã hủy đăng nhập Google');
       }
       throw AuthException(
-          'Đăng nhập Google thất bại (${e.code.name}): ${e.description ?? ''}');
+        'Đăng nhập Google thất bại (${e.code.name}): ${e.description ?? ''}',
+      );
     }
 
     final res = await http

@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'theme/app_theme.dart';
 
 import 'package:flutter/material.dart';
@@ -24,7 +25,7 @@ class AddressBookScreen extends StatefulWidget {
 }
 
 class _AddressBookScreenState extends State<AddressBookScreen> {
-  static const _pink = Color(0xFFFE3E6C);
+  static const _pink = brandPink;
 
   List<SavedAddress>? _addresses;
   String? _error;
@@ -219,9 +220,7 @@ class _AddressCard extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: address.isDefault
-                  ? Color(0xFFFE3E6C)
-                  : context.colors.border,
+              color: address.isDefault ? brandPink : context.colors.border,
             ),
           ),
           child: Column(
@@ -241,10 +240,7 @@ class _AddressCard extends StatelessWidget {
                   ],
                   if (address.isDefault)
                     Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 7,
-                        vertical: 2,
-                      ),
+                      padding: EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                       decoration: BoxDecoration(
                         color: Color(0xFFFFEDF1),
                         borderRadius: BorderRadius.circular(6),
@@ -316,7 +312,7 @@ class AddressFormScreen extends StatefulWidget {
 }
 
 class _AddressFormScreenState extends State<AddressFormScreen> {
-  static const _pink = Color(0xFFFE3E6C);
+  static const _pink = brandPink;
   final _formKey = GlobalKey<FormState>();
   late final _label = TextEditingController(text: widget.address?.label);
   late final _name = TextEditingController(text: widget.address?.fullName);

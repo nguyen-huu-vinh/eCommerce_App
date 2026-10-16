@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import '../theme/app_theme.dart';
 
 import 'package:flutter/material.dart';
@@ -9,7 +10,7 @@ import 'package:latlong2/latlong.dart';
 import '../models/order_tracking.dart';
 import '../services/order_service.dart';
 
-const _pink = Color(0xFFFE3E6C);
+const _pink = brandPink;
 
 // Nền bản đồ Esri World Street Map: giống Google Maps, tên đường tiếng Việt,
 // không cần API key. Không dùng tile.openstreetmap.org vì bị chặn trên một số

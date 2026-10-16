@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+
 import '../theme/app_theme.dart';
+
 import 'package:google_fonts/google_fonts.dart';
 
 import '../models/review.dart';
@@ -111,9 +113,7 @@ class _ReviewSectionState extends State<ReviewSection> {
                   size: 18,
                 ),
                 label: Text(hasMine ? 'Sửa đánh giá' : 'Viết đánh giá'),
-                style: TextButton.styleFrom(
-                  foregroundColor: const Color(0xFFFE3E6C),
-                ),
+                style: TextButton.styleFrom(foregroundColor: brandPink),
               ),
           ],
         ),

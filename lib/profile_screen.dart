@@ -27,7 +27,7 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  static const _pink = Color(0xFFFE3E6C);
+  static const _pink = brandPink;
 
   Map<String, dynamic>? _profile;
   bool _isLoading = true;
