@@ -106,6 +106,7 @@ class Order {
   final double total;
   final double discount;
   final String? couponCode;
+  final bool paid;
   final DateTime createdAt;
   final List<OrderLine> items;
   final BankTransfer? bankTransfer;
@@ -124,6 +125,7 @@ class Order {
     required this.total,
     this.discount = 0,
     this.couponCode,
+    this.paid = false,
     required this.createdAt,
     required this.items,
     this.bankTransfer,
@@ -142,6 +144,7 @@ class Order {
       total: (json['total'] as num).toDouble(),
       discount: (json['discount'] as num?)?.toDouble() ?? 0,
       couponCode: json['coupon_code'] as String?,
+      paid: json['paid'] as bool? ?? false,
       createdAt: _parseServerTime(json['created_at'] as String),
       items: (json['items'] as List? ?? const [])
           .map((item) => OrderLine.fromJson(item as Map<String, dynamic>))
@@ -164,9 +167,12 @@ class Order {
 
   int get itemCount => items.fold(0, (total, item) => total + item.quantity);
 
-  String get paymentLabel => paymentMethod == 'bank'
-      ? 'Chuyển khoản ngân hàng'
-      : 'Thanh toán khi nhận hàng';
+  String get paymentLabel {
+    final method = paymentMethod == 'bank'
+        ? 'Chuyển khoản ngân hàng'
+        : 'Thanh toán khi nhận hàng';
+    return paid ? '$method · Đã thanh toán' : method;
+  }
 
   String get statusLabel => orderStatusLabels[status] ?? status;
 
