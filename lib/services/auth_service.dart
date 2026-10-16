@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 
 import 'notification_service.dart';
@@ -72,6 +73,56 @@ class AuthService {
     await _storage.write(key: _tokenKey, value: token);
   }
 
+  /// Đăng nhập bằng Google. Client ID truyền lúc build:
+  /// --dart-define=GOOGLE_SERVER_CLIENT_ID=... (và GOOGLE_IOS_CLIENT_ID cho iOS)
+  static const _googleServerClientId = String.fromEnvironment(
+    'GOOGLE_SERVER_CLIENT_ID',
+  );
+  static const _googleIosClientId = String.fromEnvironment(
+    'GOOGLE_IOS_CLIENT_ID',
+  );
+  static bool _googleReady = false;
+
+  static Future<void> loginWithGoogle() async {
+    if (_googleServerClientId.isEmpty) {
+      throw AuthException('Đăng nhập Google chưa được cấu hình trong app');
+    }
+    final google = GoogleSignIn.instance;
+    if (!_googleReady) {
+      await google.initialize(
+        clientId: _googleIosClientId.isEmpty ? null : _googleIosClientId,
+        serverClientId: _googleServerClientId,
+      );
+      _googleReady = true;
+    }
+
+    final String idToken;
+    try {
+      final account = await google.authenticate();
+      final token = account.authentication.idToken;
+      if (token == null)
+        throw AuthException('Không lấy được thông tin từ Google');
+      idToken = token;
+    } on GoogleSignInException catch (e) {
+      if (e.code == GoogleSignInExceptionCode.canceled) {
+        throw AuthException('Bạn đã hủy đăng nhập Google');
+      }
+      throw AuthException(
+          'Đăng nhập Google thất bại (${e.code.name}): ${e.description ?? ''}');
+    }
+
+    final res = await http
+        .post(
+          Uri.parse('$baseUrl/login/google'),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({'id_token': idToken}),
+        )
+        .timeout(_timeout);
+    if (res.statusCode != 200) throw AuthException(_errorMessage(res));
+    final data = jsonDecode(res.body) as Map<String, dynamic>;
+    await _storage.write(key: _tokenKey, value: data['access_token'] as String);
+  }
+
   static Future<String?> getToken() => _storage.read(key: _tokenKey);
 
   /// Còn token chưa hết hạn hay không. Chỉ đọc hạn dùng ghi trong token nên
@@ -101,6 +152,7 @@ class AuthService {
   }
 
   static Future<void> logout() {
+    if (_googleReady) GoogleSignIn.instance.signOut().catchError((Object _) {});
     avatarUrl.value = null;
     NotificationService.unread.value = 0;
     return _storage.delete(key: _tokenKey);

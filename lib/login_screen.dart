@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'theme/app_theme.dart';
 
 import 'signup_screen.dart';
@@ -37,6 +38,25 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!mounted) return;
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  Future<void> _loginWithGoogle() async {
+    setState(() => _isLoading = true);
+    try {
+      await AuthService.loginWithGoogle();
+      PushService.registerDevice();
+      if (!mounted) return;
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const GetStartedScreen()),
+      );
+    } on AuthException catch (e) {
+      _showMessage(e.message);
+    } catch (_) {
+      _showMessage('Không kết nối được máy chủ, vui lòng thử lại');
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   // Xử lý đăng nhập: gọi backend, lưu token, rồi chuyển màn hình
@@ -133,7 +153,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     color: context.colors.textMuted,
                     fontSize: 14,
                   ),
-                  prefixIcon: Icon(Icons.lock, color: context.colors.textSecondary),
+                  prefixIcon: Icon(
+                    Icons.lock,
+                    color: context.colors.textSecondary,
+                  ),
                   suffixIcon: IconButton(
                     icon: Icon(
                       _isPasswordHidden
@@ -221,35 +244,37 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
 
-              // const SizedBox(height: 40),
+              const SizedBox(height: 28),
 
-              // // 6. Dòng chữ "- OR Continue with -"
-              // const Center(
-              //   child: Text(
-              //     '- OR Continue with -',
-              //     style: TextStyle(
-              //       color: Color(0xFF575757),
-              //       fontSize: 12,
-              //     ),
-              //   ),
-              // ),
-
-              // SizedBox(height: 20),
-
-              // // 7. Nút Đăng nhập bằng Google
-              // Center(
-              //   child: ElevatedButton(
-              //     onPressed: () {
-              //       // Xử lý đăng nhập Google
-              //     },
-              //     style: ElevatedButton.styleFrom(
-              //       shape: CircleBorder(),
-              //     ),
-              //     child: Image.asset(
-              //       'assets/images/Google.png',
-              //     ),
-              //   ),
-              // ),
+              // 6. Đăng nhập bằng Google
+              Center(
+                child: Text(
+                  '- OR Continue with -',
+                  style: TextStyle(
+                    color: context.colors.textSecondary,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Center(
+                child: InkWell(
+                  customBorder: const CircleBorder(),
+                  onTap: _isLoading ? null : _loginWithGoogle,
+                  child: Container(
+                    width: 54,
+                    height: 54,
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: context.colors.surface,
+                      border: Border.all(color: context.colors.border),
+                    ),
+                    child: Image.asset('assets/images/Google.png'),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
 
               // 8. Dòng chữ "Create An Account Sign Up"
               Center(
