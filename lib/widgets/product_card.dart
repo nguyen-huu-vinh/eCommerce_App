@@ -48,6 +48,7 @@ class ProductCard extends StatelessWidget {
   Widget build(BuildContext context) {
     // Ưu tiên onTap được truyền vào; không có thì tự mở trang chi tiết theo id;
     // không có cả hai thì thẻ không phản ứng khi bấm (chỉ hiển thị).
+    final heroTag = id == null ? null : 'product-$id-${identityHashCode(context)}';
     final VoidCallback? effectiveOnTap =
         onTap ??
         (id != null
@@ -58,6 +59,7 @@ class ProductCard extends StatelessWidget {
                     builder: (context) => ProductDetailScreen(
                       productId: id!,
                       initialProduct: product,
+                      heroTag: heroTag,
                     ),
                   ),
                 );
@@ -84,7 +86,7 @@ class ProductCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              _ProductCardImage(image: image),
+              _ProductCardImage(image: image, heroTag: heroTag),
 
               // 2. PHẦN THÔNG TIN SẢN PHẨM
               Padding(
@@ -194,8 +196,9 @@ class ProductCard extends StatelessWidget {
 
 class _ProductCardImage extends StatefulWidget {
   final String image;
+  final String? heroTag;
 
-  const _ProductCardImage({required this.image});
+  const _ProductCardImage({required this.image, this.heroTag});
 
   @override
   State<_ProductCardImage> createState() => _ProductCardImageState();
@@ -273,7 +276,7 @@ class _ProductCardImageState extends State<_ProductCardImage> {
   Widget build(BuildContext context) {
     return AspectRatio(
       aspectRatio: _aspectRatio,
-      child: Container(
+      child: _wrapHero(Container(
         color: context.colors.surfaceAlt,
         child: Image(
           image: _imageProvider,
@@ -296,8 +299,12 @@ class _ProductCardImageState extends State<_ProductCardImage> {
               child: Icon(Icons.broken_image, color: Colors.grey),
             );
           },
-        ),
+        )),
       ),
     );
   }
+
+  Widget _wrapHero(Widget child) => widget.heroTag == null
+      ? child
+      : Hero(tag: widget.heroTag!, child: child);
 }

@@ -1,4 +1,7 @@
 import 'package:flutter/services.dart';
+import 'utils/fly_to_cart.dart';
+import 'widgets/image_viewer.dart';
+import 'widgets/skeleton.dart';
 import 'package:flutter/material.dart';
 import 'theme/app_theme.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -25,12 +28,16 @@ class ProductDetailScreen extends StatefulWidget {
   final void Function(Product product, String? size)? onGoToCart;
   final void Function(Product product, String? size)? onBuyNow;
 
+  /// Cùng tag với ảnh ở thẻ sản phẩm để ảnh bay mượt sang trang này
+  final String? heroTag;
+
   const ProductDetailScreen({
     super.key,
     required this.productId,
     this.initialProduct,
     this.onGoToCart,
     this.onBuyNow,
+    this.heroTag,
   });
 
   @override
@@ -42,6 +49,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   static const _sizePink = Color(0xFFFA7189);
 
   final PageController _pageController = PageController();
+  final GlobalKey _galleryKey = GlobalKey();
+  final GlobalKey _cartKey = GlobalKey();
+  double _cartScale = 1;
 
   Product? _product;
   List<Product> _similar = [];
@@ -149,7 +159,57 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       _showMessage('Không thể mở giỏ hàng');
       return;
     }
-    if (_addToCart(scope)) scope.onOpenCart();
+    if (!_addToCart(scope)) return;
+    _flyToCartIcon();
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: const Text('Đã thêm vào giỏ hàng'),
+          duration: const Duration(seconds: 2),
+          action: SnackBarAction(
+            label: 'Xem giỏ',
+            textColor: const Color(0xFFFF8DA8),
+            onPressed: scope.onOpenCart,
+          ),
+        ),
+      );
+  }
+
+  Rect? _rectOf(GlobalKey key) {
+    final box = key.currentContext?.findRenderObject();
+    if (box is! RenderBox || !box.attached) return null;
+    return box.localToGlobal(Offset.zero) & box.size;
+  }
+
+  /// Ảnh sản phẩm bay vào icon giỏ hàng rồi icon nảy lên một nhịp
+  void _flyToCartIcon() {
+    final product = _product;
+    final target = _rectOf(_cartKey);
+    if (product == null || target == null) return;
+    final screen = MediaQuery.sizeOf(context);
+    final source = _rectOf(_galleryKey);
+    // Ảnh đã cuộn khuất khỏi màn hình thì cho bay từ giữa màn hình
+    final center = source == null
+        ? Offset(screen.width / 2, screen.height * 0.6)
+        : Offset(
+            source.center.dx,
+            source.center.dy.clamp(120.0, screen.height - 160),
+          );
+    flyToCart(
+      context: context,
+      from: Rect.fromCenter(center: center, width: 90, height: 90),
+      to: target,
+      image: cachedImage(product.gallery.first, width: 1080),
+      onDone: () {
+        if (!mounted) return;
+        HapticFeedback.mediumImpact();
+        setState(() => _cartScale = 1.3);
+        Future.delayed(const Duration(milliseconds: 160), () {
+          if (mounted) setState(() => _cartScale = 1);
+        });
+      },
+    );
   }
 
   void _buyNow() {
@@ -191,7 +251,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               child: product != null
                   ? _buildContent(product)
                   : _isLoading
-                  ? const Center(child: CircularProgressIndicator(color: _pink))
+                  ? const _DetailSkeleton()
                   : _buildError(),
             ),
           ],
@@ -250,17 +310,82 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 },
               ),
               const SizedBox(width: 10),
-              circle(Icons.shopping_cart_outlined, () {
-                final scope = CartScope.maybeOf(context);
-                if (scope == null) {
-                  _showMessage('Không thể mở giỏ hàng');
-                } else {
-                  scope.onOpenCart();
-                }
-              }),
+              _buildCartButton(),
             ],
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildCartButton() {
+    final scope = CartScope.maybeOf(context);
+    return BouncingButton(
+      onTap: () {
+        if (scope == null) {
+          _showMessage('Không thể mở giỏ hàng');
+        } else {
+          scope.onOpenCart();
+        }
+      },
+      child: AnimatedScale(
+        scale: _cartScale,
+        duration: const Duration(milliseconds: 160),
+        curve: Curves.easeOutBack,
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Container(
+              key: _cartKey,
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: context.colors.surface,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.shopping_cart_outlined,
+                size: 20,
+                color: context.colors.textPrimary,
+              ),
+            ),
+            if (scope != null)
+              Positioned(
+                right: -4,
+                top: -4,
+                child: ListenableBuilder(
+                  listenable: scope.controller,
+                  builder: (context, _) {
+                    final count = scope.controller.itemCount;
+                    if (count == 0) return const SizedBox.shrink();
+                    return Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 5,
+                        vertical: 1,
+                      ),
+                      constraints: const BoxConstraints(minWidth: 18),
+                      decoration: BoxDecoration(
+                        color: _pink,
+                        borderRadius: BorderRadius.circular(9),
+                        border: Border.all(
+                          color: context.colors.page,
+                          width: 1.5,
+                        ),
+                      ),
+                      child: Text(
+                        count > 99 ? '99+' : '$count',
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.montserrat(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -319,40 +444,60 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             alignment: Alignment.centerRight,
             children: [
               SizedBox(
-                height: 240,
+                key: _galleryKey,
+                height: 260,
                 width: double.infinity,
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(16),
                   child: Container(
                     // Nền phía sau ảnh, lộ ra khi ảnh không vừa khít khung
-                    color: Colors.grey.shade100,
+                    color: context.colors.surfaceAlt,
                     child: PageView.builder(
                       controller: _pageController,
                       onPageChanged: (index) =>
                           setState(() => _currentImageIndex = index),
                       itemCount: gallery.length,
-                      itemBuilder: (context, index) => Image(
-                        image: cachedImage(gallery[index], width: 1080),
-                        // contain: luôn thấy trọn ảnh, không bị cắt
-                        fit: BoxFit.contain,
-                        loadingBuilder: (context, child, progress) {
-                          if (progress == null) return child;
-                          return Container(
-                            color: Colors.grey.shade200,
-                            child: const Center(
-                              child: CircularProgressIndicator(color: _pink),
+                      itemBuilder: (context, index) {
+                        final image = GestureDetector(
+                          onTap: () => Navigator.push(
+                            context,
+                            PageRouteBuilder<void>(
+                              opaque: false,
+                              barrierColor: Colors.black,
+                              transitionDuration: const Duration(
+                                milliseconds: 220,
+                              ),
+                              pageBuilder: (_, _, _) => ImageViewer(
+                                images: gallery,
+                                initialIndex: index,
+                              ),
+                              transitionsBuilder: (_, anim, _, child) =>
+                                  FadeTransition(opacity: anim, child: child),
                             ),
-                          );
-                        },
-                        errorBuilder: (context, error, stack) => Container(
-                          color: Colors.grey.shade200,
-                          child: const Icon(
-                            Icons.broken_image,
-                            size: 48,
-                            color: Colors.grey,
                           ),
-                        ),
-                      ),
+                          child: Image(
+                            image: cachedImage(gallery[index], width: 1080),
+                            // contain: luôn thấy trọn ảnh, không bị cắt
+                            fit: BoxFit.contain,
+                            loadingBuilder: (context, child, progress) {
+                              if (progress == null) return child;
+                              return const Shimmer(
+                                child: SkeletonBox(radius: 0),
+                              );
+                            },
+                            errorBuilder: (context, error, stack) => Center(
+                              child: Icon(
+                                Icons.broken_image,
+                                size: 48,
+                                color: context.colors.textMuted,
+                              ),
+                            ),
+                          ),
+                        );
+                        return index == 0 && widget.heroTag != null
+                            ? Hero(tag: widget.heroTag!, child: image)
+                            : image;
+                      },
                     ),
                   ),
                 ),
@@ -400,7 +545,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   width: active ? 12 : 8,
                   height: 8,
                   decoration: BoxDecoration(
-                    color: active ? _pink : const Color(0xFFD9D9D9),
+                    color: active ? _pink : context.colors.border,
                     borderRadius: BorderRadius.circular(4),
                   ),
                 );
@@ -533,24 +678,25 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     child: Container(
                       height: 48,
                       decoration: BoxDecoration(
-                        color: const Color(0xFF2B72EC),
+                        color: context.colors.surface,
                         borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: _pink, width: 1.4),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           const Icon(
-                            Icons.shopping_cart_outlined,
-                            color: Colors.white,
+                            Icons.add_shopping_cart_rounded,
+                            color: _pink,
                             size: 18,
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            'Go to cart',
+                            'Thêm vào giỏ',
                             style: GoogleFonts.montserrat(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
-                              color: Colors.white,
+                              color: _pink,
                             ),
                           ),
                         ],
@@ -565,9 +711,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     child: Container(
                       height: 48,
                       decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFF71DB93), Color(0xFF31B761)],
-                        ),
+                        color: _pink,
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Row(
@@ -580,7 +724,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            'Buy Now',
+                            'Mua ngay',
                             style: GoogleFonts.montserrat(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
@@ -609,15 +753,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           if (_similar.isNotEmpty) ...[
             const SizedBox(height: 24),
             Text(
-              'Similar To',
-              style: GoogleFonts.montserrat(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              '${_similar.length}+ Items',
+              'Sản phẩm tương tự',
               style: GoogleFonts.montserrat(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
@@ -740,8 +876,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   image: cachedImage(p.imageUrl, width: 480),
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stack) => Container(
-                    color: Colors.grey.shade200,
-                    child: const Icon(Icons.broken_image, color: Colors.grey),
+                    color: context.colors.surfaceAlt,
+                    child: Icon(
+                      Icons.broken_image,
+                      color: context.colors.textMuted,
+                    ),
                   ),
                 ),
               ),
@@ -777,4 +916,38 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       ),
     );
   }
+}
+
+/// Khung chờ của trang chi tiết: ảnh lớn, các dòng chữ và hai nút.
+class _DetailSkeleton extends StatelessWidget {
+  const _DetailSkeleton();
+
+  @override
+  Widget build(BuildContext context) => const Shimmer(
+    child: Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SkeletonBox(height: 260, width: double.infinity, radius: 16),
+          SizedBox(height: 24),
+          SkeletonBox(height: 22, width: 240),
+          SizedBox(height: 12),
+          SkeletonBox(height: 14, width: double.infinity),
+          SizedBox(height: 8),
+          SkeletonBox(height: 14, width: 180),
+          SizedBox(height: 16),
+          SkeletonBox(height: 20, width: 120),
+          SizedBox(height: 28),
+          Row(
+            children: [
+              Expanded(child: SkeletonBox(height: 48, radius: 10)),
+              SizedBox(width: 12),
+              Expanded(child: SkeletonBox(height: 48, radius: 10)),
+            ],
+          ),
+        ],
+      ),
+    ),
+  );
 }

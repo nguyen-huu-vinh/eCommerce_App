@@ -1,3 +1,4 @@
+import 'widgets/empty_state.dart';
 import 'package:flutter/material.dart';
 import 'theme/app_theme.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -87,34 +88,12 @@ class CartScreen extends StatelessWidget {
         builder: (context, _) {
           final items = controller.items;
           if (items.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.shopping_bag_outlined,
-                    size: 58,
-                    color: context.colors.textMuted,
-                  ),
-                  const SizedBox(height: 14),
-                  Text(
-                    'Giỏ hàng đang trống',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: context.colors.textPrimary,
-                    ),
-                  ),
-                  SizedBox(height: 6),
-                  Text(
-                    'Hãy chọn món đồ bạn yêu thích',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 13,
-                      color: context.colors.textSecondary,
-                    ),
-                  ),
-                ],
-              ),
+            return EmptyState(
+              icon: Icons.shopping_bag_outlined,
+              title: 'Giỏ hàng đang trống',
+              message: 'Hãy chọn món đồ bạn yêu thích và thêm vào giỏ nhé',
+              actionLabel: 'Mua sắm ngay',
+              onAction: onBack ?? () => Navigator.maybePop(context),
             );
           }
 

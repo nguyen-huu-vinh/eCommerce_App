@@ -1,3 +1,4 @@
+import 'widgets/empty_state.dart';
 import 'package:flutter/material.dart';
 import 'theme/app_theme.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -153,10 +154,11 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
           ? ListView(
               physics: AlwaysScrollableScrollPhysics(),
               children: [
-                SizedBox(height: 120),
-                _MessageView(
+                SizedBox(height: 60),
+                EmptyState(
                   icon: Icons.receipt_long_outlined,
                   title: 'Chưa có đơn hàng',
+                  message: 'Các đơn bạn đặt sẽ được theo dõi tại đây.',
                 ),
               ],
             )

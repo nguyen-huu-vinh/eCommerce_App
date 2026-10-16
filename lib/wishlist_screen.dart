@@ -1,3 +1,4 @@
+import 'widgets/empty_state.dart';
 import 'package:flutter/material.dart';
 
 import 'theme/app_theme.dart';
@@ -136,37 +137,11 @@ class WishlistScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildEmpty(BuildContext context) => Center(
-    child: Padding(
-      padding: EdgeInsets.fromLTRB(32, 24, 32, 116),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            Icons.favorite_border_rounded,
-            size: 58,
-            color: context.colors.textMuted,
-          ),
-          SizedBox(height: 14),
-          Text(
-            'Chưa có sản phẩm yêu thích',
-            style: GoogleFonts.montserrat(
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-              color: context.colors.textPrimary,
-            ),
-          ),
-          SizedBox(height: 6),
-          Text(
-            'Bấm vào trái tim ở trang sản phẩm để lưu lại món bạn thích',
-            textAlign: TextAlign.center,
-            style: GoogleFonts.montserrat(
-              fontSize: 13,
-              color: context.colors.textSecondary,
-            ),
-          ),
-        ],
-      ),
-    ),
+  Widget _buildEmpty(BuildContext context) => EmptyState(
+    icon: Icons.favorite_border_rounded,
+    title: 'Chưa có sản phẩm yêu thích',
+    message: 'Bấm vào trái tim ở trang sản phẩm để lưu lại món bạn thích',
+    actionLabel: 'Khám phá sản phẩm',
+    onAction: onBack ?? () => Navigator.maybePop(context),
   );
 }

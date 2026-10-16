@@ -1,3 +1,4 @@
+import 'widgets/empty_state.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -138,9 +139,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       );
     }
     if (_items.isEmpty) {
-      return const _Message(
+      return const EmptyState(
         icon: Icons.notifications_none_rounded,
-        text: 'Bạn chưa có thông báo nào.\nTrạng thái đơn hàng sẽ hiện ở đây.',
+        title: 'Chưa có thông báo',
+        message: 'Trạng thái đơn hàng của bạn sẽ hiện ở đây.',
       );
     }
     return RefreshIndicator(
