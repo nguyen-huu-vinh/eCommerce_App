@@ -1,3 +1,5 @@
+import 'utils/password_rules.dart';
+
 import 'package:flutter/material.dart';
 
 import 'theme/app_theme.dart';
@@ -206,10 +208,7 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                       onToggle: () =>
                           setState(() => _showNewPassword = !_showNewPassword),
                       validator: (value) {
-                        if ((value ?? '').length < 6) {
-                          return 'Mật khẩu mới cần ít nhất 6 ký tự';
-                        }
-                        return null;
+                        return validatePassword(value ?? '');
                       },
                     ),
                     SizedBox(height: 12),

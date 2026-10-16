@@ -1,3 +1,5 @@
+import 'utils/password_rules.dart';
+
 import 'dart:convert';
 
 import 'theme/app_theme.dart';
@@ -56,8 +58,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
       _showMessage('Email không hợp lệ');
       return;
     }
-    if (password.length < 8) {
-      _showMessage('Mật khẩu phải có ít nhất 8 ký tự');
+    final passwordError = validatePassword(password);
+    if (passwordError != null) {
+      _showMessage(passwordError);
       return;
     }
     // bcrypt chỉ dùng tối đa 72 byte

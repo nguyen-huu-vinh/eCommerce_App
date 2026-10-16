@@ -1,3 +1,5 @@
+import 'utils/password_rules.dart';
+
 import 'package:flutter/material.dart';
 
 import 'theme/app_theme.dart';
@@ -47,8 +49,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
       return;
     }
 
-    if (newPassword.length < 6) {
-      _showMessage('Mật khẩu mới phải có ít nhất 6 ký tự');
+    final passwordError = validatePassword(newPassword);
+    if (passwordError != null) {
+      _showMessage(passwordError);
       return;
     }
 
