@@ -102,7 +102,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
               // 1. Tiêu đề Welcome Back!
               Text(
-                'Welcome Back!',
+                'Chào mừng\ntrở lại!',
                 style: TextStyle(
                   fontSize: 36,
                   fontWeight: FontWeight.w800,
@@ -148,7 +148,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 controller: _passwordController,
                 obscureText: _isPasswordHidden,
                 decoration: InputDecoration(
-                  hintText: 'Password',
+                  hintText: 'Mật khẩu',
                   hintStyle: TextStyle(
                     color: context.colors.textMuted,
                     fontSize: 14,
@@ -197,7 +197,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     );
                   },
                   child: const Text(
-                    'Forgot Password?',
+                    'Quên mật khẩu?',
                     style: TextStyle(
                       color: Color(0xFFF83758),
                       fontSize: 12,
@@ -234,7 +234,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         )
                       : const Text(
-                          'Login',
+                          'Đăng nhập',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 20,
@@ -302,8 +302,11 @@ class _LoginScreenState extends State<LoginScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'Create An Account ',
-                      style: TextStyle(color: Color(0xFF575757), fontSize: 14),
+                      'Chưa có tài khoản? ',
+                      style: TextStyle(
+                        color: context.colors.textSecondary,
+                        fontSize: 14,
+                      ),
                     ),
                     TextButton(
                       onPressed: () {
@@ -315,7 +318,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         );
                       },
                       child: const Text(
-                        'Sign Up',
+                        'Đăng ký',
                         style: TextStyle(
                           color: Color(0xFFF83758),
                           fontSize: 14,

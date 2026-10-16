@@ -103,7 +103,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
             isScrollable: true,
             tabAlignment: TabAlignment.start,
             labelColor: _pink,
-            unselectedLabelColor: Color(0xFF555555),
+            unselectedLabelColor: context.colors.textSecondary,
             indicatorColor: _pink,
             labelStyle: GoogleFonts.montserrat(
               fontSize: 12,
@@ -505,7 +505,7 @@ class _ProgressStepper extends StatelessWidget {
   Widget _buildStep(BuildContext context, int index, int current) {
     final (status, label, icon) = _progressSteps[index];
     final done = index <= current;
-    final color = done ? _pink : Color(0xFFCFCFCF);
+    final color = done ? _pink : context.colors.border;
     // Thời điểm gần nhất đơn chuyển sang bước này
     final reachedAt = order.timeline
         .where((event) => event.status == status)
@@ -515,7 +515,7 @@ class _ProgressStepper extends StatelessWidget {
     Widget line(bool active) => Expanded(
       child: Container(
         height: 2,
-        color: active ? _pink : Color(0xFFE3E3E3),
+        color: active ? _pink : context.colors.border,
       ),
     );
 
@@ -558,7 +558,7 @@ class _ProgressStepper extends StatelessWidget {
             '${reachedAt.month.toString().padLeft(2, '0')}',
             style: GoogleFonts.montserrat(
               fontSize: 9,
-              color: const Color(0xFF888888),
+              color: context.colors.textMuted,
             ),
           ),
         ],
@@ -592,7 +592,7 @@ class _Timeline extends StatelessWidget {
                         height: 12,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: i == 0 ? _pink : const Color(0xFFCFCFCF),
+                          color: i == 0 ? _pink : context.colors.border,
                           border: i == 0
                               ? Border.all(
                                   color: const Color(0xFFFFD3DE),
@@ -719,7 +719,7 @@ class _OrderCard extends StatelessWidget {
                 order.createdAtLabel,
                 style: GoogleFonts.montserrat(
                   fontSize: 11,
-                  color: const Color(0xFF888888),
+                  color: context.colors.textMuted,
                 ),
               ),
               if (first != null) ...[
@@ -843,13 +843,17 @@ class _StatusChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (background, foreground) = switch (order.status) {
-      'completed' => (const Color(0xFFE6F6EC), const Color(0xFF1E8E4A)),
-      'cancelled' => (const Color(0xFFF0F0F0), const Color(0xFF777777)),
-      'shipping' ||
-      'confirmed' => (const Color(0xFFE8F0FE), const Color(0xFF2F62C9)),
-      _ => (const Color(0xFFFFEDF1), const Color(0xFFD93358)),
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    final (lightBg, lightFg, darkFg) = switch (order.status) {
+      'completed' => (0xFFE6F6EC, 0xFF1E8E4A, 0xFF4CD08A),
+      'cancelled' => (0xFFF0F0F0, 0xFF777777, 0xFFAEAEB2),
+      'shipping' || 'confirmed' => (0xFFE8F0FE, 0xFF2F62C9, 0xFF7FA8F5),
+      _ => (0xFFFFEDF1, 0xFFD93358, 0xFFFF6B8B),
     };
+    final foreground = Color(dark ? darkFg : lightFg);
+    final background = dark
+        ? foreground.withValues(alpha: 0.16)
+        : Color(lightBg);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
       decoration: BoxDecoration(

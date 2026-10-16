@@ -103,7 +103,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
               // 1. Tiêu đề Create an account
               Text(
-                'Create an\naccount',
+                'Tạo tài khoản\nmới',
                 style: TextStyle(
                   fontSize: 36,
                   fontWeight: FontWeight.w800,
@@ -149,7 +149,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 controller: _passwordController,
                 obscureText: _isPasswordHidden,
                 decoration: InputDecoration(
-                  hintText: 'Password',
+                  hintText: 'Mật khẩu',
                   hintStyle: TextStyle(
                     color: context.colors.textMuted,
                     fontSize: 14,
@@ -189,7 +189,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 controller: _confirmPasswordController,
                 obscureText: _isConfirmPasswordHidden,
                 decoration: InputDecoration(
-                  hintText: 'Confirm Password',
+                  hintText: 'Xác nhận mật khẩu',
                   hintStyle: TextStyle(
                     color: context.colors.textMuted,
                     fontSize: 14,
@@ -226,19 +226,19 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
               // 5. Điều khoản
               RichText(
-                text: const TextSpan(
+                text: TextSpan(
                   style: TextStyle(
-                    color: Color(0xFF676767),
+                    color: context.colors.textSecondary,
                     fontSize: 12,
                     height: 1.4,
                   ),
-                  children: [
-                    TextSpan(text: 'By clicking the '),
+                  children: const [
+                    TextSpan(text: 'Khi bấm nút '),
                     TextSpan(
-                      text: 'Register',
+                      text: 'Tạo tài khoản',
                       style: TextStyle(color: Color(0xFFFF4B2B)),
                     ),
-                    TextSpan(text: ' button, you agree to the public offer'),
+                    TextSpan(text: ', bạn đồng ý với điều khoản sử dụng'),
                   ],
                 ),
               ),
@@ -270,7 +270,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           ),
                         )
                       : const Text(
-                          'Create Account',
+                          'Tạo tài khoản',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 20,
@@ -280,41 +280,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 ),
               ),
 
-              const SizedBox(height: 40),
-
-              // 7. - OR Continue with -
-              const Center(
-                child: Text(
-                  '- OR Continue with -',
-                  style: TextStyle(color: Color(0xFF575757), fontSize: 12),
-                ),
-              ),
-
-              // const SizedBox(height: 20),
-
-              // // 8. Nút Google
-              // Center(
-              //   child: InkWell(
-              //     onTap: () {
-              //       // Xử lý đăng nhập Google
-              //     },
-              //     borderRadius: BorderRadius.circular(50),
-              //     child: Container(
-              //       padding: const EdgeInsets.all(12),
-              //       decoration: BoxDecoration(
-              //         shape: BoxShape.circle,
-              //         color: context.colors.surfaceAlt,
-              //         border: Border.all(color: Color(0xFFA8A8A9)),
-              //       ),
-              //       child: Image.asset(
-              //         'assets/images/Google.png',
-              //         width: 28,
-              //         height: 28,
-              //       ),
-              //     ),
-              //   ),
-              // ),
-              SizedBox(height: 28),
+              const SizedBox(height: 24),
 
               // 9. Dòng chữ "I Already Have an Account Login"
               Center(
@@ -322,8 +288,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'I Already Have an Account ',
-                      style: TextStyle(color: Color(0xFF575757), fontSize: 14),
+                      'Đã có tài khoản? ',
+                      style: TextStyle(
+                        color: context.colors.textSecondary,
+                        fontSize: 14,
+                      ),
                     ),
                     GestureDetector(
                       onTap: () {
@@ -335,7 +304,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         );
                       },
                       child: const Text(
-                        'Login',
+                        'Đăng nhập',
                         style: TextStyle(
                           color: Color(0xFFF83758),
                           fontSize: 14,

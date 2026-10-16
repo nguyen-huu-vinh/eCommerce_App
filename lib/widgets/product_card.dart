@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'bouncing_button.dart';
 import 'skeleton.dart';
+import 'favorite_button.dart';
 import '../models/product.dart'; // sửa đường dẫn cho khớp vị trí file product.dart
 import '../product_detail_screen.dart'; // sửa đường dẫn cho khớp vị trí file product_detail_screen.dart
 import '../utils/network_image.dart';
@@ -29,6 +30,9 @@ class ProductCard extends StatelessWidget {
   /// Có giá trị thì onTap này được ưu tiên hơn hành vi mở trang chi tiết.
   final VoidCallback? onTap;
 
+  /// Hiện nút trái tim trên ảnh (cần có [product])
+  final bool showFavorite;
+
   const ProductCard({
     super.key,
     required this.title,
@@ -42,6 +46,7 @@ class ProductCard extends StatelessWidget {
     this.id,
     this.product,
     this.onTap,
+    this.showFavorite = true,
   });
 
   @override
@@ -86,7 +91,17 @@ class ProductCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              _ProductCardImage(image: image, heroTag: heroTag),
+              Stack(
+                children: [
+                  _ProductCardImage(image: image, heroTag: heroTag),
+                  if (showFavorite && product != null)
+                    Positioned(
+                      top: 6,
+                      right: 6,
+                      child: FavoriteButton(product: product!),
+                    ),
+                ],
+              ),
 
               // 2. PHẦN THÔNG TIN SẢN PHẨM
               Padding(

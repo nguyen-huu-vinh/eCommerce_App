@@ -129,6 +129,18 @@ ThemeData buildTheme(Brightness brightness) {
       surfaceTintColor: Colors.transparent,
     ),
     iconTheme: IconThemeData(color: c.textPrimary),
+    // Ô nhập sáng viền hồng khi đang gõ, con trỏ và vùng chọn cùng màu thương hiệu
+    inputDecorationTheme: InputDecorationTheme(
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: const BorderSide(color: brandPink, width: 1.5),
+      ),
+    ),
+    textSelectionTheme: TextSelectionThemeData(
+      cursorColor: brandPink,
+      selectionHandleColor: brandPink,
+      selectionColor: brandPink.withValues(alpha: 0.25),
+    ),
     // Chuyển trang kiểu trượt mượt của iOS trên cả hai hệ điều hành
     pageTransitionsTheme: const PageTransitionsTheme(
       builders: {

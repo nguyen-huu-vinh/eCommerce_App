@@ -105,6 +105,7 @@ class WishlistScreen extends StatelessWidget {
                           image: product.imageUrl,
                           id: product.id,
                           product: product,
+                          showFavorite: false,
                         ),
                         Positioned(
                           top: 6,

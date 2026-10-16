@@ -1,5 +1,6 @@
 import 'widgets/empty_state.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'theme/app_theme.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -42,6 +43,28 @@ class CartScreen extends StatelessWidget {
       ),
     );
     if (confirmed == true) controller.clear();
+  }
+
+  /// Xóa một dòng và cho phép hoàn tác trong vài giây
+  void _removeWithUndo(BuildContext context, CartItem item) {
+    controller.remove(item);
+    HapticFeedback.lightImpact();
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(
+            'Đã xóa "${item.product.name}"',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          action: SnackBarAction(
+            label: 'Hoàn tác',
+            textColor: const Color(0xFFFF8DA8),
+            onPressed: () => controller.restore(item),
+          ),
+        ),
+      );
   }
 
   @override
@@ -110,12 +133,29 @@ class CartScreen extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               for (final item in items) ...[
-                _CartItemTile(
-                  item: item,
-                  canIncrease: controller.canAddMore(item.product),
-                  onQuantityChanged: (quantity) =>
-                      controller.setQuantity(item, quantity),
-                  onRemove: () => controller.remove(item),
+                Dismissible(
+                  key: ValueKey('cart-${item.product.id}-${item.size}'),
+                  direction: DismissDirection.endToStart,
+                  onDismissed: (_) => _removeWithUndo(context, item),
+                  background: Container(
+                    alignment: Alignment.centerRight,
+                    padding: const EdgeInsets.only(right: 24),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFD32F2F),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(
+                      Icons.delete_outline_rounded,
+                      color: Colors.white,
+                    ),
+                  ),
+                  child: _CartItemTile(
+                    item: item,
+                    canIncrease: controller.canAddMore(item.product),
+                    onQuantityChanged: (quantity) =>
+                        controller.setQuantity(item, quantity),
+                    onRemove: () => _removeWithUndo(context, item),
+                  ),
                 ),
                 const SizedBox(height: 10),
               ],

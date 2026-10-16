@@ -85,7 +85,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               ),
               const SizedBox(height: 20),
               Text(
-                'Forgot password?',
+                'Quên mật khẩu?',
                 style: TextStyle(
                   fontSize: 36,
                   fontWeight: FontWeight.w800,

@@ -228,10 +228,13 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   Widget _buildCouponBox() {
     final coupon = _coupon;
     if (coupon != null) {
+      final dark = Theme.of(context).brightness == Brightness.dark;
       return Container(
         padding: const EdgeInsets.fromLTRB(12, 8, 4, 8),
         decoration: BoxDecoration(
-          color: const Color(0xFFE6F6EC),
+          color: dark
+              ? const Color(0xFF4CD08A).withValues(alpha: 0.14)
+              : const Color(0xFFE6F6EC),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Row(
@@ -260,7 +263,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       coupon.description!,
                       style: GoogleFonts.montserrat(
                         fontSize: 11,
-                        color: const Color(0xFF4F7A5E),
+                        color: dark ? const Color(0xFF9BD6B4) : const Color(0xFF4F7A5E),
                       ),
                     ),
                 ],
@@ -647,7 +650,9 @@ class _LoginRequiredCard extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.all(14),
     decoration: BoxDecoration(
-      color: const Color(0xFFFFEDF1),
+      color: Theme.of(context).brightness == Brightness.dark
+          ? brandPink.withValues(alpha: 0.14)
+          : const Color(0xFFFFEDF1),
       borderRadius: BorderRadius.circular(10),
     ),
     child: Row(
@@ -660,7 +665,9 @@ class _LoginRequiredCard extends StatelessWidget {
             style: GoogleFonts.montserrat(
               fontSize: 12,
               fontWeight: FontWeight.w600,
-              color: const Color(0xFF7A1D33),
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? const Color(0xFFFFB3C2)
+                  : const Color(0xFF7A1D33),
             ),
           ),
         ),

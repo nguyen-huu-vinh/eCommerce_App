@@ -111,6 +111,12 @@ class CartController extends ChangeNotifier {
     _changed();
   }
 
+  /// Đặt lại một dòng đã xóa (hoàn tác)
+  void restore(CartItem item) {
+    _items[item.key] = item;
+    _changed();
+  }
+
   void clear() {
     if (_items.isEmpty) return;
     _items.clear();

@@ -59,6 +59,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   String? _error;
 
   int _selectedSizeIndex = 0;
+  int _quantity = 1;
   int _currentImageIndex = 0;
 
   @override
@@ -132,12 +133,18 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       _showMessage('Sản phẩm này đã hết hàng');
       return false;
     }
-    if (!scope.controller.add(product, _selectedSize)) {
+    var added = 0;
+    for (var i = 0; i < _quantity; i++) {
+      if (!scope.controller.add(product, _selectedSize)) break;
+      added++;
+    }
+    if (added == 0) {
       _showMessage(
         'Giỏ hàng đã có đủ ${product.stock} sản phẩm còn lại trong kho',
       );
       return false;
     }
+    if (mounted) setState(() => _quantity = 1);
     HapticFeedback.lightImpact();
     return true;
   }
@@ -667,6 +674,50 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
           const SizedBox(height: 20),
 
+          // SỐ LƯỢNG
+          if (product.inStock) ...[
+            Row(
+              children: [
+                Text(
+                  'Số lượng',
+                  style: GoogleFonts.montserrat(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const Spacer(),
+                _qtyButton(
+                  Icons.remove,
+                  _quantity > 1 ? () => setState(() => _quantity--) : null,
+                ),
+                SizedBox(
+                  width: 44,
+                  child: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 150),
+                    transitionBuilder: (child, anim) =>
+                        ScaleTransition(scale: anim, child: child),
+                    child: Text(
+                      '$_quantity',
+                      key: ValueKey(_quantity),
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.montserrat(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ),
+                _qtyButton(
+                  Icons.add,
+                  _quantity < (product.stock ?? 99)
+                      ? () => setState(() => _quantity++)
+                      : null,
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+          ],
+
           // NÚT MUA HÀNG (mờ đi khi hết hàng)
           Opacity(
             opacity: product.inStock ? 1 : 0.45,
@@ -774,6 +825,25 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       ),
     );
   }
+
+  Widget _qtyButton(IconData icon, VoidCallback? onTap) => BouncingButton(
+    onTap: onTap ?? () {},
+    child: Container(
+      width: 34,
+      height: 34,
+      decoration: BoxDecoration(
+        color: context.colors.surfaceAlt,
+        shape: BoxShape.circle,
+      ),
+      child: Icon(
+        icon,
+        size: 18,
+        color: onTap == null
+            ? context.colors.textMuted
+            : context.colors.textPrimary,
+      ),
+    ),
+  );
 
   Widget _buildRating(double rating, int? count) {
     final full = rating.floor();
