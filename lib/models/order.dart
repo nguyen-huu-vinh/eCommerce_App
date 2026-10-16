@@ -39,6 +39,14 @@ String _formatTime(DateTime d) {
   return '${two(d.hour)}:${two(d.minute)} ${two(d.day)}/${two(d.month)}/${d.year}';
 }
 
+const returnStatusLabels = {
+  'requested': 'Đang chờ cửa hàng duyệt yêu cầu trả hàng',
+  'approved': 'Đã duyệt trả hàng, vui lòng gửi hàng về cửa hàng',
+  'rejected': 'Yêu cầu trả hàng bị từ chối',
+  'received': 'Cửa hàng đã nhận hàng trả, sắp hoàn tiền',
+  'refunded': 'Đã hoàn tiền',
+};
+
 const orderStatusLabels = {
   'pending': 'Chờ xác nhận',
   'confirmed': 'Đã xác nhận',
@@ -107,6 +115,9 @@ class Order {
   final double discount;
   final String? couponCode;
   final bool paid;
+  final String? returnStatus;
+  final String? returnNote;
+  final double? refundAmount;
   final DateTime createdAt;
   final List<OrderLine> items;
   final BankTransfer? bankTransfer;
@@ -126,6 +137,9 @@ class Order {
     this.discount = 0,
     this.couponCode,
     this.paid = false,
+    this.returnStatus,
+    this.returnNote,
+    this.refundAmount,
     required this.createdAt,
     required this.items,
     this.bankTransfer,
@@ -145,6 +159,13 @@ class Order {
       discount: (json['discount'] as num?)?.toDouble() ?? 0,
       couponCode: json['coupon_code'] as String?,
       paid: json['paid'] as bool? ?? false,
+      returnStatus:
+          (json['return_request'] as Map<String, dynamic>?)?['status']
+              as String?,
+      returnNote:
+          (json['return_request'] as Map<String, dynamic>?)?['admin_note']
+              as String?,
+      refundAmount: (json['refund_amount'] as num?)?.toDouble(),
       createdAt: _parseServerTime(json['created_at'] as String),
       items: (json['items'] as List? ?? const [])
           .map((item) => OrderLine.fromJson(item as Map<String, dynamic>))
@@ -173,6 +194,13 @@ class Order {
         : 'Thanh toán khi nhận hàng';
     return paid ? '$method · Đã thanh toán' : method;
   }
+
+  /// Còn có thể yêu cầu trả hàng (server vẫn kiểm tra hạn 7 ngày)
+  bool get canRequestReturn => status == 'completed' && returnStatus == null;
+
+  String? get returnLabel => returnStatus == null
+      ? null
+      : returnStatusLabels[returnStatus] ?? returnStatus;
 
   String get statusLabel => orderStatusLabels[status] ?? status;
 

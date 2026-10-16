@@ -1,4 +1,5 @@
 import 'utils/password_rules.dart';
+import 'verify_email_screen.dart';
 
 import 'dart:convert';
 
@@ -75,9 +76,22 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
     setState(() => _isLoading = true);
     try {
-      await AuthService.register(email: email, password: password);
+      final needsVerification = await AuthService.register(
+        email: email,
+        password: password,
+      );
 
       if (!mounted) return;
+      if (needsVerification) {
+        _showMessage('Đã gửi mã xác minh tới email của bạn');
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => VerifyEmailScreen(email: email),
+          ),
+        );
+        return;
+      }
       _showMessage('Đăng ký thành công, vui lòng đăng nhập');
       Navigator.pushReplacement(
         context,

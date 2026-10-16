@@ -5,6 +5,7 @@ import 'theme/app_theme.dart';
 import 'signup_screen.dart';
 import 'forgot_password_screen.dart';
 import 'get_started_screen.dart';
+import 'verify_email_screen.dart';
 // Sửa đường dẫn này cho khớp vị trí file auth_service.dart trong project của bạn
 import '../services/auth_service.dart';
 import '../services/push_service.dart';
@@ -77,6 +78,16 @@ class _LoginScreenState extends State<LoginScreen> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const GetStartedScreen()),
+      );
+    } on EmailNotVerifiedException {
+      if (!mounted) return;
+      AuthService.resendVerification(email).catchError((Object _) {});
+      _showMessage('Email chưa được xác minh, đã gửi lại mã OTP');
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => VerifyEmailScreen(email: email),
+        ),
       );
     } on AuthException catch (e) {
       // Hiện đúng lý do từ máy chủ, VD sai mật khẩu

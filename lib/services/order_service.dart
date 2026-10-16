@@ -152,6 +152,25 @@ class OrderService {
   }
 
   /// Khách tự hủy đơn khi đơn vẫn đang chờ xác nhận
+  /// Gửi yêu cầu trả hàng cho đơn đã giao
+  static Future<Order> requestReturn(int id, String reason) async {
+    final res = await http
+        .post(
+          Uri.parse('$baseUrl/orders/$id/return'),
+          headers: {
+            ...await _authHeaders(),
+            'Content-Type': 'application/json',
+          },
+          body: jsonEncode({'reason': reason.trim()}),
+        )
+        .timeout(_timeout);
+    if (res.statusCode == 401) await _throwIfFailed(res);
+    if (res.statusCode != 201) throw OrderException(_errorMessage(res));
+    return Order.fromJson(
+      jsonDecode(utf8.decode(res.bodyBytes)) as Map<String, dynamic>,
+    );
+  }
+
   static Future<Order> cancelOrder(int id, {String? reason}) async {
     final res = await http
         .post(
@@ -180,6 +199,12 @@ class OrderService {
 
   static Future<void> _throwIfFailed(http.Response res) async {
     if (res.statusCode == 401) {
+      // Access token hết hạn: làm mới bằng refresh token, người dùng chỉ cần thử lại
+      if (await AuthService.refreshSession()) {
+        throw OrderException(
+          'Phiên đăng nhập vừa được làm mới, vui lòng thử lại',
+        );
+      }
       await AuthService.logout();
       throw OrderException(
         'Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại',

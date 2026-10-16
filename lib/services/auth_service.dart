@@ -17,6 +17,11 @@ class AuthException implements Exception {
   String toString() => message;
 }
 
+/// Tài khoản chưa xác minh email: đăng nhập phải qua bước nhập OTP
+class EmailNotVerifiedException extends AuthException {
+  EmailNotVerifiedException(super.message);
+}
+
 class AuthService {
   static const _storage = FlutterSecureStorage();
 
@@ -30,9 +35,66 @@ class AuthService {
   }
 
   static const _tokenKey = 'access_token';
+  static const _refreshKey = 'refresh_token';
   static const _timeout = Duration(seconds: 70);
 
-  static Future<void> register({
+  static Future<void> _saveSession(Map<String, dynamic> data) async {
+    await _storage.write(key: _tokenKey, value: data['access_token'] as String);
+    final refresh = data['refresh_token'] as String?;
+    if (refresh != null) {
+      await _storage.write(key: _refreshKey, value: refresh);
+    }
+  }
+
+  /// Đổi refresh token lấy phiên mới. False nếu không có hoặc đã hết hạn.
+  static Future<bool> refreshSession() async {
+    final refresh = await _storage.read(key: _refreshKey);
+    if (refresh == null) return false;
+    try {
+      final res = await http
+          .post(
+            Uri.parse('$baseUrl/refresh'),
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({'refresh_token': refresh}),
+          )
+          .timeout(_timeout);
+      if (res.statusCode != 200) return false;
+      await _saveSession(jsonDecode(res.body) as Map<String, dynamic>);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// Xác minh email bằng OTP; thành công thì đăng nhập luôn.
+  static Future<void> verifyEmail({
+    required String email,
+    required String otp,
+  }) async {
+    final res = await http
+        .post(
+          Uri.parse('$baseUrl/verify-email'),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({'email': email.trim(), 'otp': otp.trim()}),
+        )
+        .timeout(_timeout);
+    if (res.statusCode != 200) throw AuthException(_errorMessage(res));
+    await _saveSession(jsonDecode(res.body) as Map<String, dynamic>);
+  }
+
+  static Future<void> resendVerification(String email) async {
+    final res = await http
+        .post(
+          Uri.parse('$baseUrl/resend-verification'),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({'email': email.trim()}),
+        )
+        .timeout(_timeout);
+    if (res.statusCode != 200) throw AuthException(_errorMessage(res));
+  }
+
+  /// True nếu server yêu cầu xác minh email (đã gửi OTP) trước khi đăng nhập.
+  static Future<bool> register({
     required String email,
     required String password,
     String? fullName,
@@ -49,7 +111,10 @@ class AuthService {
         )
         .timeout(_timeout);
 
-    if (res.statusCode == 201) return;
+    if (res.statusCode == 201) {
+      final data = jsonDecode(res.body) as Map<String, dynamic>;
+      return data['verification_required'] == true;
+    }
     throw AuthException(_errorMessage(res));
   }
 
@@ -64,13 +129,14 @@ class AuthService {
         )
         .timeout(_timeout);
 
+    if (res.statusCode == 403) {
+      throw EmailNotVerifiedException(_errorMessage(res));
+    }
     if (res.statusCode != 200) {
       throw AuthException(_errorMessage(res));
     }
 
-    final data = jsonDecode(res.body) as Map<String, dynamic>;
-    final token = data['access_token'] as String;
-    await _storage.write(key: _tokenKey, value: token);
+    await _saveSession(jsonDecode(res.body) as Map<String, dynamic>);
   }
 
   /// Đăng nhập bằng Google. Client ID truyền lúc build:
@@ -123,8 +189,7 @@ class AuthService {
         )
         .timeout(_timeout);
     if (res.statusCode != 200) throw AuthException(_errorMessage(res));
-    final data = jsonDecode(res.body) as Map<String, dynamic>;
-    await _storage.write(key: _tokenKey, value: data['access_token'] as String);
+    await _saveSession(jsonDecode(res.body) as Map<String, dynamic>);
   }
 
   static Future<String?> getToken() => _storage.read(key: _tokenKey);
@@ -151,6 +216,8 @@ class AuthService {
     } catch (_) {
       // Token hỏng: coi như chưa đăng nhập
     }
+    // Access token hết hạn: thử đổi bằng refresh token trước khi bắt đăng nhập lại
+    if (await refreshSession()) return true;
     await logout();
     return false;
   }
@@ -159,7 +226,24 @@ class AuthService {
     if (_googleReady) GoogleSignIn.instance.signOut().catchError((Object _) {});
     avatarUrl.value = null;
     NotificationService.unread.value = 0;
-    return _storage.delete(key: _tokenKey);
+    return _clearSession();
+  }
+
+  static Future<void> _clearSession() async {
+    final refresh = await _storage.read(key: _refreshKey);
+    if (refresh != null) {
+      // Thu hồi trên server, không chờ và bỏ qua lỗi mạng
+      http
+          .post(
+            Uri.parse('$baseUrl/logout'),
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({'refresh_token': refresh}),
+          )
+          .timeout(const Duration(seconds: 10))
+          .then<void>((_) {}, onError: (Object _) {});
+    }
+    await _storage.delete(key: _refreshKey);
+    await _storage.delete(key: _tokenKey);
   }
 
   static Future<Map<String, dynamic>?> me() async {

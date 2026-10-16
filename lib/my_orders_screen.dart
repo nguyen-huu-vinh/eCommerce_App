@@ -198,6 +198,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
 
   late Order _order = widget.order;
   bool _cancelling = false;
+  bool _returning = false;
 
   @override
   void initState() {
@@ -272,6 +273,59 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
       if (mounted) _showMessage(_errorText(error));
     } finally {
       if (mounted) setState(() => _cancelling = false);
+    }
+  }
+
+  Future<void> _requestReturn() async {
+    final controller = TextEditingController();
+    final reason = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(
+          'Yêu cầu trả hàng',
+          style: GoogleFonts.montserrat(
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        content: TextField(
+          controller: controller,
+          maxLines: 3,
+          maxLength: 500,
+          autofocus: true,
+          decoration: InputDecoration(
+            hintText: 'Mô tả lý do trả hàng (ít nhất 5 ký tự)',
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: Text('Đóng'),
+          ),
+          TextButton(
+            onPressed: () {
+              if (controller.text.trim().length >= 5) {
+                Navigator.pop(dialogContext, controller.text.trim());
+              }
+            },
+            child: Text('Gửi yêu cầu'),
+          ),
+        ],
+      ),
+    );
+    controller.dispose();
+    if (reason == null || !mounted) return;
+
+    setState(() => _returning = true);
+    try {
+      final order = await OrderService.requestReturn(_order.id, reason);
+      if (!mounted) return;
+      setState(() => _order = order);
+      _showMessage('Đã gửi yêu cầu trả hàng');
+    } catch (error) {
+      if (mounted) _showMessage(_errorText(error));
+    } finally {
+      if (mounted) setState(() => _returning = false);
     }
   }
 
@@ -376,6 +430,70 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                 ],
               ),
             ),
+            if (order.returnLabel != null) ...[
+              SizedBox(height: 10),
+              _Section(
+                title: 'Trả hàng / hoàn tiền',
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      order.returnLabel!,
+                      style: GoogleFonts.montserrat(fontSize: 13),
+                    ),
+                    if ((order.returnNote ?? '').isNotEmpty) ...[
+                      SizedBox(height: 6),
+                      Text(
+                        'Ghi chú: ${order.returnNote}',
+                        style: GoogleFonts.montserrat(
+                          fontSize: 12,
+                          color: context.colors.textSecondary,
+                        ),
+                      ),
+                    ],
+                    if (order.refundAmount != null) ...[
+                      SizedBox(height: 6),
+                      Text(
+                        'Đã hoàn ${formatVnd(order.refundAmount!)}',
+                        style: GoogleFonts.montserrat(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+            if (order.canRequestReturn) ...[
+              SizedBox(height: 16),
+              SizedBox(
+                height: 48,
+                child: OutlinedButton(
+                  onPressed: _returning ? null : _requestReturn,
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: _pink,
+                    side: BorderSide(color: _pink),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: _returning
+                      ? SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2.2),
+                        )
+                      : Text(
+                          'Yêu cầu trả hàng',
+                          style: GoogleFonts.montserrat(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                ),
+              ),
+            ],
             if (order.canCancel) ...[
               SizedBox(height: 16),
               SizedBox(
