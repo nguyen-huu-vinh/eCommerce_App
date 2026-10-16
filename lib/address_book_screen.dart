@@ -197,7 +197,7 @@ class _AddressCard extends StatelessWidget {
   final VoidCallback onDelete;
   final VoidCallback? onSetDefault;
 
-  _AddressCard({
+  const _AddressCard({
     required this.address,
     required this.onTap,
     required this.onEdit,

@@ -86,7 +86,7 @@ class CustomBottomNavBar extends StatelessWidget {
                     borderRadius: BorderRadius.circular(32),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.06),
+                        color: Colors.black.withValues(alpha: 0.06),
                         blurRadius: 24,
                         offset: const Offset(0, 8),
                       ),
@@ -105,12 +105,12 @@ class CustomBottomNavBar extends StatelessWidget {
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                             colors: [
-                              context.colors.surface.withOpacity(0.78),
-                              context.colors.surface.withOpacity(0.55),
+                              context.colors.surface.withValues(alpha: 0.78),
+                              context.colors.surface.withValues(alpha: 0.55),
                             ],
                           ),
                           border: Border.all(
-                            color: context.colors.border.withOpacity(0.8),
+                            color: context.colors.border.withValues(alpha: 0.8),
                             width: 1,
                           ),
                         ),
@@ -159,7 +159,7 @@ class CustomBottomNavBar extends StatelessWidget {
             duration: const Duration(milliseconds: 250),
             curve: Curves.easeInOut,
             decoration: BoxDecoration(
-              color: isSelected ? _pink.withOpacity(0.14) : Colors.transparent,
+              color: isSelected ? _pink.withValues(alpha: 0.14) : Colors.transparent,
               borderRadius: BorderRadius.circular(24),
             ),
             child: Padding(

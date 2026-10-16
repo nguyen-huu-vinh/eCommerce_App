@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'bouncing_button.dart';
-import '../trending_products_screen.dart';
 
 class TrendingProductsSection extends StatelessWidget {
   final String title;

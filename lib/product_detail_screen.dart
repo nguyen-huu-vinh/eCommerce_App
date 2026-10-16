@@ -1,9 +1,14 @@
 import 'package:flutter/services.dart';
+
 import 'utils/fly_to_cart.dart';
 import 'widgets/image_viewer.dart';
 import 'widgets/skeleton.dart';
+import 'widgets/product_detail_parts.dart';
+
 import 'package:flutter/material.dart';
+
 import 'theme/app_theme.dart';
+
 import 'package:google_fonts/google_fonts.dart';
 
 import 'widgets/bouncing_button.dart';
@@ -258,7 +263,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               child: product != null
                   ? _buildContent(product)
                   : _isLoading
-                  ? const _DetailSkeleton()
+                  ? const DetailSkeleton()
                   : _buildError(),
             ),
           ],
@@ -269,21 +274,22 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
   // 1. TOP BAR (BACK & CART)
   Widget _buildTopBar() {
-    Widget circle(
-      IconData icon,
-      VoidCallback onTap, {
-      Color? color,
-    }) => BouncingButton(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: context.colors.surface,
-          shape: BoxShape.circle,
-        ),
-        child: Icon(icon, size: 20, color: color ?? context.colors.textPrimary),
-      ),
-    );
+    Widget circle(IconData icon, VoidCallback onTap, {Color? color}) =>
+        BouncingButton(
+          onTap: onTap,
+          child: Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: context.colors.surface,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              icon,
+              size: 20,
+              color: color ?? context.colors.textPrimary,
+            ),
+          ),
+        );
     final wishlist = WishlistController.instance;
 
     return Padding(
@@ -525,7 +531,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       width: 36,
                       height: 36,
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.9),
+                        color: Colors.white.withValues(alpha: 0.9),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
@@ -633,13 +639,13 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           // RATING (chỉ hiện khi backend có dữ liệu)
           if (product.rating != null) ...[
             const SizedBox(height: 8),
-            _buildRating(product.rating!, product.ratingCount),
+            RatingStars(rating: product.rating!, count: product.ratingCount),
           ],
 
           const SizedBox(height: 8),
 
           // GIÁ TIỀN
-          _buildPrice(product),
+          PriceRow(product: product),
 
           // TỒN KHO: chỉ nhắc khi hết hoặc sắp hết
           if (!product.inStock || (product.stock ?? 99) <= 5) ...[
@@ -686,9 +692,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   ),
                 ),
                 const Spacer(),
-                _qtyButton(
-                  Icons.remove,
-                  _quantity > 1 ? () => setState(() => _quantity--) : null,
+                QuantityButton(
+                  icon: Icons.remove,
+                  onTap: _quantity > 1
+                      ? () => setState(() => _quantity--)
+                      : null,
                 ),
                 SizedBox(
                   width: 44,
@@ -707,9 +715,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     ),
                   ),
                 ),
-                _qtyButton(
-                  Icons.add,
-                  _quantity < (product.stock ?? 99)
+                QuantityButton(
+                  icon: Icons.add,
+                  onTap: _quantity < (product.stock ?? 99)
                       ? () => setState(() => _quantity++)
                       : null,
                 ),
@@ -826,94 +834,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     );
   }
 
-  Widget _qtyButton(IconData icon, VoidCallback? onTap) => BouncingButton(
-    onTap: onTap ?? () {},
-    child: Container(
-      width: 34,
-      height: 34,
-      decoration: BoxDecoration(
-        color: context.colors.surfaceAlt,
-        shape: BoxShape.circle,
-      ),
-      child: Icon(
-        icon,
-        size: 18,
-        color: onTap == null
-            ? context.colors.textMuted
-            : context.colors.textPrimary,
-      ),
-    ),
-  );
-
-  Widget _buildRating(double rating, int? count) {
-    final full = rating.floor();
-    final hasHalf = rating - full >= 0.5;
-
-    return Row(
-      children: [
-        ...List.generate(5, (i) {
-          IconData icon = Icons.star_border;
-          if (i < full) {
-            icon = Icons.star;
-          } else if (i == full && hasHalf) {
-            icon = Icons.star_half;
-          }
-          return Icon(icon, size: 16, color: Color(0xFFEDB310));
-        }),
-        if (count != null) ...[
-          SizedBox(width: 6),
-          Text(
-            '$count',
-            style: GoogleFonts.montserrat(
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-              color: context.colors.textSecondary,
-            ),
-          ),
-        ],
-      ],
-    );
-  }
-
-  Widget _buildPrice(Product product) {
-    final original = product.originalPrice;
-    final hasDiscount = original != null && original > product.price;
-
-    return Row(
-      children: [
-        if (hasDiscount) ...[
-          Text(
-            formatVnd(original),
-            style: GoogleFonts.montserrat(
-              fontSize: 14,
-              decoration: TextDecoration.lineThrough,
-              color: context.colors.textSecondary,
-            ),
-          ),
-          const SizedBox(width: 8),
-        ],
-        Text(
-          formatVnd(product.price),
-          style: GoogleFonts.montserrat(
-            fontSize: 16,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        if (hasDiscount) ...[
-          const SizedBox(width: 8),
-          Text(
-            '${((original - product.price) / original * 100).round()}% Off',
-            style: GoogleFonts.montserrat(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: _pink,
-            ),
-          ),
-        ],
-      ],
-    );
-  }
-
   // Thẻ trong mục Similar To: bấm vào lại mở chính trang này cho sản phẩm khác
   Widget _buildSimilarCard(Product p) {
     return BouncingButton(
@@ -986,38 +906,4 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       ),
     );
   }
-}
-
-/// Khung chờ của trang chi tiết: ảnh lớn, các dòng chữ và hai nút.
-class _DetailSkeleton extends StatelessWidget {
-  const _DetailSkeleton();
-
-  @override
-  Widget build(BuildContext context) => const Shimmer(
-    child: Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SkeletonBox(height: 260, width: double.infinity, radius: 16),
-          SizedBox(height: 24),
-          SkeletonBox(height: 22, width: 240),
-          SizedBox(height: 12),
-          SkeletonBox(height: 14, width: double.infinity),
-          SizedBox(height: 8),
-          SkeletonBox(height: 14, width: 180),
-          SizedBox(height: 16),
-          SkeletonBox(height: 20, width: 120),
-          SizedBox(height: 28),
-          Row(
-            children: [
-              Expanded(child: SkeletonBox(height: 48, radius: 10)),
-              SizedBox(width: 12),
-              Expanded(child: SkeletonBox(height: 48, radius: 10)),
-            ],
-          ),
-        ],
-      ),
-    ),
-  );
 }

@@ -5,7 +5,6 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'bouncing_button.dart';
 import '../product_detail_screen.dart';
-import '../models/product.dart';
 
 class PromoBannerSlider extends StatefulWidget {
   const PromoBannerSlider({super.key});

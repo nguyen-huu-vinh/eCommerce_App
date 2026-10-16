@@ -28,7 +28,7 @@ class SpecialOffersCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -41,7 +41,7 @@ class SpecialOffersCard extends StatelessWidget {
             onTap:
                 onOfferTap ??
                 () {
-                  print('Đã bấm vào Special Offer Button!');
+                  debugPrint('Đã bấm vào Special Offer Button!');
                 },
             child: SizedBox(
               width: 75,

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'home_screen.dart';
 import 'main_layout.dart';
 
 class GetStartedScreen extends StatelessWidget {
@@ -29,8 +28,8 @@ class GetStartedScreen extends StatelessWidget {
                 end: Alignment.bottomCenter,
                 colors: [
                   Colors.transparent,
-                  Colors.black.withOpacity(0.3),
-                  Colors.black.withOpacity(0.8),
+                  Colors.black.withValues(alpha: 0.3),
+                  Colors.black.withValues(alpha: 0.8),
                 ],
                 stops: [0.4, 0.7, 1.0],
               ),

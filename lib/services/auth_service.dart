@@ -104,8 +104,9 @@ class AuthService {
     try {
       final account = await google.authenticate();
       final token = account.authentication.idToken;
-      if (token == null)
+      if (token == null) {
         throw AuthException('Không lấy được thông tin từ Google');
+      }
       idToken = token;
     } on GoogleSignInException catch (e) {
       if (e.code == GoogleSignInExceptionCode.canceled) {

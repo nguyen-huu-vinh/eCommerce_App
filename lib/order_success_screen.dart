@@ -109,7 +109,7 @@ class _InfoRow extends StatelessWidget {
   final String label;
   final String value;
 
-  _InfoRow({required this.label, required this.value});
+  const _InfoRow({required this.label, required this.value});
 
   @override
   Widget build(BuildContext context) => Row(

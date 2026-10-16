@@ -11,7 +11,7 @@ class NewArrivalsBanner extends StatelessWidget {
   final String buttonText;
   final VoidCallback? onViewAllTap;
 
-  NewArrivalsBanner({
+  const NewArrivalsBanner({
     super.key,
     this.imageAsset = 'assets/images/hot_summer_sale.png',
     this.title = 'New Arrivals',
@@ -34,7 +34,7 @@ class NewArrivalsBanner extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 8,
             offset: Offset(0, 2),
           ),

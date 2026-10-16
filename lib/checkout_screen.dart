@@ -684,7 +684,7 @@ class _LoginRequiredCard extends StatelessWidget {
 class _SectionTitle extends StatelessWidget {
   final String title;
 
-  _SectionTitle({required this.title});
+  const _SectionTitle({required this.title});
 
   @override
   Widget build(BuildContext context) => Text(

@@ -401,7 +401,7 @@ class _SummaryRow extends StatelessWidget {
   final String value;
   final bool emphasized;
 
-  _SummaryRow({
+  const _SummaryRow({
     required this.label,
     required this.value,
     this.emphasized = false,

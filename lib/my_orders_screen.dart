@@ -413,7 +413,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
 class _StatusBanner extends StatelessWidget {
   final Order order;
 
-  _StatusBanner({required this.order});
+  const _StatusBanner({required this.order});
 
   @override
   Widget build(BuildContext context) {
@@ -488,7 +488,7 @@ class _StatusBanner extends StatelessWidget {
 class _ProgressStepper extends StatelessWidget {
   final Order order;
 
-  _ProgressStepper({required this.order});
+  const _ProgressStepper({required this.order});
 
   @override
   Widget build(BuildContext context) {
@@ -900,7 +900,7 @@ class _Section extends StatelessWidget {
   final String? title;
   final Widget child;
 
-  _Section({this.title, required this.child});
+  const _Section({this.title, required this.child});
 
   @override
   Widget build(BuildContext context) {
@@ -937,7 +937,7 @@ class _DetailText extends StatelessWidget {
   final String text;
   final bool bold;
 
-  _DetailText(this.text, {this.bold = false});
+  const _DetailText(this.text, {this.bold = false});
 
   @override
   Widget build(BuildContext context) => Text(
@@ -956,7 +956,7 @@ class _SummaryRow extends StatelessWidget {
   final String value;
   final bool emphasized;
 
-  _SummaryRow({
+  const _SummaryRow({
     required this.label,
     required this.value,
     this.emphasized = false,

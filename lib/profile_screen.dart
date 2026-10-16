@@ -359,7 +359,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             trailing: Switch(
               value: isDark,
-              activeColor: Colors.white,
+              activeThumbColor: Colors.white,
               activeTrackColor: _pink,
               onChanged: toggle,
             ),
@@ -424,7 +424,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Container(
                   padding: const EdgeInsets.all(4),
                   decoration: BoxDecoration(
-                    color: _pink.withOpacity(0.16),
+                    color: _pink.withValues(alpha: 0.16),
                     shape: BoxShape.circle,
                   ),
                   child: const UserAvatar(
@@ -483,7 +483,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 5),
             decoration: BoxDecoration(
-              color: _pink.withOpacity(0.14),
+              color: _pink.withValues(alpha: 0.14),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(

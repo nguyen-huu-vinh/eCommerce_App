@@ -120,7 +120,7 @@ class _CopyRow extends StatelessWidget {
   final bool highlight;
   final VoidCallback? onCopy;
 
-  _CopyRow({
+  const _CopyRow({
     required this.label,
     required this.value,
     this.highlight = false,
